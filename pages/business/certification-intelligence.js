@@ -2,7 +2,7 @@ import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import AiInsightCard from "@/components/business/ui/AiInsightCard";
-import { CERTIFICATION_INTEL } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 const STATUS_VARIANTS = {
   Held: "green",
@@ -17,6 +17,9 @@ const DEMAND_VARIANTS = {
 };
 
 export default function CertificationIntelligencePage() {
+  const { data } = useWorkspace();
+  const CERTIFICATION_INTEL = data.certificationIntel || [];
+
   return (
     <>
       <BusinessPageHeader
@@ -24,10 +27,6 @@ export default function CertificationIntelligencePage() {
         title="Certification Intelligence"
         description="Discover and compare certifications relevant to your industry and expansion plans."
       />
-
-      <div className="mb-6 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary">
-        <strong>Demo data.</strong> All certification intelligence is illustrative only.
-      </div>
 
       <AiInsightCard
         module="certification-intelligence"

@@ -15,7 +15,7 @@ export default function BusinessHelpPage() {
   ];
 
   const contactItems = [
-    { label: "Email Support", href: "mailto:support@nortextextiles.demo", icon: Mail },
+    { label: "Email Support", href: "mailto:support@regulens.ng", icon: Mail },
     { label: "Company", href: "/business/about", icon: Shield },
   ];
 

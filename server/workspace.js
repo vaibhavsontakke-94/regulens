@@ -91,35 +91,45 @@ function revenueBand(profile) {
   return profile?.scale?.revenueRange || "";
 }
 
+const BASE_OBLIGATIONS = ["CAC Registration", "TIN (Tax Identification)", "VAT Registration", "PENCOM", "NSITF", "ITF Levy"];
+
 function buildCompliance(profile, overrides = {}) {
+  const hasProfile = Boolean(profile);
   const items = [];
   const registrations = profile?.compliance?.registrations || [];
   const licenses = profile?.compliance?.licenses || [];
+  const included = new Set();
+
+  const push = (name, authority, jurisdiction, status, dueDate, risk) => {
+    if (included.has(name)) return;
+    included.add(name);
+    items.push({
+      id: `CR-${String(items.length + 1).padStart(2, "0")}`,
+      requirement: name,
+      authority,
+      jurisdiction,
+      status,
+      dueDate,
+      risk,
+    });
+  };
+
+  if (hasProfile) {
+    BASE_OBLIGATIONS.forEach((key) => {
+      const template = REGISTRATION_OBLIGATIONS[key];
+      if (!template) return;
+      push(template.requirement, template.authority, template.jurisdiction, "Compliant", endDate(0, 2), template.risk);
+    });
+  }
 
   registrations.forEach((reg) => {
     const template = REGISTRATION_OBLIGATIONS[reg];
     if (!template) return;
-    items.push({
-      id: `CR-${String(items.length + 1).padStart(2, "0")}`,
-      requirement: template.requirement,
-      authority: template.authority,
-      jurisdiction: template.jurisdiction,
-      status: "Compliant",
-      dueDate: endDate(0, 2),
-      risk: template.risk,
-    });
+    push(template.requirement, template.authority, template.jurisdiction, "Compliant", endDate(0, 2), template.risk);
   });
 
   licenses.forEach((license) => {
-    items.push({
-      id: `CR-${String(items.length + 1).padStart(2, "0")}`,
-      requirement: license.name,
-      authority: license.authority,
-      jurisdiction: "State",
-      status: STATUS_MAP[license.status] || "Under Review",
-      dueDate: license.expiry || endDate(0, 6),
-      risk: license.status === "Expired" || license.status === "Expiring Soon" ? "High" : license.status === "Pending" ? "Medium" : "Low",
-    });
+    push(license.name, license.authority, "State", STATUS_MAP[license.status] || "Under Review", license.expiry || endDate(0, 6), license.status === "Expired" || license.status === "Expiring Soon" ? "High" : license.status === "Pending" ? "Medium" : "Low");
   });
 
   return items.map((item) => ({

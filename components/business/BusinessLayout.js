@@ -7,6 +7,7 @@ import { BusinessProfileProvider } from "./BusinessProfileContext";
 import { WorkspaceProvider } from "./WorkspaceContext";
 import { ROLES } from "@/components/auth/roles";
 import { getSession } from "@/lib/authSession";
+import { bizApi } from "@/lib/api";
 import CopilotButton from "@/components/CopilotButton";
 import CopilotPanel from "@/components/CopilotPanel";
 
@@ -71,9 +72,7 @@ export default function BusinessLayout({ title, children }) {
       <CopilotPanel
         isOpen={copilotOpen}
         onClose={() => setCopilotOpen(false)}
-        onSend={(text) => {
-          console.log("Copilot message:", text);
-        }}
+        onSend={(text) => bizApi.copilot({ message: text }).then((res) => res?.reply)}
         context="Business Portal"
         suggestedPrompts={BUSINESS_SUGGESTED_PROMPTS}
       />

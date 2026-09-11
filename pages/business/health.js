@@ -5,7 +5,7 @@ import BusinessPageHeader from "@/components/business/ui/PageHeader";
 import CompactMetric from "@/components/business/ui/CompactMetric";
 import Button from "@/components/ui/Button";
 import ProgressBar from "@/components/business/ui/ProgressBar";
-import { HEALTH_SCORES } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { cx } from "@/lib/utils";
 
 const HEALTH_AREAS = [
@@ -24,6 +24,8 @@ function tone(score) {
 
 export default function BusinessHealthPage() {
   const router = useRouter();
+  const { data } = useWorkspace();
+  const HEALTH_SCORES = data.healthScores;
   const overall = HEALTH_SCORES.overall;
   const t = tone(overall);
 
@@ -32,12 +34,8 @@ export default function BusinessHealthPage() {
       <BusinessPageHeader
         eyebrow="Intelligence"
         title="Business Health"
-        description="Illustrative composite health across compliance, risk, operations, financial and growth dimensions."
+        description="Composite health across compliance, risk, operations, financial and growth dimensions, generated from your registered business profile."
       />
-
-      <div className="mb-6 rounded-lg border border-success/30 bg-success-soft px-4 py-3 text-sm text-success">
-        <strong>Demo data.</strong> All health scores are illustrative and do not represent real assessments.
-      </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="flex flex-col justify-center gap-2 rounded-lg border border-line bg-white p-5 dark:bg-ink-soft">

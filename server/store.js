@@ -292,9 +292,12 @@ function addBusinessEvidence(fields) {
     type: fields.type || "Document",
     title: fields.title,
     problemId: fields.problemId || "",
-    status: "Pending",
-    date: today(),
+    status: fields.status || "Pending",
+    date: fields.date || today(),
+    size: fields.size ?? null,
     note: fields.note || "",
+    progress: fields.progress ?? null,
+    analysis: fields.analysis || null,
   };
   state.business.evidence.unshift(item);
   persist();

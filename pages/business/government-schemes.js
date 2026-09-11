@@ -1,7 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { SCHEMES } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { fmtDate } from "@/lib/format";
 
 const STATUS_VARIANTS = {
@@ -11,17 +11,16 @@ const STATUS_VARIANTS = {
 };
 
 export default function GovernmentSchemesPage() {
+  const { data } = useWorkspace();
+  const SCHEMES = data.schemes || [];
+
   return (
     <>
       <BusinessPageHeader
         eyebrow="Growth"
         title="Government Schemes"
-        description="Discover government schemes, grants and incentives you may be eligible for."
+        description="Government schemes, grants and incentives you may be eligible for."
       />
-
-      <div className="mb-6 rounded-lg border border-success/30 bg-success-soft px-4 py-3 text-sm text-success">
-        <strong>Demo data.</strong> All schemes and eligibility criteria are illustrative only.
-      </div>
 
       <div className="mb-6 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
         <div className="flex flex-col gap-1 rounded-card border border-line bg-surface p-4 shadow-card">

@@ -1,7 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { MY_PROBLEMS, PROBLEM_LIFECYCLE } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { fmtDate } from "@/lib/format";
 
 const STATUS_VARIANTS = {
@@ -24,13 +24,13 @@ const SEVERITY_VARIANTS = {
   Low: "green",
 };
 
-function LifecycleBar({ currentStatus }) {
-  const currentIndex = PROBLEM_LIFECYCLE.indexOf(currentStatus);
+function LifecycleBar({ currentStatus, lifecycle }) {
+  const currentIndex = lifecycle.indexOf(currentStatus);
 
   return (
     <div className="mb-4 overflow-x-auto">
       <div className="flex items-center gap-0 min-w-[700px]">
-        {PROBLEM_LIFECYCLE.map((step, i) => {
+        {lifecycle.map((step, i) => {
           const isPast = i < currentIndex;
           const isCurrent = i === currentIndex;
           return (
@@ -51,7 +51,7 @@ function LifecycleBar({ currentStatus }) {
                   {step}
                 </span>
               </div>
-              {i < PROBLEM_LIFECYCLE.length - 1 && (
+              {i < lifecycle.length - 1 && (
                 <div className={`mx-0.5 h-px w-4 ${i < currentIndex ? "bg-success" : "bg-line"}`} />
               )}
             </div>
@@ -63,6 +63,10 @@ function LifecycleBar({ currentStatus }) {
 }
 
 export default function MyProblemsPage() {
+  const { data } = useWorkspace();
+  const MY_PROBLEMS = data.problems || [];
+  const PROBLEM_LIFECYCLE = data.problemLifecycle || [];
+
   return (
     <>
       <BusinessPageHeader
@@ -73,7 +77,7 @@ export default function MyProblemsPage() {
 
       <SectionCard title="Lifecycle Overview" description="Problem status flow" className="mb-6">
         <div className="overflow-x-auto">
-          <LifecycleBar currentStatus={MY_PROBLEMS[0]?.status || "REPORTED"} />
+          <LifecycleBar currentStatus={MY_PROBLEMS[0]?.status || "REPORTED"} lifecycle={PROBLEM_LIFECYCLE} />
         </div>
       </SectionCard>
 

@@ -2,7 +2,7 @@ import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { isEmpty, isEmail } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
-import { runAiModule } from "../businessAi.js";
+import { runAiModule, runEvidenceAnalysis } from "../businessAi.js";
 
 export default async function businessRoutes(req, res, sub, user) {
   const [head = ""] = sub;
@@ -224,17 +224,52 @@ export default async function businessRoutes(req, res, sub, user) {
       if (req.method === "POST") {
         const body = req.body || {};
         if (isEmpty(body.title)) return badRequest(res, "Evidence title is required.");
-        return created(res, { evidence: db.addBusinessEvidence(body) });
+        const evidence = db.addBusinessEvidence({
+          title: body.title,
+          type: body.type,
+          problemId: body.problemId,
+          size: body.size,
+        });
+        const data = db.businessData();
+        const analysis = await runEvidenceAnalysis(evidence, data);
+        const persisted = db.updateBusinessEvidence(evidence.id, {
+          status: analysis?.status === "needs-review" ? "needs-review" : "complete",
+          progress: 100,
+          analysis,
+        });
+        return created(res, { evidence: persisted, analysis });
       }
       return methodNotAllowed(res);
     }
     if (sub.length === 2) {
-      if (req.method !== "PATCH") return methodNotAllowed(res);
-      const updated = db.state.business.evidence.find((e) => e.id === sub[1]);
-      if (!updated) return notFound(res, `Evidence ${sub[1]} not found.`);
-      Object.assign(updated, req.body || {});
-      db.persist();
-      return ok(res, { evidence: updated });
+      if (req.method === "PATCH") {
+        const existing = db.state.business.evidence.find((e) => e.id === sub[1]);
+        if (!existing) return notFound(res, `Evidence ${sub[1]} not found.`);
+        const updated = db.updateBusinessEvidence(sub[1], req.body || {});
+        return ok(res, { evidence: updated });
+      }
+      if (req.method === "DELETE") {
+        const index = db.state.business.evidence.findIndex((e) => e.id === sub[1]);
+        if (index === -1) return notFound(res, `Evidence ${sub[1]} not found.`);
+        db.state.business.evidence.splice(index, 1);
+        db.persist();
+        db.audit(`Evidence removed: ${sub[1]}`, { target: sub[1] });
+        return ok(res, { done: true });
+      }
+      return methodNotAllowed(res);
+    }
+    if (sub.length === 3 && sub[2] === "analyze") {
+      if (req.method !== "POST") return methodNotAllowed(res);
+      const found = db.state.business.evidence.find((e) => e.id === sub[1]);
+      if (!found) return notFound(res, `Evidence ${sub[1]} not found.`);
+      const data = db.businessData();
+      const analysis = await runEvidenceAnalysis(found, data);
+      const persisted = db.updateBusinessEvidence(found.id, {
+        status: analysis?.status === "needs-review" ? "needs-review" : "complete",
+        progress: 100,
+        analysis,
+      });
+      return ok(res, { evidence: persisted, analysis });
     }
     return notFound(res, `Unknown evidence endpoint.`);
   }
@@ -309,7 +344,7 @@ async function bizCopilot(message, data) {
       overall: data.healthScores.risk,
       categories: data.riskCategories.map((r) => ({ category: r.category, status: r.status, severity: r.severity })),
     },
-    financial: { exposure: data.healthScores.financialExposure, estimatedAnnualCost: data.financialImpact?.estimatedAnnualCost, breakdown: data.financialImpact?.breakdown },
+    financial: { exposure: data.healthScores.financialExposure, costs: data.financialImpact?.bars?.map((b) => ({ label: b.label, value: b.value })) || [] },
     expansion: {
       readiness: data.healthScores.growthReadiness,
       currentRegion: data.expansionAnalysis.currentRegion,

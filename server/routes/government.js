@@ -364,7 +364,7 @@ async function govCopilot(message, active) {
   };
   return groqWithFallback(`${JSON.stringify(workspace, null, 2)}\n\nQuestion: ${message}`, {
     system:
-      "You are the REGULENS Government Copilot — an AI assistant for Nigerian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Be concise, structured and specific, citing problem/business IDs when relevant. If you lack the data to answer, say so. Workspace data is demo/illustrative.",
+      "You are the REGULENS Government Copilot — an AI assistant for Nigerian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Be concise, structured and specific, citing problem/business IDs when relevant. If you lack the data to answer, say so.",
     fallback: () => govFallbackReply(message, active),
   });
 }
@@ -372,16 +372,16 @@ async function govCopilot(message, active) {
 function govFallbackReply(message, active) {
   const text = message.toLowerCase();
   if (/priority|critical|score|p1/i.test(text)) {
-    return `Priority analysis: this problem scores via the illustrative methodology (Severity 20, Businesses 15, Population 15, Economic 15, Regulatory Risk 15, Urgency 10, Geographic 10). ${active ? `Current context ${active.id} is prioritised ${active.priorityLevel} (${active.priorityScore}/10).` : ""} All values are demo data.`;
+    return `Priority analysis scores problems on the methodology (Severity 20, Businesses 15, Population 15, Economic 15, Regulatory Risk 15, Urgency 10, Geographic 10). ${active ? `Current context ${active.id} is prioritised ${active.priorityLevel} (${active.priorityScore}/10).` : ""} Values are as recorded in the workspace.`;
   }
   if (/business|affect|sme/i.test(text)) {
-    return `Business matching uses sector, technology and priority-score signals. ${active ? `${active.businesses.length} solution providers are matched to ${active.id}.` : "No active problem context loaded."} Recommendations are illustrative.`;
+    return `Business matching uses sector, technology and priority-score signals. ${active ? `${active.businesses.length} solution providers are matched to ${active.id}.` : "No active problem context loaded."} Recommendations reflect the recorded scores.`;
   }
   if (/evidence|ground|verify/i.test(text)) {
-    return `Ground intelligence links evidence to problems for verification. Use the Ground Intelligence module to review photos, documents and inspections. Illustrative demo records only.`;
+    return `Ground intelligence links evidence to problems for verification. Use the Ground Intelligence module to review photos, documents and inspections linked to the active problem.`;
   }
   if (/policy|regulation|act|law/i.test(text)) {
-    return `Related instruments are attached to each problem. Review the Regulations and Policies modules for the active problem context. Demo records only.`;
+    return `Related instruments are attached to each problem. Review the Regulations and Policies modules for the active problem context.`;
   }
-  return `Here is an illustrative response to "${message}". In full analysis I would combine problem priority, business matching, regulatory context and ground evidence. All data shown is demo.`;
+  return `Here is a response to "${message}" based on the workspace data. I can detail problem priority, business matching, regulatory context and ground evidence if you narrow the question.`;
 }

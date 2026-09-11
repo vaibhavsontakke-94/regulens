@@ -6,6 +6,7 @@ import TopBar from "./TopBar";
 import GovernmentProblemProvider from "./GovernmentProblemContext";
 import { ROLES } from "@/components/auth/roles";
 import { getSession } from "@/lib/authSession";
+import { govApi } from "@/lib/api";
 import CopilotButton from "@/components/CopilotButton";
 import CopilotPanel from "@/components/CopilotPanel";
 
@@ -61,10 +62,7 @@ export default function GovernmentLayout({ title, children }) {
       <CopilotPanel
         isOpen={copilotOpen}
         onClose={() => setCopilotOpen(false)}
-        onSend={(text) => {
-          // Handle send - in full implementation would send to AI
-          console.log("Copilot message:", text);
-        }}
+        onSend={(text) => govApi.copilot({ message: text }).then((res) => res?.reply)}
         suggestedPrompts={[
           "What compliance deadlines are coming up?",
           "Identify affected businesses",

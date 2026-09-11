@@ -2,7 +2,7 @@ import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import AiInsightCard from "@/components/business/ui/AiInsightCard";
-import { RISK_ANALYSIS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 const CATEGORY_COLORS = {
   Regulatory: "text-danger",
@@ -21,7 +21,8 @@ const CATEGORY_BG = {
 };
 
 export default function RiskAnalysisPage() {
-  const data = RISK_ANALYSIS;
+  const { data: workspace } = useWorkspace();
+  const data = workspace.riskAnalysis;
 
   function getCellBg(prob, impact) {
     const score = prob * impact;
@@ -37,10 +38,6 @@ export default function RiskAnalysisPage() {
         title="Risk Analysis"
         description="Risk matrix, categories, timeline and mitigation actions."
       />
-
-      <div className="mb-6 rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
-        <strong>Demo data.</strong> All risk scores and mitigations are illustrative only.
-      </div>
 
       <AiInsightCard
         module="risks"

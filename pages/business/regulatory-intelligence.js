@@ -1,7 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { REGULATORY_UPDATES } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { fmtDate } from "@/lib/format";
 
 const IMPACT_VARIANTS = {
@@ -16,17 +16,16 @@ const STATUS_VARIANTS = {
 };
 
 export default function RegulatoryIntelligencePage() {
+  const { data } = useWorkspace();
+  const REGULATORY_UPDATES = data.regulatoryUpdates || [];
+
   return (
     <>
       <BusinessPageHeader
         eyebrow="Intelligence"
         title="Regulatory Intelligence"
-        description="Track regulatory updates, changes and their impact on your business areas."
+        description="Regulatory updates, changes and their impact on your business areas."
       />
-
-      <div className="mb-6 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary">
-        <strong>Demo data.</strong> All regulatory updates are illustrative only.
-      </div>
 
       <div className="mb-6 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
         <div className="flex flex-col gap-1 rounded-card border border-line bg-surface p-4 shadow-card">

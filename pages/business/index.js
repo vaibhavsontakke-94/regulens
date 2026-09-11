@@ -149,7 +149,7 @@ export default function BusinessDashboard() {
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {CARDS.map((card) => (
+        {cards.map((card) => (
           <ScoreCard
             key={card.label}
             label={card.label}
@@ -161,10 +161,6 @@ export default function BusinessDashboard() {
           />
         ))}
       </div>
-
-      <p className="mt-8 text-center text-xs text-ink-faint">
-        All KPIs, scores and metrics are illustrative demo data only.
-      </p>
     </>
   );
 }
