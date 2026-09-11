@@ -29,6 +29,11 @@ function randomId() {
   return `usr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function dispNameFromEmail(email) {
+  const local = String(email || "").split("@")[0] || "";
+  return local.replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+}
+
 function validateRegistration(body) {
   const role = body.role;
   if (!ROLES[role]) return "Invalid role.";
@@ -100,6 +105,50 @@ export default function authRoutes(req, res, sub) {
 
     const token = createSession(user.id);
     db.audit(`Signed in: ${user.email}`, { actor: user.name, target: user.id });
+    return ok(res, sessionPayload(user, token));
+  }
+
+  if (target === "firebase-session") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const { role, email, name, uid } = req.body || {};
+    if (!ROLES[role]) return badRequest(res, "Invalid role.");
+    const normalized = String(email || "").trim().toLowerCase();
+    if (!isEmail(normalized)) return badRequest(res, "Enter a valid email address.");
+
+    let user = findUserByEmail(normalized);
+    if (!user) {
+      const profile =
+        role === "government"
+          ? { department: "", designation: "", organization: "" }
+          : { businessName: String(name || dispNameFromEmail(normalized)).trim(), industry: "", location: "" };
+      user = {
+        id: randomId(),
+        role,
+        email: normalized,
+        name: String(name || dispNameFromEmail(normalized)).trim(),
+        passwordHash: null,
+        verified: true,
+        createdAt: db.now(),
+        accountType: "firebase",
+        profile,
+        verification: null,
+        reset: null,
+        businessProfile: null,
+        firebaseUid: uid || null,
+      };
+      db.state.users.push(user);
+    } else if (user.role !== role) {
+      return unauthorized(res, "This email belongs to another workspace.");
+    } else {
+      if (name) user.name = String(name).trim();
+      if (uid) user.firebaseUid = uid;
+      user.verified = true;
+      if (!user.accountType || user.accountType === "demo") user.accountType = "firebase";
+    }
+    db.persist();
+
+    const token = createSession(user.id);
+    db.audit(`Signed in (Firebase): ${user.email}`, { actor: user.name, target: user.id });
     return ok(res, sessionPayload(user, token));
   }
 

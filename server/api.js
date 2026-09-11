@@ -8,7 +8,7 @@ import metaRoutes from "./routes/meta.js";
 import { ok, notFound } from "./http.js";
 
 const MANIFEST = {
-  auth: ["register", "login", "verify", "resend-code", "forgot-password", "reset-password", "logout", "session"],
+  auth: ["register", "login", "verify", "resend-code", "forgot-password", "reset-password", "logout", "session", "firebase-session"],
   government: [
     "dashboard",
     "problems",

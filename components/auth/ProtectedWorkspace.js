@@ -6,6 +6,7 @@ import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import Button from "@/components/ui/Button";
 import { getSession, clearSession } from "@/lib/authSession";
+import { firebaseSignOutUser } from "@/lib/firebase";
 import { ROLES } from "@/components/auth/roles";
 
 export default function ProtectedWorkspace({ role, icon: RoleIcon, cardText }) {
@@ -26,6 +27,7 @@ export default function ProtectedWorkspace({ role, icon: RoleIcon, cardText }) {
   }, [role]);
 
   function handleSignOut() {
+    firebaseSignOutUser().catch(() => {});
     clearSession();
     router.push(cfg.loginPath);
   }

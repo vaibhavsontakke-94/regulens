@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getSession, clearSession } from "@/lib/authSession";
+import { firebaseSignOutUser } from "@/lib/firebase";
 import { cx } from "@/lib/utils";
 
 function ProfileMenu({ onNavigate }) {
@@ -40,9 +41,10 @@ function ProfileMenu({ onNavigate }) {
   const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
   function handleSignOut() {
+    firebaseSignOutUser().catch(() => {});
     clearSession();
     setOpen(false);
-    router.push("/business/login");
+    router.push("/government/login");
   }
 
   return (

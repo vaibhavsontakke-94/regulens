@@ -9,8 +9,9 @@ import SelectField from "@/components/auth/SelectField";
 import { FormCard, FormTitle, BackLink, SectionLabel } from "@/components/auth/formBits";
 import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty, passwordMeetsAll, requiredError, emailError, passwordError } from "@/lib/validators";
-import { setPendingVerification } from "@/lib/authSession";
+import { setSession } from "@/lib/authSession";
 import { authApi, handleApiError } from "@/lib/api";
+import { firebaseSignUp, mapFirebaseError } from "@/lib/firebase";
 
 const INDUSTRIES = [
   "Financial Services",
@@ -125,29 +126,21 @@ export default function RegisterForm({ role }) {
     setLoading(true);
     setFormError("");
     try {
-      await authApi.register({
-        role,
-        name: values.fullName.trim(),
+      const firebaseUser = await firebaseSignUp({
         email: values.email.trim(),
         password: values.password,
-        fullName: values.fullName.trim(),
-        businessName: values.businessName.trim(),
-        department: values.department.trim(),
-        designation: values.designation.trim(),
-        organization: values.organization.trim(),
-        govId: values.govId.trim(),
-        industry: values.industry,
-        location: values.location.trim(),
+        name: values.fullName.trim(),
       });
-      setPendingVerification({
+      const data = await authApi.firebaseSession({
         role,
         email: values.email.trim(),
         name: values.fullName.trim(),
-        purpose: "register",
+        uid: firebaseUser.uid,
       });
-      router.push(cfg.verifyPath);
+      setSession(data.session);
+      router.push(cfg.home);
     } catch (err) {
-      setFormError(handleApiError(err));
+      setFormError(err?.code?.startsWith("auth/") ? mapFirebaseError(err) : handleApiError(err));
     } finally {
       setLoading(false);
     }

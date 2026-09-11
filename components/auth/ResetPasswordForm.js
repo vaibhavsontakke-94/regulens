@@ -6,8 +6,9 @@ import PasswordField from "@/components/auth/PasswordField";
 import { FormCard, FormTitle, BackLink, SuccessPanel } from "@/components/auth/formBits";
 import { ROLES } from "@/components/auth/roles";
 import { isEmpty, passwordMeetsAll, requiredError, passwordError } from "@/lib/validators";
-import { clearPendingVerification, getPendingVerification, setSession } from "@/lib/authSession";
-import { authApi, handleApiError } from "@/lib/api";
+import { firebaseConfirmReset, mapFirebaseError } from "@/lib/firebase";
+import { handleApiError } from "@/lib/api";
+import { clearPendingVerification } from "@/lib/authSession";
 
 export default function ResetPasswordForm({ role }) {
   const cfg = ROLES[role];
@@ -19,14 +20,19 @@ export default function ResetPasswordForm({ role }) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [oobCode, setOobCode] = useState(null);
 
   useEffect(() => {
-    const pending = getPendingVerification();
-    if (!pending || pending.role !== role || pending.purpose !== "reset") {
+    const code = typeof router.query.oobCode === "string" ? router.query.oobCode : "";
+    if (!code) {
       setBlocked(true);
       router.replace(cfg.forgotPath);
+      return;
     }
-  }, [role, cfg]);
+    setOobCode(code);
+    clearPendingVerification();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.oobCode]);
 
   function setField(name, value) {
     if (name === "password") setPassword(value);
@@ -51,18 +57,11 @@ export default function ResetPasswordForm({ role }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const pending = getPendingVerification();
-      const result = await authApi.resetPassword({
-        role,
-        email: pending.email,
-        code: pending.code || "",
-        password,
-      });
-      if (result?.session) setSession(result.session);
+      await firebaseConfirmReset(oobCode, password);
       clearPendingVerification();
       setDone(true);
     } catch (err) {
-      setErrors((e) => ({ ...e, password: handleApiError(err) }));
+      setErrors((e) => ({ ...e, password: err?.code?.startsWith("auth/") ? mapFirebaseError(err) : handleApiError(err) }));
     } finally {
       setLoading(false);
     }

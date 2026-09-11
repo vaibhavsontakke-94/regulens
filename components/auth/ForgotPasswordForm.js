@@ -6,8 +6,8 @@ import FormField from "@/components/auth/FormField";
 import { FormCard, FormTitle, BackLink, DemoNote, SuccessPanel } from "@/components/auth/formBits";
 import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty } from "@/lib/validators";
-import { setPendingVerification } from "@/lib/authSession";
-import { authApi, handleApiError } from "@/lib/api";
+import { firebaseSendPasswordReset, mapFirebaseError } from "@/lib/firebase";
+import { handleApiError } from "@/lib/api";
 
 export default function ForgotPasswordForm({ role }) {
   const cfg = ROLES[role];
@@ -41,31 +41,34 @@ export default function ForgotPasswordForm({ role }) {
     setLoading(true);
     setError("");
     try {
-      await authApi.forgotPassword({ role, email: email.trim() });
+      const resetUrl =
+        typeof window === "undefined"
+          ? ""
+          : `${window.location.origin}${cfg.resetPath}`;
+      await firebaseSendPasswordReset(email.trim(), { url: resetUrl, handleCodeInApp: true });
       setSent(true);
     } catch (err) {
-      setError(handleApiError(err));
+      setError(err?.code?.startsWith("auth/") ? mapFirebaseError(err) : handleApiError(err));
     } finally {
       setLoading(false);
     }
   }
 
   function handleContinue() {
-    setPendingVerification({ role, email: email.trim(), purpose: "reset" });
-    router.push(cfg.verifyPath);
+    router.push(cfg.loginPath);
   }
 
   if (sent) {
     return (
       <FormCard>
-        <SuccessPanel icon={MailCheck} title="Verification code sent">
+        <SuccessPanel icon={MailCheck} title="Reset email sent">
           <p className="text-[15px] leading-relaxed text-content-secondary">
-            We sent a 6-digit verification code to{" "}
-            <span className="font-semibold text-content">{email.trim()}</span>.
+            We sent a password reset link to{" "}
+            <span className="font-semibold text-content">{email.trim()}</span>. Follow the link in the email to choose a new password.
           </p>
           <div className="mt-2 flex justify-center">
             <Button onClick={handleContinue} size="lg">
-              Enter verification code
+              Back to Sign In
             </Button>
           </div>
           <div className="mt-4 flex justify-center">
@@ -80,7 +83,7 @@ export default function ForgotPasswordForm({ role }) {
     <FormCard>
       <FormTitle
         title="Forgot password"
-        subtitle="Enter your registered email and we'll send you a verification code to reset your password."
+        subtitle="Enter your registered email and we'll send you a secure link to reset your password."
       />
 
       <form className="mt-6 flex flex-col gap-5" noValidate onSubmit={handleSubmit}>
@@ -98,11 +101,11 @@ export default function ForgotPasswordForm({ role }) {
         />
 
         <Button type="submit" size="lg" className="w-full" loading={loading}>
-          Send Verification Code
+          Send Reset Link
         </Button>
 
         <DemoNote>
-          Demo mode: the reset code is returned by the API (and shown in your dev server logs).
+          Password reset emails are sent by Firebase Authentication.
         </DemoNote>
       </form>
 

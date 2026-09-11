@@ -4,6 +4,7 @@ import { Bell, ChevronDown, IdCard, LogOut, Percent, Settings, User } from "luci
 import ThemeToggle from "@/components/ThemeToggle";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
 import { getSession, clearSession } from "@/lib/authSession";
+import { firebaseSignOutUser } from "@/lib/firebase";
 import { NOTIFICATIONS } from "@/lib/businessData";
 import { cx } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ function ProfileMenu({ onNavigate }) {
   const initials = businessName.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
   function handleSignOut() {
+    firebaseSignOutUser().catch(() => {});
     clearSession();
     setOpen(false);
     router.push("/business/login");

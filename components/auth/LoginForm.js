@@ -10,6 +10,7 @@ import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty } from "@/lib/validators";
 import { setSession, rememberEmail, getRememberedEmail } from "@/lib/authSession";
 import { authApi, handleApiError } from "@/lib/api";
+import { firebaseSignIn, firebaseUserToSession, mapFirebaseError } from "@/lib/firebase";
 
 function dispNameFromEmail(email) {
   const local = String(email || "").split("@")[0] || "";
@@ -56,16 +57,18 @@ export default function LoginForm({ role }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const data = await authApi.login({
-        email: values.email.trim(),
-        password: values.password,
+      const firebaseUser = await firebaseSignIn(values.email.trim(), values.password);
+      const data = await authApi.firebaseSession({
         role,
+        email: firebaseUser.email || values.email.trim(),
+        name: firebaseUserToSession(firebaseUser, role, values.email.trim()).name,
+        uid: firebaseUser.uid,
       });
-      if (values.remember) rememberEmail(values.email.trim());
+      if (values.remember) rememberEmail(firebaseUser.email || values.email.trim());
       setSession(data.session);
       router.push(cfg.home);
     } catch (err) {
-      setFormError(handleApiError(err));
+      setFormError(err?.code?.startsWith("auth/") ? mapFirebaseError(err) : handleApiError(err));
     } finally {
       setLoading(false);
     }
@@ -147,10 +150,7 @@ export default function LoginForm({ role }) {
 
       <div className="mt-6">
         <DemoNote>
-          Demo credentials
-          <span className="mt-1.5 block text-[12px] font-normal text-content-muted">
-            Analyst: analyst@regulens.gov.ng · Ops: ops@nortextextiles.demo · Password: DemoPass#123
-          </span>
+          Authentication is powered by Firebase. Sign in with an email/password account created in your Firebase project.
         </DemoNote>
       </div>
 
