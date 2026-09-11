@@ -9,3 +9,4 @@
 ✓ Running next.config.mjs took 20ms
 
  GET /business/login 200 in 2.4s (next.js: 2.3s, application-code: 74ms)
+✓ Compiled in 114ms
