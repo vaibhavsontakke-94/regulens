@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --c-bg: #ffffff;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f8fafc;
+  --c-surface-hover: #f1f5f9;
+  --c-soft: #f8fafc;
+  --c-border: #e2e8f0;
+  --c-border-strong: #cbd5e1;
+  --c-text: #0f172a;
+  --c-text-secondary: #475569;
+  --c-text-muted: #64748b;
+  --c-primary: #2563eb;
+  --c-primary-hover: #1d4ed8;
+  --c-primary-soft: #eff6ff;
+  --c-primary-soft-strong: #dbeafe;
+  --c-primary-text: #ffffff;
+  --c-success: #16a34a;
+  --c-success-soft: #f0fdf4;
+  --c-warning: #b45309;
+  --c-warning-soft: #fffbeb;
+  --c-danger: #dc2626;
+  --c-danger-soft: #fef2f2;
+  --c-ring: rgba(37, 99, 235, 0.45);
+  --c-overlay: rgba(15, 23, 42, 0.06);
+}
+
+.dark {
+  --c-bg: #0b1220;
+  --c-surface: #0f172a;
+  --c-surface-muted: #172033;
+  --c-surface-hover: #1e293b;
+  --c-soft: #111a2c;
+  --c-border: #25324a;
+  --c-border-strong: #3b4965;
+  --c-text: #f1f5f9;
+  --c-text-secondary: #b6c2d6;
+  --c-text-muted: #8896ad;
+  --c-primary: #3b82f6;
+  --c-primary-hover: #60a5fa;
+  --c-primary-soft: #17294d;
+  --c-primary-soft-strong: #1e3a5f;
+  --c-primary-text: #ffffff;
+  --c-success: #4ade80;
+  --c-success-soft: rgba(34, 197, 94, 0.12);
+  --c-warning: #fbbf24;
+  --c-warning-soft: rgba(245, 158, 11, 0.12);
+  --c-danger: #f87171;
+  --c-danger-soft: rgba(239, 68, 68, 0.12);
+  --c-ring: rgba(59, 130, 246, 0.55);
+  --c-overlay: rgba(0, 0, 0, 0.35);
+}
+
+@theme inline {
+  --color-background: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-muted: var(--c-surface-muted);
+  --color-surface-hover: var(--c-surface-hover);
+  --color-soft: var(--c-soft);
+  --color-line: var(--c-border);
+  --color-line-strong: var(--c-border-strong);
+  --color-content: var(--c-text);
+  --color-content-secondary: var(--c-text-secondary);
+  --color-content-muted: var(--c-text-muted);
+  --color-primary: var(--c-primary);
+  --color-primary-hover: var(--c-primary-hover);
+  --color-primary-soft: var(--c-primary-soft);
+  --color-primary-soft-strong: var(--c-primary-soft-strong);
+  --color-primary-text: var(--c-primary-text);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-ring: var(--c-ring);
+  --color-overlay: var(--c-overlay);
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 20px;
+  --radius-panel: 14px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-card-hover: 0 2px 4px -1px rgb(15 23 42 / 0.05), 0 12px 24px -8px rgb(15 23 42 / 0.12);
+  --shadow-raised: 0 12px 32px -12px rgb(15 23 42 / 0.25);
+  --shadow-panel: 0 8px 24px -12px rgb(15 23 42 / 0.18);
+  --shadow-cta: 0 4px 16px -6px rgb(37 99 235 / 0.45);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--c-primary-soft-strong);
+  color: var(--c-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+section[id] {
+  scroll-margin-top: 84px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.u-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 78rem;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .u-container {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .u-container {
+    padding-inline: 2.5rem;
+  }
+}

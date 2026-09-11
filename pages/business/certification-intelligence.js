@@ -1,0 +1,74 @@
+import BusinessLayout from "@/components/business/BusinessLayout";
+import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
+import Badge from "@/components/ui/Badge";
+import { CERTIFICATION_INTEL } from "@/lib/businessData";
+
+const STATUS_VARIANTS = {
+  Held: "green",
+  Required: "red",
+  Recommended: "blue",
+};
+
+const DEMAND_VARIANTS = {
+  Regulatory: "red",
+  High: "amber",
+  Rising: "blue",
+};
+
+export default function CertificationIntelligencePage() {
+  return (
+    <>
+      <BusinessPageHeader
+        eyebrow="Intelligence"
+        title="Certification Intelligence"
+        description="Discover and compare certifications relevant to your industry and expansion plans."
+      />
+
+      <div className="mb-6 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary">
+        <strong>Demo data.</strong> All certification intelligence is illustrative only.
+      </div>
+
+      <SectionCard title="Certification Landscape" description={`${CERTIFICATION_INTEL.length} certifications tracked`}>
+        <div className="-mx-4 overflow-x-auto sm:-mx-5">
+          <table className="min-w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-2xs uppercase tracking-wider text-ink-faint">
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold sm:px-5">Certification</th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold">Sector</th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold">Authority</th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold">Demand</th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold">Value</th>
+                <th className="whitespace-nowrap px-4 py-2.5 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {CERTIFICATION_INTEL.map((c, i) => (
+                <tr key={i} className="transition-colors hover:bg-surface-muted">
+                  <td className="whitespace-nowrap px-4 py-3 sm:px-5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-ink">{c.certification}</span>
+                      {c.mandatory && <Badge variant="red" size="sm">Required</Badge>}
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-ink-subtle">{c.sector}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-ink-subtle">{c.authority}</td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Badge variant={DEMAND_VARIANTS[c.demand] || "neutral"} size="sm">{c.demand}</Badge>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-ink-subtle">{c.value}</td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Badge variant={STATUS_VARIANTS[c.status] || "neutral"} size="sm">{c.status}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+    </>
+  );
+}
+
+CertificationIntelligencePage.getLayout = (page) => {
+  return <BusinessLayout>{page}</BusinessLayout>;
+};
