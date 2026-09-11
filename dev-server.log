@@ -1,0 +1,11 @@
+
+> regulens@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.246.200.222:3000
+✓ Ready in 676ms
+✓ Running next.config.mjs took 20ms
+
+ GET /business/login 200 in 2.4s (next.js: 2.3s, application-code: 74ms)
