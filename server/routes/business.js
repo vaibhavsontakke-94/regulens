@@ -2,6 +2,7 @@ import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { isEmpty, isEmail } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
+import { runAiModule } from "../businessAi.js";
 
 export default async function businessRoutes(req, res, sub, user) {
   const [head = ""] = sub;
@@ -238,6 +239,15 @@ export default async function businessRoutes(req, res, sub, user) {
       return ok(res, { notification: item });
     }
     return notFound(res, `Unknown notifications endpoint.`);
+  }
+
+  if (head === "ai") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const module = String((req.body || {}).module || "");
+    const data = db.businessData();
+    const analysis = await runAiModule(module, data);
+    if (!analysis) return badRequest(res, `Unknown AI module: ${module}`);
+    return ok(res, { module, analysis });
   }
 
   if (head === "copilot") {

@@ -58,6 +58,7 @@ const MANIFEST = {
     "notifications",
     "notifications/read-all",
     "copilot",
+    "ai",
   ],
   meta: ["options"],
 };
