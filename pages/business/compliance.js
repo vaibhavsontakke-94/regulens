@@ -5,6 +5,7 @@ import BusinessPageHeader from "@/components/business/ui/PageHeader";
 import CompactMetric from "@/components/business/ui/CompactMetric";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import AiInsightCard from "@/components/business/ui/AiInsightCard";
 import { COMPLIANCE_REQUIREMENTS } from "@/lib/businessData";
 import { fmtDate } from "@/lib/format";
 
@@ -41,6 +42,12 @@ export default function CompliancePage() {
         eyebrow="Compliance & Risk"
         title="Compliance"
         description="Track compliance requirements, deadlines, and risk across all regulatory areas."
+      />
+
+      <AiInsightCard
+        module="compliance"
+        title="AI Compliance Analysis"
+        description="Priorities and recommendations generated from the current compliance posture."
       />
 
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">

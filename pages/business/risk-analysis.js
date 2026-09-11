@@ -1,6 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
+import AiInsightCard from "@/components/business/ui/AiInsightCard";
 import { RISK_ANALYSIS } from "@/lib/businessData";
 
 const CATEGORY_COLORS = {
@@ -40,6 +41,12 @@ export default function RiskAnalysisPage() {
       <div className="mb-6 rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
         <strong>Demo data.</strong> All risk scores and mitigations are illustrative only.
       </div>
+
+      <AiInsightCard
+        module="risks"
+        title="AI Risk Assessment"
+        description="Top risks, drivers and mitigations recommended by AI from the current risk posture."
+      />
 
       <SectionCard title="Risk Matrix" description="Probability vs Impact matrix with identified risks" className="mb-6">
         <div className="overflow-x-auto">

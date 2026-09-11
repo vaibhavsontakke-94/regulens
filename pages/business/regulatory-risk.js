@@ -5,6 +5,7 @@ import BusinessPageHeader from "@/components/business/ui/PageHeader";
 import CompactMetric from "@/components/business/ui/CompactMetric";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import AiInsightCard from "@/components/business/ui/AiInsightCard";
 import { RISK_CATEGORIES } from "@/lib/businessData";
 
 const SEVERITY_VARIANTS = { High: "red", Medium: "amber", Low: "green" };
@@ -25,6 +26,12 @@ export default function RegulatoryRiskPage() {
         eyebrow="Compliance & Risk"
         title="Regulatory Risk"
         description="Regulatory risk categories, severity and impact at a glance."
+      />
+
+      <AiInsightCard
+        module="regulatory-risk"
+        title="AI Regulatory Risk Brief"
+        description="AI summary of elevated categories and recommended risk focus areas."
       />
 
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
