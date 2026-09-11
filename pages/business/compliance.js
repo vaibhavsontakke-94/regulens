@@ -6,7 +6,7 @@ import CompactMetric from "@/components/business/ui/CompactMetric";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import AiInsightCard from "@/components/business/ui/AiInsightCard";
-import { COMPLIANCE_REQUIREMENTS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { fmtDate } from "@/lib/format";
 
 const STATUS_VARIANTS = {
@@ -26,11 +26,13 @@ function isExpiringSoon(dueDate) {
 
 export default function CompliancePage() {
   const router = useRouter();
+  const { data } = useWorkspace();
+  const COMPLIANCE_REQUIREMENTS = data.compliance || [];
   const compliant = COMPLIANCE_REQUIREMENTS.filter((r) => r.status === "Compliant").length;
   const actionRequired = COMPLIANCE_REQUIREMENTS.filter((r) => r.status === "Action Required").length;
   const expiringSoon = COMPLIANCE_REQUIREMENTS.filter((r) => r.status !== "Compliant" || isExpiringSoon(r.dueDate)).length;
   const underReview = COMPLIANCE_REQUIREMENTS.filter((r) => r.status === "Under Review").length;
-  const score = Math.round((compliant / COMPLIANCE_REQUIREMENTS.length) * 100);
+  const score = COMPLIANCE_REQUIREMENTS.length ? Math.round((compliant / COMPLIANCE_REQUIREMENTS.length) * 100) : 0;
 
   const priorities = COMPLIANCE_REQUIREMENTS.filter(
     (r) => r.status === "Action Required" || r.status === "Expired" || isExpiringSoon(r.dueDate)

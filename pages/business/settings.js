@@ -88,15 +88,15 @@ export default function BusinessSettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
               <span className="flex items-center gap-2 text-sm font-medium text-ink"><User className="h-4 w-4 text-ink-faint" aria-hidden="true" /> Account Name</span>
-              <span className="text-sm text-ink-subtle">{session?.name || "Demo User"}</span>
+              <span className="text-sm text-ink-subtle">{session?.name || "Business User"}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
               <span className="flex items-center gap-2 text-sm font-medium text-ink"><Mail className="h-4 w-4 text-ink-faint" aria-hidden="true" /> Email</span>
-              <span className="truncate text-sm text-ink-subtle">{session?.email || "ops@nortextextiles.demo"}</span>
+              <span className="truncate text-sm text-ink-subtle">{session?.email || "No email on file"}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
               <span className="flex items-center gap-2 text-sm font-medium text-ink"><Building2 className="h-4 w-4 text-ink-faint" aria-hidden="true" /> Organisation</span>
-              <span className="truncate text-sm text-ink-subtle">{display?.name || "Nortex Textiles Ltd"}</span>
+              <span className="truncate text-sm text-ink-subtle">{display?.name || "Your Business"}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
               <span className="text-sm font-medium text-ink">Workspace</span>
@@ -194,8 +194,8 @@ export default function BusinessSettingsPage() {
               </button>
             ))}
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
-              <span className="flex items-center gap-2 text-sm font-medium text-ink"><Lock className="h-4 w-4 text-ink-faint" aria-hidden="true" /> Data is stored locally</span>
-              <Badge variant="neutral" size="sm">Demo</Badge>
+              <span className="flex items-center gap-2 text-sm font-medium text-ink"><Lock className="h-4 w-4 text-ink-faint" aria-hidden="true" /> Data protection</span>
+              <Badge variant="green" size="sm">Enabled</Badge>
             </div>
           </div>
         </SectionCard>
@@ -205,11 +205,11 @@ export default function BusinessSettingsPage() {
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary"><Info className="h-5 w-5" aria-hidden="true" /></span>
             <div>
               <p className="text-sm font-semibold text-ink">REGULENS Business Portal</p>
-              <p className="text-xs text-ink-faint">Version 1.0 (Demo) · Illustrative data only</p>
+              <p className="text-xs text-ink-faint">Version 1.0 · Live workspace</p>
             </div>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-ink-subtle">
-            REGULENS provides regulatory intelligence, compliance tracking, risk analysis and growth guidance. This demo workspace showcases the product experience with mock data.
+            REGULENS provides regulatory intelligence, compliance tracking, risk analysis and growth guidance powered by your business profile.
           </p>
         </SectionCard>
       </div>

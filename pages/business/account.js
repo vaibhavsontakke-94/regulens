@@ -17,8 +17,8 @@ export default function BusinessAccountPage() {
     router.push("/business/login");
   };
 
-  const name = session?.name || "Demo User";
-  const email = session?.email || "ops@nortextextiles.demo";
+  const name = session?.name || "Business User";
+  const email = session?.email || "No email on file";
   const joined = "2024";
   const lastActive = new Date().toLocaleDateString("en-GB", {
     year: "numeric",
@@ -71,8 +71,7 @@ export default function BusinessAccountPage() {
             <LogOut className="h-4 w-4" /> Delete account
           </Button>
           <p className="mt-3 text-xs text-danger">
-            Delete account is irreversible and will remove all your data. This action is UI-only
-            in the demo.
+            Delete account is irreversible and would remove all of your workspace data. This action is not currently available.
           </p>
         </div>
       </SectionCard>

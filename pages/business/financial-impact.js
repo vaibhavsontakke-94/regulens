@@ -1,6 +1,6 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
-import { FINANCIAL_IMPACT } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 const TONE_COLORS = {
   success: "bg-success",
@@ -19,24 +19,24 @@ const TONE_TEXT = {
 };
 
 export default function FinancialImpactPage() {
-  const data = FINANCIAL_IMPACT;
-  const maxValue = Math.max(...data.bars.map((b) => b.value));
+  const { data } = useWorkspace();
+  const financial = data.financialImpact;
+  const bars = financial.bars || [];
+  const maxValue = Math.max(...bars.map((b) => b.value));
+  const compliance = bars.find((b) => b.label === "Compliance Cost") || { value: 0 };
+  const exposure = bars.find((b) => b.label === "Potential Exposure") || { value: 0 };
 
   return (
     <>
       <BusinessPageHeader
         eyebrow="Compliance & Risk"
         title="Financial Impact"
-        description="Visual analysis of compliance costs, potential exposure, setup and expansion costs."
+        description="Compliance costs, potential exposure, setup and expansion costs estimated from your profile and compliance posture."
       />
-
-      <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-sm text-warning">
-        <strong>Illustrative/demo data.</strong> {data.note}
-      </div>
 
       <SectionCard title="Financial Overview" className="mb-6">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {data.bars.map((b) => (
+          {bars.map((b) => (
             <div key={b.label} className="rounded-card border border-line bg-surface-muted p-3 text-center">
               <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">{b.label}</p>
               <p className={`mt-1 text-xl font-semibold ${TONE_TEXT[b.tone]}`}>NGN {b.value}M</p>
@@ -46,9 +46,9 @@ export default function FinancialImpactPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Cost Comparison" description="Relative scale of financial items (illustrative)" className="mb-6">
+      <SectionCard title="Cost Comparison" description="Relative scale of financial items" className="mb-6">
         <div className="space-y-5">
-          {data.bars.map((b) => (
+          {bars.map((b) => (
             <div key={b.label} className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
               <span className="w-40 shrink-0 text-xs font-medium text-ink">{b.label}</span>
               <div className="relative h-4 min-w-0 flex-1 rounded-full bg-surface-muted">
@@ -67,17 +67,17 @@ export default function FinancialImpactPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-danger/30 bg-danger-soft p-4 text-center">
             <p className="text-xs font-semibold uppercase text-danger">Potential Exposure</p>
-            <p className="mt-2 text-3xl font-bold text-danger">NGN 64M</p>
+            <p className="mt-2 text-3xl font-bold text-danger">NGN {exposure.value}M</p>
             <p className="mt-1 text-xs text-ink-faint">Duty, penalties, claims</p>
           </div>
           <div className="rounded-lg border border-success/30 bg-success-soft p-4 text-center">
             <p className="text-xs font-semibold uppercase text-success">Compliance Investment</p>
-            <p className="mt-2 text-3xl font-bold text-success">NGN 18.5M</p>
+            <p className="mt-2 text-3xl font-bold text-success">NGN {compliance.value}M</p>
             <p className="mt-1 text-xs text-ink-faint">Permits, audits, fees</p>
           </div>
         </div>
         <p className="mt-4 text-center text-xs text-ink-faint">
-          Investing NGN 18.5M in compliance could mitigate up to NGN 64M in potential exposure. Illustrative calculation.
+          {financial.note}
         </p>
       </SectionCard>
     </>

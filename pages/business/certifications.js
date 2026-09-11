@@ -7,18 +7,24 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/business/ui/ProgressBar";
 import AiInsightCard from "@/components/business/ui/AiInsightCard";
-import { CERTIFICATIONS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
+import { bizApi } from "@/lib/api";
 
-const STATUS_VARIANTS = {
-  Active: "green",
-  "Not Started": "neutral",
-  Planned: "blue",
-};
+const STATUS_OPTIONS = ["Active", "In Progress", "Planned", "Not Started"];
 
 export default function CertificationReadinessPage() {
   const router = useRouter();
+  const { data, refresh } = useWorkspace();
+  const CERTIFICATIONS = data.certifications || [];
   const active = CERTIFICATIONS.filter((c) => c.status === "Active").length;
-  const score = Math.round((active / CERTIFICATIONS.length) * 100);
+  const score = CERTIFICATIONS.length ? Math.round((active / CERTIFICATIONS.length) * 100) : 0;
+
+  function updateStatus(id, status) {
+    bizApi
+      .updateCertification(id, { status })
+      .then(refresh)
+      .catch(() => {});
+  }
 
   return (
     <>
@@ -79,7 +85,16 @@ export default function CertificationReadinessPage() {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="hidden text-xs text-ink-faint sm:block">Timeline: {c.timeline}</span>
-                  <Badge variant={STATUS_VARIANTS[c.status] || "neutral"} size="sm">{c.status}</Badge>
+                  <select
+                    value={c.status}
+                    onChange={(e) => updateStatus(c.id, e.target.value)}
+                    aria-label={`Status for ${c.name}`}
+                    className="h-8 rounded-md border border-line bg-surface px-2 text-xs text-ink"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </li>

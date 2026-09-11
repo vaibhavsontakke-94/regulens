@@ -4,8 +4,10 @@ import { useRouter } from "next/router";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { BusinessProfileProvider } from "./BusinessProfileContext";
+import { WorkspaceProvider } from "./WorkspaceContext";
 import { ROLES } from "@/components/auth/roles";
 import { getSession } from "@/lib/authSession";
+import { bizApi } from "@/lib/api";
 import CopilotButton from "@/components/CopilotButton";
 import CopilotPanel from "@/components/CopilotPanel";
 
@@ -49,7 +51,8 @@ export default function BusinessLayout({ title, children }) {
 
   return (
     <BusinessProfileProvider>
-      <Head>
+      <WorkspaceProvider>
+        <Head>
         <title>{title ? `${title} — REGULENS` : `${ROLES.business.eyebrow} — REGULENS`}</title>
         <meta name="robots" content="noindex" />
       </Head>
@@ -69,12 +72,11 @@ export default function BusinessLayout({ title, children }) {
       <CopilotPanel
         isOpen={copilotOpen}
         onClose={() => setCopilotOpen(false)}
-        onSend={(text) => {
-          console.log("Copilot message:", text);
-        }}
+        onSend={(text) => bizApi.copilot({ message: text }).then((res) => res?.reply)}
         context="Business Portal"
         suggestedPrompts={BUSINESS_SUGGESTED_PROMPTS}
       />
+      </WorkspaceProvider>
     </BusinessProfileProvider>
   );
 }

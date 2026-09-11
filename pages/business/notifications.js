@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Bell } from "lucide-react";
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { NOTIFICATIONS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
+import { bizApi } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 
 const TYPE_VARIANTS = {
@@ -15,10 +15,14 @@ const TYPE_VARIANTS = {
 };
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const { data, refresh } = useWorkspace();
+  const notifications = data.notifications || [];
 
   function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    bizApi
+      .markAllNotificationsRead()
+      .then(refresh)
+      .catch(() => {});
   }
 
   const unreadCount = notifications.filter((n) => n.unread).length;

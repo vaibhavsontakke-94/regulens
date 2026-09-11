@@ -1,6 +1,6 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
-import { EXPANSION_READINESS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 function ScoreRing({ score, size = 80, strokeWidth = 6 }) {
   const radius = (size - strokeWidth) / 2;
@@ -24,35 +24,32 @@ function ScoreRing({ score, size = 80, strokeWidth = 6 }) {
 }
 
 export default function ExpansionReadinessPage() {
-  const data = EXPANSION_READINESS;
-  const avg = Math.round(data.breakdown.reduce((s, f) => s + f.scoreTarget, 0) / data.breakdown.length);
+  const { data } = useWorkspace();
+  const EXPANSION_READINESS = data.expansionReadiness;
+  const breakdown = EXPANSION_READINESS.breakdown || [];
 
   return (
     <>
       <BusinessPageHeader
         eyebrow="Growth"
         title="Expansion Readiness"
-        description="Readiness assessment across 11 key expansion factors."
+        description="Readiness assessment across key expansion factors, scored from your registered profile."
       />
-
-      <div className="mb-6 rounded-lg border border-success/30 bg-success-soft px-4 py-3 text-sm text-success">
-        <strong>Demo data.</strong> All readiness scores are illustrative and do not represent real assessments.
-      </div>
 
       <SectionCard className="mb-6">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <ScoreRing score={data.readiness} size={120} strokeWidth={8} />
+          <ScoreRing score={EXPANSION_READINESS.readiness} size={120} strokeWidth={8} />
           <div className="text-center sm:text-left">
-            <h2 className="text-lg font-semibold text-ink">Readiness Score: {data.readiness}%</h2>
-            <p className="mt-1 text-sm font-medium text-success">{data.label}</p>
-            <p className="mt-1 text-sm text-ink-subtle">{data.summary}</p>
+            <h2 className="text-lg font-semibold text-ink">Readiness Score: {EXPANSION_READINESS.readiness}%</h2>
+            <p className="mt-1 text-sm font-medium text-success">{EXPANSION_READINESS.label}</p>
+            <p className="mt-1 text-sm text-ink-subtle">{EXPANSION_READINESS.summary}</p>
           </div>
         </div>
       </SectionCard>
 
       <SectionCard title="Factor Breakdown" description="Score for each expansion factor (target region)">
         <div className="space-y-4">
-          {data.breakdown.map((f) => (
+          {breakdown.map((f) => (
             <div key={f.factor} className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
               <span className="w-32 shrink-0 text-xs font-medium text-ink">{f.factor}</span>
               <div className="flex-1">

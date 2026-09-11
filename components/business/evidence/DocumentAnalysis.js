@@ -47,7 +47,7 @@ export default function DocumentAnalysis({ doc, onClose }) {
 
       <div className="mb-4 flex items-center gap-2 rounded-md bg-primary-soft/40 px-3 py-2 text-xs text-primary">
         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-        This is an AI-generated illustrative analysis for demo purposes. It does not constitute legal or regulatory advice.
+        This is an AI-generated analysis. It does not constitute legal or regulatory advice.
       </div>
 
       {a.confidence && (

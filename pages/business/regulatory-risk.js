@@ -6,7 +6,7 @@ import CompactMetric from "@/components/business/ui/CompactMetric";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import AiInsightCard from "@/components/business/ui/AiInsightCard";
-import { RISK_CATEGORIES } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 const SEVERITY_VARIANTS = { High: "red", Medium: "amber", Low: "green" };
 const STATUS_VARIANTS = { Elevated: "amber", Managed: "blue", Stable: "green" };
@@ -15,6 +15,8 @@ const TOP_CATEGORIES = ["RK-REG", "RK-OP", "RK-FIN", "RK-EXP"];
 
 export default function RegulatoryRiskPage() {
   const router = useRouter();
+  const { data } = useWorkspace();
+  const RISK_CATEGORIES = data.riskCategories || [];
   const elevated = RISK_CATEGORIES.filter((r) => r.status === "Elevated").length;
   const managed = RISK_CATEGORIES.filter((r) => r.status === "Managed").length;
   const stable = RISK_CATEGORIES.filter((r) => r.status === "Stable").length;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Send, Sparkles } from "lucide-react";
+import { X, Send, Sparkles, Loader2 } from "lucide-react";
 import { cx } from "@/lib/utils";
 
 export default function CopilotPanel({
@@ -19,6 +19,7 @@ export default function CopilotPanel({
 }) {
   const [internalMessages, setInternalMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
 
   const messages = externalMessages || internalMessages;
   const setMessages = externalSetMessages || setInternalMessages;
@@ -31,17 +32,24 @@ export default function CopilotPanel({
     }, 100);
   }, [isOpen]);
 
-  const handleSend = (e, textOverride) => {
+  const handleSend = async (e, textOverride) => {
     if (e && e.preventDefault) e.preventDefault();
     const text = (textOverride || input).trim();
-    if (!text) return;
+    if (!text || sending) return;
     setMessages((prev) => [...(prev || []), { role: "user", content: text }]);
-    const reply = "I can help with regulatory intelligence for your business. In this demo, I'll provide illustrative guidance based on your profile and activity.";
-    setTimeout(() => {
-      setMessages((prev) => [...(prev || []), { role: "assistant", content: reply }]);
-    }, 500);
-    onSend?.(text);
     setInput("");
+    setSending(true);
+    try {
+      let reply = onSend ? await onSend(text) : null;
+      if (typeof reply !== "string" || !reply.trim()) {
+        reply = "I can help with regulatory intelligence for your workspace. Ask about compliance deadlines, risk exposure, certifications, government schemes or expansion planning.";
+      }
+      setMessages((prev) => [...(prev || []), { role: "assistant", content: reply }]);
+    } catch {
+      setMessages((prev) => [...(prev || []), { role: "assistant", content: "I couldn't reach the intelligence service right now. Please try again in a moment." }]);
+    } finally {
+      setSending(false);
+    }
   };
 
   useEffect(() => {
@@ -55,7 +63,7 @@ export default function CopilotPanel({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, onClose, input, messages]);
+  }, [isOpen, onClose, input, messages, sending]);
 
   if (!isOpen) return null;
 
@@ -111,6 +119,14 @@ export default function CopilotPanel({
             </div>
           </div>
         ))}
+        {sending && (
+          <div className="flex justify-start">
+            <div className="flex items-center gap-2 rounded-lg bg-surface-muted px-3.5 py-2.5 text-xs text-ink-subtle">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-success" aria-hidden="true" />
+              Analyzing your workspace…
+            </div>
+          </div>
+        )}
         {messages && messages.length > 0 && suggestedPrompts.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {suggestedPrompts.map((prompt) => (
@@ -138,7 +154,7 @@ export default function CopilotPanel({
           />
           <button
             type="submit"
-            disabled={!input.trim()}
+            disabled={!input.trim() || sending}
             className="flex h-9 w-9 items-center justify-center rounded-md bg-success text-white transition-colors hover:bg-success/90 disabled:opacity-50"
             aria-label="Send message"
           >

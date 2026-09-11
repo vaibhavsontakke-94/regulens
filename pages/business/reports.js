@@ -1,7 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { BIZ_REPORTS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { fmtDate } from "@/lib/format";
 
 const STATUS_VARIANTS = {
@@ -18,6 +18,8 @@ const TYPE_VARIANTS = {
 };
 
 export default function ReportsPage() {
+  const { data } = useWorkspace();
+  const BIZ_REPORTS = data.reports || [];
   const ready = BIZ_REPORTS.filter((r) => r.status === "Ready").length;
 
   return (

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { BUSINESS_PROFILE_KEY, EMPTY_BUSINESS_PROFILE, computeProfileCompletion } from "@/lib/businessProfileData";
+import { bizApi } from "@/lib/api";
 
 const BusinessProfileContext = createContext(null);
 
@@ -18,8 +19,29 @@ export function BusinessProfileProvider({ children }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let alive = true;
     setProfileState(readLocalProfile());
     setHydrated(true);
+    bizApi
+      .profile()
+      .then((res) => {
+        if (!alive) return;
+        const serverProfile = res && res.profile ? res.profile : null;
+        if (serverProfile) {
+          setProfileState(serverProfile);
+          try {
+            window.localStorage.setItem(BUSINESS_PROFILE_KEY, JSON.stringify(serverProfile));
+          } catch {
+            /* storage unavailable */
+          }
+        }
+      })
+      .catch(() => {
+        /* no server profile; keep local copy */
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const setProfile = useCallback((next) => {

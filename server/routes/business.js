@@ -2,7 +2,7 @@ import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { isEmpty, isEmail } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
-import { runAiModule } from "../businessAi.js";
+import { runAiModule, runEvidenceAnalysis } from "../businessAi.js";
 
 export default async function businessRoutes(req, res, sub, user) {
   const [head = ""] = sub;
@@ -39,6 +39,11 @@ export default async function businessRoutes(req, res, sub, user) {
       ],
       notifications: data.notifications,
     });
+  }
+
+  if (head === "workspace") {
+    if (req.method !== "GET") return methodNotAllowed(res);
+    return ok(res, db.businessData());
   }
 
   if (head === "profile") {
@@ -82,6 +87,17 @@ export default async function businessRoutes(req, res, sub, user) {
   }
 
   if (head === "compliance") {
+    if (sub.length === 2) {
+      if (req.method !== "PATCH") return methodNotAllowed(res);
+      const current = db.businessData().compliance.find((c) => c.id === sub[1]);
+      if (!current) return notFound(res, `Compliance item ${sub[1]} not found.`);
+      const status = String((req.body || {}).status || "").trim();
+      if (!status) return badRequest(res, "A status value is required.");
+      db.state.business.complianceStatus[sub[1]] = status;
+      db.persist();
+      const updated = db.businessData().compliance.find((c) => c.id === sub[1]);
+      return ok(res, { requirement: updated });
+    }
     if (req.method !== "GET") return methodNotAllowed(res);
     const data = db.businessData();
     const isExpiringSoon = (date) => {
@@ -146,6 +162,17 @@ export default async function businessRoutes(req, res, sub, user) {
   }
 
   if (head === "certifications") {
+    if (sub.length === 2) {
+      if (req.method !== "PATCH") return methodNotAllowed(res);
+      const current = db.businessData().certifications.find((c) => c.id === sub[1]);
+      if (!current) return notFound(res, `Certification ${sub[1]} not found.`);
+      const status = String((req.body || {}).status || "").trim();
+      if (!status) return badRequest(res, "A status value is required.");
+      db.state.business.certificationStatus[sub[1]] = status;
+      db.persist();
+      const updated = db.businessData().certifications.find((c) => c.id === sub[1]);
+      return ok(res, { certification: updated });
+    }
     if (req.method !== "GET") return methodNotAllowed(res);
     return ok(res, { certifications: db.businessData().certifications });
   }
@@ -197,17 +224,52 @@ export default async function businessRoutes(req, res, sub, user) {
       if (req.method === "POST") {
         const body = req.body || {};
         if (isEmpty(body.title)) return badRequest(res, "Evidence title is required.");
-        return created(res, { evidence: db.addBusinessEvidence(body) });
+        const evidence = db.addBusinessEvidence({
+          title: body.title,
+          type: body.type,
+          problemId: body.problemId,
+          size: body.size,
+        });
+        const data = db.businessData();
+        const analysis = await runEvidenceAnalysis(evidence, data);
+        const persisted = db.updateBusinessEvidence(evidence.id, {
+          status: analysis?.status === "needs-review" ? "needs-review" : "complete",
+          progress: 100,
+          analysis,
+        });
+        return created(res, { evidence: persisted, analysis });
       }
       return methodNotAllowed(res);
     }
     if (sub.length === 2) {
-      if (req.method !== "PATCH") return methodNotAllowed(res);
-      const updated = db.state.business.evidence.find((e) => e.id === sub[1]);
-      if (!updated) return notFound(res, `Evidence ${sub[1]} not found.`);
-      Object.assign(updated, req.body || {});
-      db.persist();
-      return ok(res, { evidence: updated });
+      if (req.method === "PATCH") {
+        const existing = db.state.business.evidence.find((e) => e.id === sub[1]);
+        if (!existing) return notFound(res, `Evidence ${sub[1]} not found.`);
+        const updated = db.updateBusinessEvidence(sub[1], req.body || {});
+        return ok(res, { evidence: updated });
+      }
+      if (req.method === "DELETE") {
+        const index = db.state.business.evidence.findIndex((e) => e.id === sub[1]);
+        if (index === -1) return notFound(res, `Evidence ${sub[1]} not found.`);
+        db.state.business.evidence.splice(index, 1);
+        db.persist();
+        db.audit(`Evidence removed: ${sub[1]}`, { target: sub[1] });
+        return ok(res, { done: true });
+      }
+      return methodNotAllowed(res);
+    }
+    if (sub.length === 3 && sub[2] === "analyze") {
+      if (req.method !== "POST") return methodNotAllowed(res);
+      const found = db.state.business.evidence.find((e) => e.id === sub[1]);
+      if (!found) return notFound(res, `Evidence ${sub[1]} not found.`);
+      const data = db.businessData();
+      const analysis = await runEvidenceAnalysis(found, data);
+      const persisted = db.updateBusinessEvidence(found.id, {
+        status: analysis?.status === "needs-review" ? "needs-review" : "complete",
+        progress: 100,
+        analysis,
+      });
+      return ok(res, { evidence: persisted, analysis });
     }
     return notFound(res, `Unknown evidence endpoint.`);
   }
@@ -218,27 +280,25 @@ export default async function businessRoutes(req, res, sub, user) {
   }
 
   if (head === "notifications") {
-    if (sub.length === 1) {
-      if (req.method === "GET") return ok(res, { notifications: db.businessData().notifications });
-      return methodNotAllowed(res);
-    }
     if (sub.length === 2 && sub[1] === "read-all") {
       if (req.method !== "POST") return methodNotAllowed(res);
-      db.state.business.notifications.forEach((n) => {
-        n.unread = false;
+      db.businessData().notifications.forEach((n) => {
+        db.state.business.notificationsRead[n.id] = true;
       });
       db.persist();
       return ok(res, { done: true });
     }
     if (sub.length === 2) {
       if (req.method !== "PATCH") return methodNotAllowed(res);
-      const item = db.state.business.notifications.find((n) => n.id === sub[1]);
+      const item = db.businessData().notifications.find((n) => n.id === sub[1]);
       if (!item) return notFound(res, `Notification ${sub[1]} not found.`);
-      Object.assign(item, req.body || {});
+      const patch = req.body || {};
+      if (patch.unread === false || patch.read === true) db.state.business.notificationsRead[sub[1]] = true;
       db.persist();
-      return ok(res, { notification: item });
+      return ok(res, { notification: { ...item, unread: false } });
     }
-    return notFound(res, `Unknown notifications endpoint.`);
+    if (req.method !== "GET") return methodNotAllowed(res);
+    return ok(res, { notifications: db.businessData().notifications });
   }
 
   if (head === "ai") {
@@ -282,9 +342,9 @@ async function bizCopilot(message, data) {
     },
     risk: {
       overall: data.healthScores.risk,
-      categories: data.riskCategories.map((r) => ({ category: r.category, status: r.status, level: r.level })),
+      categories: data.riskCategories.map((r) => ({ category: r.category, status: r.status, severity: r.severity })),
     },
-    financial: { exposure: data.healthScores.financialExposure, estimatedAnnualCost: data.financialImpact?.estimatedAnnualCost, breakdown: data.financialImpact?.breakdown },
+    financial: { exposure: data.healthScores.financialExposure, costs: data.financialImpact?.bars?.map((b) => ({ label: b.label, value: b.value })) || [] },
     expansion: {
       readiness: data.healthScores.growthReadiness,
       currentRegion: data.expansionAnalysis.currentRegion,
@@ -299,7 +359,7 @@ async function bizCopilot(message, data) {
   };
   return groqWithFallback(`${JSON.stringify(context, null, 2)}\n\nQuestion: ${message}`, {
     system:
-      "You are the REGULENS Business Copilot — an AI assistant for Nigerian businesses managing regulatory compliance. Answer questions about compliance deadlines, risk exposure, certifications, government schemes, regulatory updates and expansion readiness using ONLY the business context provided. Be concise, structured and specific. If you lack data, say so. All business data is demo/illustrative.",
+      "You are the REGULENS Business Copilot — an AI assistant for Nigerian businesses managing regulatory compliance. Answer questions about compliance deadlines, risk exposure, certifications, government schemes, regulatory updates and expansion readiness using ONLY the business context provided. Be concise, structured and specific. If you lack data, say so.",
     fallback: () => bizFallbackReply(message, data),
   });
 }
@@ -308,25 +368,25 @@ function bizFallbackReply(message, data) {
   const text = message.toLowerCase();
   if (/deadline|due|compliance|expire/i.test(text)) {
     const pending = data.compliance.filter((c) => c.status !== "Compliant").slice(0, 3);
-    if (pending.length === 0) return "No compliance deadlines are currently outstanding. Well done! (Illustrative demo data.)";
-    return `Upcoming obligations:\n${pending.map((c) => `• ${c.requirement} — ${c.status} (due ${c.dueDate}, ${c.authority})`).join("\n")}\nAll records are illustrative demo data.`;
+    if (pending.length === 0) return "No compliance deadlines are currently outstanding. Well done!";
+    return `Upcoming obligations:\n${pending.map((c) => `• ${c.requirement} — ${c.status} (due ${c.dueDate}, ${c.authority})`).join("\n")}`;
   }
   if (/risk|exposure|regulatory risk/i.test(text)) {
     const elevated = data.riskCategories.filter((r) => r.status === "Elevated").map((r) => r.category).slice(0, 3);
-    return `Regulatory risk is currently ${data.healthScores.risk}/100. Elevated areas: ${elevated.join(", ") || "none"}. Review the Risk & Exposure module for mitigation owners. Illustrative demo data.`;
+    return `Regulatory risk is currently ${data.healthScores.risk}/100. Elevated areas: ${elevated.join(", ") || "none"}. Review the Risk & Exposure module for mitigation owners.`;
   }
   if (/expand|kaduna|abuja|sez|zone/i.test(text)) {
     const a = data.expansionAnalysis;
-    return `${a.currentRegion} (${a.currentScore}/100) vs ${a.targetRegion} (${a.targetScore}/100). Advantages: ${a.advantages.slice(0, 2).join("; ")}. Estimated setup ~${a.estimatedCost}. Demo comparison only.`;
+    return `${a.currentRegion} (${a.currentScore}/100) vs ${a.targetRegion} (${a.targetScore}/100). Advantages: ${a.advantages.slice(0, 2).join("; ")}. Estimated setup ~${a.estimatedCost}.`;
   }
   if (/scheme|grant|incentive|fund/i.test(text)) {
     const open = data.schemes.filter((s) => s.status === "Open").slice(0, 3);
-    return `Schemes currently open: ${open.map((s) => `• ${s.scheme} (${s.authority})`).join("\n")}. Deadlines vary — see the Government Schemes module. Demo data.`;
+    return `Schemes currently open: ${open.map((s) => `• ${s.scheme} (${s.authority})`).join("\n")}. Deadlines vary — see the Government Schemes module.`;
   }
   if (/certif|readiness/i.test(text)) {
     const held = data.certifications.filter((c) => c.status === "Active").length;
     const mandatory = data.certifications.filter((c) => c.mandatory && c.status !== "Active").map((c) => c.name).slice(0, 2);
-    return `You hold ${held} of ${data.certifications.length} tracked certifications${mandatory.length ? `. Mandatory missing: ${mandatory.join(", ")}` : ""}. Illustrative demo data.`;
+    return `You hold ${held} of ${data.certifications.length} tracked certifications${mandatory.length ? `. Mandatory missing: ${mandatory.join(", ")}` : ""}.`;
   }
-  return `This is a demo response to: "${message}". In the full version I would analyze your business data and provide specific compliance, risk or expansion insights. All data shown is illustrative.`;
+  return `Here's what I know about that: "${message}". I can walk through your compliance, risk or expansion data in more detail if you narrow the question.`;
 }

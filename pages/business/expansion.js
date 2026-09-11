@@ -1,7 +1,7 @@
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { EXPANSION_ANALYSIS, EXPANSION_FACTORS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 function ComparisonBar({ factor, current, target }) {
   return (
@@ -28,7 +28,9 @@ function ComparisonBar({ factor, current, target }) {
 }
 
 export default function ExpansionAnalyzerPage() {
-  const data = EXPANSION_ANALYSIS;
+  const { data: workspace } = useWorkspace();
+  const data = workspace.expansionAnalysis;
+  const EXPANSION_FACTORS = workspace.expansionFactors || [];
 
   return (
     <>
@@ -37,10 +39,6 @@ export default function ExpansionAnalyzerPage() {
         title="Expansion Analyzer"
         description="Compare your current region against a potential expansion target."
       />
-
-      <div className="mb-6 rounded-lg border border-success/30 bg-success-soft px-4 py-3 text-sm text-success">
-        <strong>Demo data.</strong> All comparison data and scores are illustrative only.
-      </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
         <SectionCard title="Current Region">
@@ -149,7 +147,7 @@ export default function ExpansionAnalyzerPage() {
         <div className="rounded-lg border border-line bg-surface-muted p-4 text-center">
           <p className="text-sm text-ink-subtle">Estimated setup & compliance cost</p>
           <p className="mt-1 text-2xl font-semibold text-ink">{data.estimatedCost}</p>
-          <p className="mt-1 text-xs text-ink-faint">Illustrative estimate for demo purposes</p>
+          <p className="mt-1 text-xs text-ink-faint">Estimated from your profile and target-market data</p>
         </div>
       </SectionCard>
     </>

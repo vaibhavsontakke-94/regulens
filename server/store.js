@@ -11,26 +11,7 @@ import {
   NOTIFICATIONS,
   AUDIT_LOGS,
 } from "../lib/mockData.js";
-import {
-  BUSINESS_PROFILE,
-  HEALTH_SCORES,
-  COMPLIANCE_REQUIREMENTS,
-  RISK_CATEGORIES,
-  RISK_ANALYSIS,
-  EXPANSION_FACTORS,
-  EXPANSION_ANALYSIS,
-  EXPANSION_READINESS,
-  CERTIFICATIONS,
-  REGULATORY_UPDATES,
-  CERTIFICATION_INTEL,
-  SCHEMES,
-  MY_PROBLEMS,
-  PROBLEM_LIFECYCLE,
-  EVIDENCE as BIZ_EVIDENCE,
-  BIZ_REPORTS,
-  FINANCIAL_IMPACT,
-  NOTIFICATIONS as BIZ_NOTIFICATIONS,
-} from "../lib/businessData.js";
+import { buildWorkspace } from "./workspace.js";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
@@ -68,25 +49,14 @@ function seedState() {
     notifications: clone(NOTIFICATIONS),
     auditLogs: clone(AUDIT_LOGS),
     business: {
-      staticProfile: clone(BUSINESS_PROFILE),
       profile: null,
-      healthScores: clone(HEALTH_SCORES),
-      compliance: clone(COMPLIANCE_REQUIREMENTS),
-      riskCategories: clone(RISK_CATEGORIES),
-      riskAnalysis: clone(RISK_ANALYSIS),
-      expansionFactors: clone(EXPANSION_FACTORS),
-      expansionAnalysis: clone(EXPANSION_ANALYSIS),
-      expansionReadiness: clone(EXPANSION_READINESS),
-      certifications: clone(CERTIFICATIONS),
-      regulatoryUpdates: clone(REGULATORY_UPDATES),
-      certificationIntel: clone(CERTIFICATION_INTEL),
-      schemes: clone(SCHEMES),
-      problems: clone(MY_PROBLEMS),
-      problemLifecycle: clone(PROBLEM_LIFECYCLE),
-      evidence: clone(BIZ_EVIDENCE),
-      reports: clone(BIZ_REPORTS),
-      financialImpact: clone(FINANCIAL_IMPACT),
-      notifications: clone(BIZ_NOTIFICATIONS),
+      problems: [],
+      evidence: [],
+      reports: [],
+      notifications: [],
+      notificationsRead: {},
+      complianceStatus: {},
+      certificationStatus: {},
     },
   };
 }
@@ -322,9 +292,12 @@ function addBusinessEvidence(fields) {
     type: fields.type || "Document",
     title: fields.title,
     problemId: fields.problemId || "",
-    status: "Pending",
-    date: today(),
+    status: fields.status || "Pending",
+    date: fields.date || today(),
+    size: fields.size ?? null,
     note: fields.note || "",
+    progress: fields.progress ?? null,
+    analysis: fields.analysis || null,
   };
   state.business.evidence.unshift(item);
   persist();
@@ -380,25 +353,17 @@ function publicUser(user) {
 }
 
 function businessData() {
+  const derived = buildWorkspace(state.business.profile, {
+    problems: state.business.problems,
+    evidence: state.business.evidence,
+    reports: state.business.reports,
+    notifications: state.business.notifications,
+    notificationsRead: state.business.notificationsRead,
+    complianceStatus: state.business.complianceStatus,
+    certificationStatus: state.business.certificationStatus,
+  });
   return {
-    staticProfile: clone(state.business.staticProfile),
-    healthScores: clone(state.business.healthScores),
-    compliance: clone(state.business.compliance),
-    riskCategories: clone(state.business.riskCategories),
-    riskAnalysis: clone(state.business.riskAnalysis),
-    expansionFactors: clone(state.business.expansionFactors),
-    expansionAnalysis: clone(state.business.expansionAnalysis),
-    expansionReadiness: clone(state.business.expansionReadiness),
-    certifications: clone(state.business.certifications),
-    regulatoryUpdates: clone(state.business.regulatoryUpdates),
-    certificationIntel: clone(state.business.certificationIntel),
-    schemes: clone(state.business.schemes),
-    problems: clone(state.business.problems),
-    problemLifecycle: clone(state.business.problemLifecycle),
-    evidence: clone(state.business.evidence),
-    reports: clone(state.business.reports),
-    financialImpact: clone(state.business.financialImpact),
-    notifications: clone(state.business.notifications),
+    ...derived,
     profile: state.business.profile ? clone(state.business.profile) : null,
   };
 }

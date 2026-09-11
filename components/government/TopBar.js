@@ -36,8 +36,8 @@ function ProfileMenu({ onNavigate }) {
     };
   }, [open]);
 
-  const name = session?.name || "Demo user";
-  const email = session?.email || "ops@nortextextiles.demo";
+  const name = session?.name || "Government User";
+  const email = session?.email || "No email on file";
   const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
   function handleSignOut() {

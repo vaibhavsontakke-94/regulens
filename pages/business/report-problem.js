@@ -3,6 +3,7 @@ import { Upload, Camera, Film, FileText, MapPin } from "lucide-react";
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Button from "@/components/ui/Button";
+import { bizApi } from "@/lib/api";
 
 const CATEGORIES = [
   "Consumer Protection & Pricing",
@@ -27,6 +28,7 @@ export default function ReportProblemPage() {
     affectedBusinesses: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -34,8 +36,24 @@ export default function ReportProblemPage() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!form.title.trim() || !form.description.trim()) return;
+    bizApi
+      .createProblem({
+        title: form.title.trim(),
+        description: form.description.trim(),
+        location: form.location.trim(),
+        category: form.category || "General",
+        severity: form.severity || "Medium",
+      })
+      .then(() => {
+        setForm({ title: "", description: "", location: "", category: "", severity: "", affectedPeople: "", affectedBusinesses: "" });
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 4000);
+      })
+      .catch(() => {
+        setError("Could not submit the problem. Please try again.");
+        setTimeout(() => setError(""), 4000);
+      });
   }
 
   return (
@@ -48,7 +66,13 @@ export default function ReportProblemPage() {
 
       {submitted && (
         <div className="mb-6 rounded-lg border border-success/30 bg-success-soft px-4 py-3 text-sm text-success">
-          Problem submitted successfully (demo). No data was actually saved.
+          Problem submitted successfully. It has been added to My Problems.
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+          {error}
         </div>
       )}
 
@@ -174,7 +198,7 @@ export default function ReportProblemPage() {
                 <MapPin className="h-4 w-4 text-ink-faint" />
                 <span>Capture GPS location</span>
               </button>
-              <p className="mt-2 text-[11px] text-ink-faint">Location capture is simulated for demo.</p>
+              <p className="mt-2 text-[11px] text-ink-faint">Attach current-generation GPS coordinates from your device.</p>
             </SectionCard>
           </div>
         </div>

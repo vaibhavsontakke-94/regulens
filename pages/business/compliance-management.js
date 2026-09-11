@@ -2,20 +2,18 @@ import { useState } from "react";
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { COMPLIANCE_REQUIREMENTS } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
+import { bizApi } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 
-const STATUS_VARIANTS = {
-  Compliant: "green",
-  "Action Required": "red",
-  "Under Review": "amber",
-  Expired: "red",
-};
+const STATUS_OPTIONS = ["Compliant", "Action Required", "Under Review", "Expired"];
 
 const OWNERS = ["Compliance Lead", "Finance Lead", "Plant Manager", "HR Manager"];
 
 export default function ComplianceManagementPage() {
   const [filter, setFilter] = useState("");
+  const { data, refresh } = useWorkspace();
+  const COMPLIANCE_REQUIREMENTS = data.compliance || [];
 
   const requirements = COMPLIANCE_REQUIREMENTS.map((r, i) => ({
     ...r,
@@ -24,6 +22,13 @@ export default function ComplianceManagementPage() {
   }));
 
   const filtered = filter ? requirements.filter((r) => r.status === filter) : requirements;
+
+  function updateStatus(id, status) {
+    bizApi
+      .updateCompliance(id, { status })
+      .then(refresh)
+      .catch(() => {});
+  }
 
   return (
     <>
@@ -98,7 +103,16 @@ export default function ComplianceManagementPage() {
                     </Badge>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3">
-                    <Badge variant={STATUS_VARIANTS[r.status] || "neutral"} size="sm">{r.status}</Badge>
+                    <select
+                      value={r.status}
+                      onChange={(e) => updateStatus(r.id, e.target.value)}
+                      aria-label={`Status for ${r.requirement}`}
+                      className="h-8 rounded-md border border-line bg-surface px-2 text-xs text-ink"
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-ink-subtle">{r.owner}</td>
                 </tr>

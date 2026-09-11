@@ -143,7 +143,7 @@ export default function VerifyForm({ role }) {
           Verify
         </Button>
 
-        <DemoNote>Check your inbox for the 6-digit code (for demo, the API returns it in the response).</DemoNote>
+        <DemoNote>Check your inbox for the 6-digit code. In development the code is also returned in the API response.</DemoNote>
       </div>
 
       <div className="mt-6 flex justify-center">
