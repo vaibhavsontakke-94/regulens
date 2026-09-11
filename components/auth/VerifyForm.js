@@ -7,6 +7,7 @@ import { FormCard, FormTitle, BackLink, DemoNote } from "@/components/auth/formB
 import { ROLES } from "@/components/auth/roles";
 import { getPendingVerification, clearPendingVerification, setSession } from "@/lib/authSession";
 import useCountdown from "@/hooks/useCountdown";
+import { authApi, handleApiError } from "@/lib/api";
 
 const RESEND_SECONDS = 30;
 
@@ -51,7 +52,11 @@ export default function VerifyForm({ role }) {
     reset();
     setCode("");
     setError("");
-    setResendNote("A new code has been sent.");
+    setResendNote("");
+    authApi
+      .resendCode({ role, email: pending.email })
+      .then(() => setResendNote(`A new code was sent to ${maskEmail(pending.email)}.`))
+      .catch((err) => setError(handleApiError(err)));
   }
 
   function handleChange(value) {
@@ -66,19 +71,27 @@ export default function VerifyForm({ role }) {
       return;
     }
     setLoading(true);
+    setError("");
     setResendNote("");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    clearPendingVerification();
-    if (pending.purpose === "register") {
-      setSession({
+    try {
+      const data = await authApi.verify({
         role,
-        name: pending.name || "Officer",
         email: pending.email,
-        verified: true,
+        code,
+        name: pending.name,
+        purpose: pending.purpose,
       });
-      router.push(cfg.home);
-    } else {
-      router.push(cfg.resetPath);
+      clearPendingVerification();
+      if (pending.purpose === "register") {
+        setSession(data.session);
+        router.push(cfg.home);
+      } else {
+        router.push(cfg.resetPath);
+      }
+    } catch (err) {
+      setError(handleApiError(err));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -130,7 +143,7 @@ export default function VerifyForm({ role }) {
           Verify
         </Button>
 
-        <DemoNote>Demo mode: enter any 6 digits to verify. Codes reset on resend.</DemoNote>
+        <DemoNote>Check your inbox for the 6-digit code (for demo, the API returns it in the response).</DemoNote>
       </div>
 
       <div className="mt-6 flex justify-center">

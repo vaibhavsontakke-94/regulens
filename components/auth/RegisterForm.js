@@ -10,6 +10,7 @@ import { FormCard, FormTitle, BackLink, SectionLabel } from "@/components/auth/f
 import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty, passwordMeetsAll, requiredError, emailError, passwordError } from "@/lib/validators";
 import { setPendingVerification } from "@/lib/authSession";
+import { authApi, handleApiError } from "@/lib/api";
 
 const INDUSTRIES = [
   "Financial Services",
@@ -73,6 +74,7 @@ export default function RegisterForm({ role }) {
     terms: false,
   });
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
 
   function setField(name, value) {
@@ -121,14 +123,34 @@ export default function RegisterForm({ role }) {
     }
     if (!validate()) return;
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setPendingVerification({
-      role,
-      email: values.email.trim(),
-      name: values.fullName.trim(),
-      purpose: "register",
-    });
-    router.push(cfg.verifyPath);
+    setFormError("");
+    try {
+      await authApi.register({
+        role,
+        name: values.fullName.trim(),
+        email: values.email.trim(),
+        password: values.password,
+        fullName: values.fullName.trim(),
+        businessName: values.businessName.trim(),
+        department: values.department.trim(),
+        designation: values.designation.trim(),
+        organization: values.organization.trim(),
+        govId: values.govId.trim(),
+        industry: values.industry,
+        location: values.location.trim(),
+      });
+      setPendingVerification({
+        role,
+        email: values.email.trim(),
+        name: values.fullName.trim(),
+        purpose: "register",
+      });
+      router.push(cfg.verifyPath);
+    } catch (err) {
+      setFormError(handleApiError(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -234,6 +256,12 @@ export default function RegisterForm({ role }) {
             </p>
           )}
         </div>
+
+        {formError && (
+          <p role="alert" className="flex items-center gap-1.5 rounded-[10px] border border-danger/30 bg-danger-soft px-3.5 py-2.5 text-[13px] font-medium text-danger">
+            {formError}
+          </p>
+        )}
 
         <div className="flex flex-col gap-3">
           <Button type="submit" size="lg" className="w-full" loading={loading}>

@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
 import { buildProblemIntelligence } from "@/lib/problemIntelligence";
+import { govApi, handleApiError } from "@/lib/api";
 import { cx } from "@/lib/utils";
 
 // ---------------------------------------------------------------
@@ -179,7 +180,13 @@ export default function SearchProblemPage() {
 
     if (matches.length > 0) {
       const id = `PRB-${String(Date.now()).slice(-6)}`;
-      setProblem(buildProblemIntelligence({ id, title: value, businesses: matches }));
+      try {
+        const data = await govApi.buildIntelligence({ id, title: value, businesses: matches });
+        setProblem(data.intelligence);
+      } catch (err) {
+        console.warn("Intelligence API unavailable, using local builder:", handleApiError(err));
+        setProblem(buildProblemIntelligence({ id, title: value, businesses: matches }));
+      }
     }
     setResults(matches);
     setSearching(false);

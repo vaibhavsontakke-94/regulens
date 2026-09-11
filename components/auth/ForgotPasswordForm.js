@@ -7,6 +7,7 @@ import { FormCard, FormTitle, BackLink, DemoNote, SuccessPanel } from "@/compone
 import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty } from "@/lib/validators";
 import { setPendingVerification } from "@/lib/authSession";
+import { authApi, handleApiError } from "@/lib/api";
 
 export default function ForgotPasswordForm({ role }) {
   const cfg = ROLES[role];
@@ -38,8 +39,15 @@ export default function ForgotPasswordForm({ role }) {
     event.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1100));
-    setSent(true);
+    setError("");
+    try {
+      await authApi.forgotPassword({ role, email: email.trim() });
+      setSent(true);
+    } catch (err) {
+      setError(handleApiError(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleContinue() {
@@ -94,7 +102,7 @@ export default function ForgotPasswordForm({ role }) {
         </Button>
 
         <DemoNote>
-          Demo mode: any registered email format is accepted. No email is actually sent.
+          Demo mode: the reset code is returned by the API (and shown in your dev server logs).
         </DemoNote>
       </form>
 

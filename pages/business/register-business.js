@@ -23,6 +23,7 @@ import {
   TARGET_MARKETS,
 } from "@/lib/businessProfileData";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
+import { bizApi, handleApiError } from "@/lib/api";
 
 const DRAFT_KEY = "regulens-business-register-draft";
 
@@ -347,6 +348,7 @@ export default function RegisterBusinessPage() {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     try {
@@ -394,9 +396,11 @@ export default function RegisterBusinessPage() {
     setStep((s) => Math.max(s - 1, 0));
   }
 
-  function createProfile() {
+  async function createProfile() {
     setSaving(true);
-    setTimeout(() => {
+    setSaveError("");
+    try {
+      await bizApi.saveProfile(draft);
       setProfile(draft);
       try {
         window.localStorage.removeItem(DRAFT_KEY);
@@ -404,7 +408,10 @@ export default function RegisterBusinessPage() {
         /* ignore */
       }
       router.push("/business");
-    }, 600);
+    } catch (err) {
+      setSaveError(handleApiError(err));
+      setSaving(false);
+    }
   }
 
   const StepContent = [StepBusinessIdentity, StepLocation, StepOperations, StepScale, StepCompliance, StepEnvironmentalGrowth, StepReview][step];
@@ -441,6 +448,12 @@ export default function RegisterBusinessPage() {
         </div>
 
         <StepContent draft={draft} patch={patch} setDraft={setDraft} />
+
+        {saveError && (
+          <p role="alert" className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3.5 py-2.5 text-[13px] font-medium text-danger">
+            {saveError}
+          </p>
+        )}
 
         <div className="mt-8 flex flex-col-reverse items-center justify-between gap-3 border-t border-line pt-5 sm:flex-row">
           <Button variant="ghost" size="lg" onClick={() => router.push("/business")}>

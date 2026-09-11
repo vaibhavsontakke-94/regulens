@@ -6,7 +6,8 @@ import PasswordField from "@/components/auth/PasswordField";
 import { FormCard, FormTitle, BackLink, SuccessPanel } from "@/components/auth/formBits";
 import { ROLES } from "@/components/auth/roles";
 import { isEmpty, passwordMeetsAll, requiredError, passwordError } from "@/lib/validators";
-import { clearPendingVerification, getPendingVerification } from "@/lib/authSession";
+import { clearPendingVerification, getPendingVerification, setSession } from "@/lib/authSession";
+import { authApi, handleApiError } from "@/lib/api";
 
 export default function ResetPasswordForm({ role }) {
   const cfg = ROLES[role];
@@ -49,9 +50,22 @@ export default function ResetPasswordForm({ role }) {
     event.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    clearPendingVerification();
-    setDone(true);
+    try {
+      const pending = getPendingVerification();
+      const result = await authApi.resetPassword({
+        role,
+        email: pending.email,
+        code: pending.code || "",
+        password,
+      });
+      if (result?.session) setSession(result.session);
+      clearPendingVerification();
+      setDone(true);
+    } catch (err) {
+      setErrors((e) => ({ ...e, password: handleApiError(err) }));
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (blocked) {

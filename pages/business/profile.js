@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Building2, MapPin, Truck, TrendingUp, ShieldCheck, Sprout, CloudSun, ArrowRight, BadgeCheck } from "lucide-react";
 import BusinessLayout from "@/components/business/BusinessLayout";
@@ -7,6 +7,7 @@ import BusinessProfileSection from "@/components/business/profile/BusinessProfil
 import ProgressBar from "@/components/business/ui/ProgressBar";
 import Button from "@/components/ui/Button";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
+import { bizApi } from "@/lib/api";
 import { Field, TextInput, AreaInput, SelectInput, ChipInput } from "@/components/business/registration/fields";
 import {
   BUSINESS_TYPES,
@@ -50,6 +51,7 @@ function useSectionEditor(section) {
   }
   function save() {
     setProfile({ ...profile, [section]: form });
+    bizApi.patchProfile({ [section]: form }).catch(() => {});
     setEditing(false);
     setForm(null);
   }
@@ -316,7 +318,19 @@ function GrowthSection() {
 
 export default function BusinessProfilePage() {
   const router = useRouter();
-  const { profile, display, completion, isRegistered } = useBusinessProfile();
+  const { profile, setProfile, display, completion, isRegistered } = useBusinessProfile();
+
+  useEffect(() => {
+    bizApi
+      .profile()
+      .then((data) => {
+        if (data && data.profile) {
+          setProfile({ ...(profile || {}), ...data.profile });
+        }
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setProfile]);
 
   return (
     <>
@@ -359,7 +373,7 @@ export default function BusinessProfilePage() {
               </div>
               <div className="mt-4 flex items-center gap-3">
                 <BadgeCheck className="h-4 w-4 text-success" aria-hidden="true" />
-                <span className="text-xs text-ink-subtle">Profile saved locally and used across all REGULENS modules.</span>
+                <span className="text-xs text-ink-subtle">Profile saved to your workspace and used across all REGULENS modules.</span>
               </div>
             </div>
             <div className="flex flex-col justify-center gap-2 rounded-lg border border-line bg-white p-5 dark:bg-ink-soft">

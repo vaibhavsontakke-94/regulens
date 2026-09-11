@@ -5,6 +5,7 @@ import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import { isEmail, isEmpty, requiredError } from "@/lib/validators";
+import { govApi, handleApiError } from "@/lib/api";
 
 const CATEGORIES = [
   "Consumer Protection & Pricing",
@@ -62,7 +63,10 @@ export default function NewProblemPage() {
     summary: "",
   });
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [createdProblem, setCreatedProblem] = useState(null);
 
   function set(name, value) {
     setValues((v) => ({ ...v, [name]: value }));
@@ -77,10 +81,20 @@ export default function NewProblemPage() {
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
-    setSubmitted(true);
+    setLoading(true);
+    setFormError("");
+    try {
+      const data = await govApi.createProblem(values);
+      setCreatedProblem(data.problem);
+      setSubmitted(true);
+    } catch (err) {
+      setFormError(handleApiError(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -97,17 +111,19 @@ export default function NewProblemPage() {
               <CheckCircle2 className="h-7 w-7" aria-hidden="true" />
             </span>
             <div>
-              <h2 className="text-xl font-semibold text-ink">Problem submitted (demo)</h2>
+              <h2 className="text-xl font-semibold text-ink">Problem submitted</h2>
               <p className="mt-1 max-w-md text-sm text-ink-subtle">
-                &quot;{values.title}&quot; has been recorded against the {values.category} category in {values.location}. It would now undergo illustrative prioritisation analysis.
+                &quot;{values.title}&quot; has been recorded as{" "}
+                <span className="font-semibold text-ink">{createdProblem?.id}</span> against the {values.category} category
+                in {values.location}. It has entered the ANALYSIS pipeline for prioritisation.
               </p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => setSubmitted(false)}>
                 Submit another
               </Button>
-              <Button size="sm" onClick={() => router.push("/government/problems")}>
-                View problem list
+              <Button size="sm" onClick={() => router.push(`/government/problems/${createdProblem?.id}`)}>
+                View problem
               </Button>
             </div>
           </div>
@@ -192,11 +208,17 @@ export default function NewProblemPage() {
               />
             </Field>
 
+            {formError && (
+              <p role="alert" className="rounded-[10px] border border-danger/30 bg-danger-soft px-3.5 py-2.5 text-[13px] font-medium text-danger">
+                {formError}
+              </p>
+            )}
+
             <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
               <Button variant="outline" size="md" onClick={() => router.push("/government/problems")}>
                 Cancel
               </Button>
-              <Button type="submit" size="md">
+              <Button type="submit" size="md" loading={loading}>
                 <Send className="h-4 w-4" />
                 Submit problem
               </Button>
@@ -214,9 +236,6 @@ export default function NewProblemPage() {
               <li>The problem enters the verification pipeline.</li>
             </ol>
           </SectionCard>
-          <div className="rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-xs leading-relaxed text-warning">
-            Demo form only — nothing is stored on a server and no real submission is made.
-          </div>
         </div>
       </div>
     </>

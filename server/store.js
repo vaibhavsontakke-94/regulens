@@ -1,0 +1,434 @@
+import fs from "node:fs";
+import path from "node:path";
+import {
+  PROBLEMS,
+  BUSINESSES,
+  REGULATIONS,
+  POLICIES,
+  SOLUTIONS,
+  EVIDENCE,
+  REPORTS,
+  NOTIFICATIONS,
+  AUDIT_LOGS,
+} from "../lib/mockData.js";
+import {
+  BUSINESS_PROFILE,
+  HEALTH_SCORES,
+  COMPLIANCE_REQUIREMENTS,
+  RISK_CATEGORIES,
+  RISK_ANALYSIS,
+  EXPANSION_FACTORS,
+  EXPANSION_ANALYSIS,
+  EXPANSION_READINESS,
+  CERTIFICATIONS,
+  REGULATORY_UPDATES,
+  CERTIFICATION_INTEL,
+  SCHEMES,
+  MY_PROBLEMS,
+  PROBLEM_LIFECYCLE,
+  EVIDENCE as BIZ_EVIDENCE,
+  BIZ_REPORTS,
+  FINANCIAL_IMPACT,
+  NOTIFICATIONS as BIZ_NOTIFICATIONS,
+} from "../lib/businessData.js";
+
+const DATA_DIR = path.join(process.cwd(), ".data");
+const DATA_FILE = path.join(DATA_DIR, "store.json");
+
+function clone(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value;
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function now() {
+  return new Date().toISOString();
+}
+
+function maxNumeric(ids, prefix) {
+  let max = 0;
+  for (const id of ids) {
+    const match = String(id).match(new RegExp(`${prefix}(\\d+)`));
+    if (match) max = Math.max(max, Number(match[1]));
+  }
+  return max;
+}
+
+function seedState() {
+  return {
+    problems: clone(PROBLEMS),
+    businesses: clone(BUSINESSES),
+    regulations: clone(REGULATIONS),
+    policies: clone(POLICIES),
+    solutions: clone(SOLUTIONS),
+    evidence: clone(EVIDENCE),
+    reports: clone(REPORTS),
+    notifications: clone(NOTIFICATIONS),
+    auditLogs: clone(AUDIT_LOGS),
+    business: {
+      staticProfile: clone(BUSINESS_PROFILE),
+      profile: null,
+      healthScores: clone(HEALTH_SCORES),
+      compliance: clone(COMPLIANCE_REQUIREMENTS),
+      riskCategories: clone(RISK_CATEGORIES),
+      riskAnalysis: clone(RISK_ANALYSIS),
+      expansionFactors: clone(EXPANSION_FACTORS),
+      expansionAnalysis: clone(EXPANSION_ANALYSIS),
+      expansionReadiness: clone(EXPANSION_READINESS),
+      certifications: clone(CERTIFICATIONS),
+      regulatoryUpdates: clone(REGULATORY_UPDATES),
+      certificationIntel: clone(CERTIFICATION_INTEL),
+      schemes: clone(SCHEMES),
+      problems: clone(MY_PROBLEMS),
+      problemLifecycle: clone(PROBLEM_LIFECYCLE),
+      evidence: clone(BIZ_EVIDENCE),
+      reports: clone(BIZ_REPORTS),
+      financialImpact: clone(FINANCIAL_IMPACT),
+      notifications: clone(BIZ_NOTIFICATIONS),
+    },
+  };
+}
+
+function seedCounters() {
+  const base = seedState();
+  return {
+    problem: maxNumeric(base.problems.map((p) => p.id), "PRB-"),
+    evidence: maxNumeric(base.evidence.map((e) => e.id), "EVD-"),
+    report: maxNumeric(base.reports.map((r) => r.id), "RPT-"),
+    businessProblem: maxNumeric(base.business.problems.map((p) => p.id), "BP-"),
+    businessEvidence: maxNumeric(base.business.evidence.map((e) => e.id), "BEV-"),
+    notification: maxNumeric(base.notifications.map((n) => n.id), "NTF-"),
+  };
+}
+
+function loadState() {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.problems)) {
+      return {
+        ...seedState(),
+        ...parsed,
+        business: { ...seedState().business, ...(parsed.business || {}) },
+        users: parsed.users || [],
+        idCounters: { ...seedCounters(), ...(parsed.idCounters || {}) },
+      };
+    }
+  } catch {
+    /* no persisted store yet */
+  }
+  const fresh = seedState();
+  fresh.users = [];
+  fresh.idCounters = seedCounters();
+  return fresh;
+}
+
+function saveState(value) {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DATA_FILE, JSON.stringify(value, null, 2));
+  } catch {
+    /* data dir not writable in this environment */
+  }
+}
+
+const state = loadState();
+
+function persist() {
+  saveState(state);
+}
+
+function nextId(prefix, counterKey, pad = 3) {
+  state.idCounters[counterKey] = (state.idCounters[counterKey] || 0) + 1;
+  const n = state.idCounters[counterKey];
+  return `${prefix}${String(n).padStart(pad, "0")}`;
+}
+
+function audit(action, { actor = "System", target = "", outcome = "Success" } = {}) {
+  state.auditLogs.unshift({ time: now(), actor, action, outcome, target });
+  persist();
+}
+
+function getProblem(id) {
+  return state.problems.find((p) => p.id === id) || null;
+}
+
+function getBusiness(id) {
+  return state.businesses.find((b) => b.id === id) || null;
+}
+
+function problemsByStatus() {
+  const counts = { "Under Review": 0, Implemented: 0, "Pending Verification": 0, Resolved: 0 };
+  state.problems.forEach((p) => {
+    if (counts[p.status] !== undefined) counts[p.status] += 1;
+  });
+  return counts;
+}
+
+function problemsByCategory() {
+  const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+  for (const p of state.problems) {
+    const level = p.scores ? priorityLevel(p.scores) : "Low";
+    counts[level] += 1;
+  }
+  return counts;
+}
+
+const SAMPLE_SCORES = {
+  Critical: { severity: 9, businesses: 8, population: 8, economic: 8, regulatoryRisk: 8, urgency: 9, geographic: 6 },
+  High: { severity: 7, businesses: 7, population: 7, economic: 7, regulatoryRisk: 7, urgency: 7, geographic: 6 },
+  Medium: { severity: 5, businesses: 5, population: 5, economic: 5, regulatoryRisk: 5, urgency: 5, geographic: 5 },
+  Low: { severity: 3, businesses: 3, population: 3, economic: 3, regulatoryRisk: 3, urgency: 3, geographic: 4 },
+};
+
+function priorityLevel(scores) {
+  const total =
+    (scores.severity || 0) * 20 +
+    (scores.businesses || 0) * 15 +
+    (scores.population || 0) * 15 +
+    (scores.economic || 0) * 15 +
+    (scores.regulatoryRisk || 0) * 15 +
+    (scores.urgency || 0) * 10 +
+    (scores.geographic || 0) * 10;
+  const score = total / 10;
+  if (score >= 7.5) return "Critical";
+  if (score >= 6.0) return "High";
+  if (score >= 4.5) return "Medium";
+  return "Low";
+}
+
+function createProblemFromFields(fields) {
+  const severity = fields.severity || "Medium";
+  const problem = {
+    id: nextId("PRB-2026-", "problem"),
+    title: fields.title,
+    location: fields.location,
+    category: fields.category,
+    severity,
+    businessesAffected: fields.businessesAffected || 0,
+    populationImpact: fields.populationImpact || 0,
+    status: "Under Review",
+    updated: today(),
+    summary: fields.summary,
+    reporterEmail: fields.reporterEmail,
+    rootCauses: fields.rootCauses || [],
+    scores: clone(SAMPLE_SCORES[severity] || SAMPLE_SCORES.Medium),
+    affectedBusinessIds: fields.affectedBusinessIds || [],
+    regulationIds: fields.regulationIds || [],
+    policyIds: fields.policyIds || [],
+    solutionIds: fields.solutionIds || [],
+    implementation:
+      fields.implementation || { stage: "Unassessed", progress: 0, owner: "Triage Desk", nextMilestone: "Assessment scheduled" },
+    geographic: { areas: [fields.location], businessConcentration: "Unassessed", severityByArea: { [fields.location]: severity } },
+    audits: [{ time: now(), actor: "System", action: `Problem created${fields.reporterEmail ? ` by ${fields.reporterEmail}` : ""}` }],
+    createdAt: now(),
+  };
+  state.problems.unshift(problem);
+  persist();
+  audit(`Problem created: ${problem.id}`, { target: problem.id });
+  return problem;
+}
+
+function updateProblem(id, patch, actor = "System") {
+  const problem = getProblem(id);
+  if (!problem) return null;
+  Object.assign(problem, patch, { updated: today() });
+  if (!Array.isArray(problem.audits)) problem.audits = [];
+  problem.audits.unshift({ time: now(), actor, action: "Problem details updated" });
+  persist();
+  audit(`Problem updated: ${id}`, { actor, target: id });
+  return problem;
+}
+
+function addEvidence({ problemId, type, title, date, before, after }) {
+  const item = {
+    id: nextId("EVD-", "evidence"),
+    problemId: problemId || "",
+    type: type || "Document",
+    title,
+    status: "Pending",
+    date: date || today(),
+    before: before || "",
+    after: after || "",
+  };
+  state.evidence.unshift(item);
+  persist();
+  audit(`Evidence added: ${item.id}`, { target: item.id });
+  return item;
+}
+
+function updateEvidence(id, patch) {
+  const item = state.evidence.find((e) => e.id === id);
+  if (!item) return null;
+  Object.assign(item, patch);
+  persist();
+  audit(`Evidence updated: ${id}`, { target: id });
+  return item;
+}
+
+function addReport(fields) {
+  const report = {
+    id: nextId("RPT-", "report"),
+    title: fields.title,
+    type: fields.type || "Report",
+    date: fields.date || today(),
+    status: fields.status || "Draft",
+    summary: fields.summary || "",
+  };
+  state.reports.unshift(report);
+  persist();
+  audit(`Report created: ${report.id}`, { target: report.id });
+  return report;
+}
+
+function updateReport(id, patch) {
+  const report = state.reports.find((r) => r.id === id);
+  if (!report) return null;
+  Object.assign(report, patch);
+  persist();
+  audit(`Report updated: ${id}`, { target: id });
+  return report;
+}
+
+function addBusinessProblem(fields) {
+  const item = {
+    id: nextId("BP-", "businessProblem"),
+    title: fields.title,
+    status: "REPORTED",
+    updated: today(),
+    severity: fields.severity || "Medium",
+    category: fields.category || "General",
+    description: fields.description || "",
+    evidence: fields.evidence || [],
+  };
+  state.business.problems.unshift(item);
+  persist();
+  return item;
+}
+
+function updateBusinessProblem(id, patch) {
+  const item = state.business.problems.find((p) => p.id === id);
+  if (!item) return null;
+  Object.assign(item, patch, { updated: today() });
+  persist();
+  return item;
+}
+
+function addBusinessEvidence(fields) {
+  const item = {
+    id: nextId("BEV-", "businessEvidence"),
+    type: fields.type || "Document",
+    title: fields.title,
+    problemId: fields.problemId || "",
+    status: "Pending",
+    date: today(),
+    note: fields.note || "",
+  };
+  state.business.evidence.unshift(item);
+  persist();
+  return item;
+}
+
+function updateBusinessEvidence(id, patch) {
+  const item = state.business.evidence.find((e) => e.id === id);
+  if (!item) return null;
+  Object.assign(item, patch);
+  persist();
+  return item;
+}
+
+function addBusinessNotification(title, body, type) {
+  const item = { id: nextId("NTF-", "notification"), title, body, time: now(), type: type || "info", unread: true };
+  state.business.notifications.unshift(item);
+  persist();
+  return item;
+}
+
+function addGovNotification(title, body, type) {
+  const item = { id: nextId("NTF-", "notification"), title, body, time: now(), type: type || "info", unread: true };
+  state.notifications.unshift(item);
+  persist();
+  return item;
+}
+
+function dashboardStats() {
+  return {
+    total: state.problems.length,
+    statusCounts: problemsByStatus(),
+    priorityCounts: problemsByCategory(),
+    categories: state.problems.reduce((acc, p) => {
+      acc[p.category] = (acc[p.category] || 0) + 1;
+      return acc;
+    }, {}),
+    totalBusinesses: state.businesses.length,
+    totalRegulations: state.regulations.length,
+    totalPolicies: state.policies.length,
+    totalSolutions: state.solutions.length,
+    evidenceCount: state.evidence.length,
+    reportsCount: state.reports.length,
+    auditCount: state.auditLogs.length,
+    recentAudits: clone(state.auditLogs.slice(0, 8)),
+  };
+}
+
+function publicUser(user) {
+  if (!user) return null;
+  const { passwordHash, reset, verification, ...safe } = { ...user };
+  return safe;
+}
+
+function businessData() {
+  return {
+    staticProfile: clone(state.business.staticProfile),
+    healthScores: clone(state.business.healthScores),
+    compliance: clone(state.business.compliance),
+    riskCategories: clone(state.business.riskCategories),
+    riskAnalysis: clone(state.business.riskAnalysis),
+    expansionFactors: clone(state.business.expansionFactors),
+    expansionAnalysis: clone(state.business.expansionAnalysis),
+    expansionReadiness: clone(state.business.expansionReadiness),
+    certifications: clone(state.business.certifications),
+    regulatoryUpdates: clone(state.business.regulatoryUpdates),
+    certificationIntel: clone(state.business.certificationIntel),
+    schemes: clone(state.business.schemes),
+    problems: clone(state.business.problems),
+    problemLifecycle: clone(state.business.problemLifecycle),
+    evidence: clone(state.business.evidence),
+    reports: clone(state.business.reports),
+    financialImpact: clone(state.business.financialImpact),
+    notifications: clone(state.business.notifications),
+    profile: state.business.profile ? clone(state.business.profile) : null,
+  };
+}
+
+export const db = {
+  get state() {
+    return state;
+  },
+  persist,
+  now,
+  today,
+  audit,
+  getProblem,
+  getBusiness,
+  problemsByStatus,
+  problemsByCategory,
+  priorityLevel,
+  createProblemFromFields,
+  updateProblem,
+  addEvidence,
+  updateEvidence,
+  addReport,
+  updateReport,
+  addBusinessProblem,
+  updateBusinessProblem,
+  addBusinessEvidence,
+  updateBusinessEvidence,
+  addBusinessNotification,
+  addGovNotification,
+  dashboardStats,
+  publicUser,
+  businessData,
+};

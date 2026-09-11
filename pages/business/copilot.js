@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
+import { bizApi, handleApiError } from "@/lib/api";
 
 const SUGGESTIONS = [
   "What compliance deadlines are coming up?",
@@ -13,20 +14,29 @@ const SUGGESTIONS = [
 
 export default function CopilotPage() {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hello! I'm your REGULENS Business Copilot. Ask me about compliance, risk, expansion readiness or regulatory intelligence. All responses use illustrative demo data." },
+    { role: "assistant", content: "Hello! I'm your REGULENS Business Copilot. Ask me about compliance, risk, expansion readiness or regulatory intelligence for your business." },
   ]);
   const [input, setInput] = useState("");
+  const [thinking, setThinking] = useState(false);
 
-  function handleSend(e) {
+  async function handleSend(e) {
     e.preventDefault();
-    if (!input.trim()) return;
-    const userMsg = { role: "user", content: input.trim() };
-    const botMsg = {
-      role: "assistant",
-      content: `This is a demo response to: "${input.trim()}". In the full version, I would analyze your business data and provide specific compliance, risk or expansion insights. All data shown is illustrative.`,
-    };
-    setMessages((prev) => [...prev, userMsg, botMsg]);
+    const question = input.trim();
+    if (!question || thinking) return;
+    setMessages((prev) => [...prev, { role: "user", content: question }]);
     setInput("");
+    setThinking(true);
+    try {
+      const data = await bizApi.copilot({ message: question });
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `The assistant could not be reached: ${handleApiError(err)}` },
+      ]);
+    } finally {
+      setThinking(false);
+    }
   }
 
   return (
@@ -80,11 +90,19 @@ export default function CopilotPage() {
             />
             <button
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || thinking}
               className="flex h-9 w-9 items-center justify-center rounded-md bg-success text-white transition-colors hover:bg-success/90 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </button>
+            {thinking && (
+              <span className="flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-xs text-ink-subtle">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-success" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-success" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-success" style={{ animationDelay: "300ms" }} />
+                Analyzing…
+              </span>
+            )}
           </form>
         </div>
       </SectionCard>

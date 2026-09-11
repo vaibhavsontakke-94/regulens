@@ -9,6 +9,7 @@ import { FormCard, FormTitle, BackLink, DemoNote } from "@/components/auth/formB
 import { ROLES } from "@/components/auth/roles";
 import { isEmail, isEmpty } from "@/lib/validators";
 import { setSession, rememberEmail, getRememberedEmail } from "@/lib/authSession";
+import { authApi, handleApiError } from "@/lib/api";
 
 function dispNameFromEmail(email) {
   const local = String(email || "").split("@")[0] || "";
@@ -54,11 +55,20 @@ export default function LoginForm({ role }) {
     event.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1100));
-    if (values.remember) rememberEmail(values.email.trim());
-    const name = dispNameFromEmail(values.email);
-    setSession({ role, name, email: values.email.trim(), rememberEmail: values.remember });
-    router.push(cfg.home);
+    try {
+      const data = await authApi.login({
+        email: values.email.trim(),
+        password: values.password,
+        role,
+      });
+      if (values.remember) rememberEmail(values.email.trim());
+      setSession(data.session);
+      router.push(cfg.home);
+    } catch (err) {
+      setFormError(handleApiError(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -137,8 +147,10 @@ export default function LoginForm({ role }) {
 
       <div className="mt-6">
         <DemoNote>
-          Demo mode: sign in with any valid email and a password of 8+ characters. No credentials
-          are verified or stored.
+          Demo credentials
+          <span className="mt-1.5 block text-[12px] font-normal text-content-muted">
+            Analyst: analyst@regulens.gov.ng · Ops: ops@nortextextiles.demo · Password: DemoPass#123
+          </span>
         </DemoNote>
       </div>
 

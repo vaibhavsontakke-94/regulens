@@ -1,17 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Plus, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import {
-  PROBLEMS,
-  SEVERITY_META,
-  STATUS_META,
-  PRIORITY_META,
-  priorityFromScores,
-} from "@/lib/mockData";
+import { SEVERITY_META, STATUS_META, PRIORITY_META, priorityFromScores } from "@/lib/mockData";
+import { govApi, handleApiError } from "@/lib/api";
 import { fmtFullNumber, fmtDate } from "@/lib/format";
 
 export default function ProblemsPage() {
@@ -19,10 +14,35 @@ export default function ProblemsPage() {
   const [search, setSearch] = useState("");
   const [severity, setSeverity] = useState("");
   const [status, setStatus] = useState("");
+  const [problems, setProblems] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    govApi
+      .listProblems({ q: search, severity, status })
+      .then((data) => {
+        if (!active) return;
+        setProblems(data.problems || []);
+        setError("");
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(handleApiError(err));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [search, severity, status]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return PROBLEMS.filter((p) => {
+    return problems.filter((p) => {
       const matchQ =
         !q ||
         p.title.toLowerCase().includes(q) ||
@@ -33,7 +53,7 @@ export default function ProblemsPage() {
       const matchT = !status || p.status === status;
       return matchQ && matchS && matchT;
     });
-  }, [search, severity, status]);
+  }, [problems, search, severity, status]);
 
   return (
     <>
@@ -80,8 +100,22 @@ export default function ProblemsPage() {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <span className="text-xs text-ink-faint">{filtered.length} problem(s)</span>
+          <span className="text-xs text-ink-faint">
+            {loading ? "Loading…" : `${filtered.length} problem(s)`}
+          </span>
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-[10px] border border-danger/30 bg-danger-soft px-3.5 py-2.5 text-[13px] font-medium text-danger">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <span className="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-primary" role="status" aria-label="Loading" />
+          </div>
+        ) : (
 
         <div className="-mx-4 overflow-x-auto sm:-mx-5">
           <table className="min-w-full text-left text-sm">
@@ -138,6 +172,7 @@ export default function ProblemsPage() {
             <div className="px-5 py-10 text-center text-sm text-ink-faint">No problems match your filters.</div>
           )}
         </div>
+        )}
       </SectionCard>
     </>
   );
