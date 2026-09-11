@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { BusinessProfileProvider } from "./BusinessProfileContext";
+import { WorkspaceProvider } from "./WorkspaceContext";
 import { ROLES } from "@/components/auth/roles";
 import { getSession } from "@/lib/authSession";
 import CopilotButton from "@/components/CopilotButton";
@@ -49,7 +50,8 @@ export default function BusinessLayout({ title, children }) {
 
   return (
     <BusinessProfileProvider>
-      <Head>
+      <WorkspaceProvider>
+        <Head>
         <title>{title ? `${title} — REGULENS` : `${ROLES.business.eyebrow} — REGULENS`}</title>
         <meta name="robots" content="noindex" />
       </Head>
@@ -75,6 +77,7 @@ export default function BusinessLayout({ title, children }) {
         context="Business Portal"
         suggestedPrompts={BUSINESS_SUGGESTED_PROMPTS}
       />
+      </WorkspaceProvider>
     </BusinessProfileProvider>
   );
 }

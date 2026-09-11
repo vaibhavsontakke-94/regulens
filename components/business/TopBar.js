@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import { Bell, ChevronDown, IdCard, LogOut, Percent, Settings, User } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 import { getSession, clearSession } from "@/lib/authSession";
 import { firebaseSignOutUser } from "@/lib/firebase";
-import { NOTIFICATIONS } from "@/lib/businessData";
 import { cx } from "@/lib/utils";
 
 function ProfileMenu({ onNavigate }) {
@@ -121,7 +121,8 @@ function ProgressMini({ value }) {
 
 export default function BusinessTopBar({ onMenuClick }) {
   const router = useRouter();
-  const unreadCount = NOTIFICATIONS.filter((n) => n.unread).length;
+  const { data } = useWorkspace();
+  const unreadCount = (data?.notifications || []).filter((n) => n.unread).length;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-background/90 px-4 backdrop-blur sm:px-6 lg:px-8">

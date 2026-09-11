@@ -14,7 +14,7 @@ import BusinessPageHeader from "@/components/business/ui/PageHeader";
 import ScoreCard from "@/components/business/ui/ScoreCard";
 import Button from "@/components/ui/Button";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
-import { HEALTH_SCORES } from "@/lib/businessData";
+import { useWorkspace } from "@/components/business/WorkspaceContext";
 
 function greeting() {
   const hour = new Date().getHours();
@@ -22,45 +22,6 @@ function greeting() {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-
-const CARDS = [
-  {
-    label: "Business Health",
-    score: HEALTH_SCORES.overall,
-    status: HEALTH_SCORES.label || "On track",
-    icon: HeartPulse,
-    href: "/business/health",
-  },
-  {
-    label: "Compliance",
-    score: HEALTH_SCORES.compliance,
-    status: "Compliant",
-    icon: ClipboardCheck,
-    href: "/business/compliance",
-  },
-  {
-    label: "Regulatory Risk",
-    score: HEALTH_SCORES.risk,
-    status: "Stable",
-    icon: ShieldAlert,
-    href: "/business/regulatory-risk",
-    risk: true,
-  },
-  {
-    label: "Growth Readiness",
-    score: HEALTH_SCORES.growthReadiness,
-    status: "Expansion ready",
-    icon: TrendingUp,
-    href: "/business/growth",
-  },
-  {
-    label: "Certification Readiness",
-    score: 78,
-    status: "3 of 6 active",
-    icon: BadgeCheck,
-    href: "/business/certifications",
-  },
-];
 
 const QUICK_ACTIONS = [
   { label: "Business Profile", href: "/business/profile", icon: Building2 },
@@ -72,6 +33,56 @@ const QUICK_ACTIONS = [
 export default function BusinessDashboard() {
   const router = useRouter();
   const { display, completion, isRegistered } = useBusinessProfile();
+  const { data } = useWorkspace();
+  const health = data.healthScores;
+  const compliance = data.compliance || [];
+  const riskCategories = data.riskCategories || [];
+  const certifications = data.certifications || [];
+  const expansionReadiness = data.expansionReadiness;
+
+  const actionRequired = compliance.filter((c) => c.status === "Action Required" || c.status === "Expired").length;
+  const elevatedCount = riskCategories.filter((r) => r.status === "Elevated").length;
+  const activeCerts = certifications.filter((c) => c.status === "Active").length;
+  const certScore = certifications.length ? Math.round((activeCerts / certifications.length) * 100) : 0;
+
+  const cards = [
+    {
+      label: "Business Health",
+      score: health.overall,
+      status: health.label || "On track",
+      icon: HeartPulse,
+      href: "/business/health",
+    },
+    {
+      label: "Compliance",
+      score: health.compliance,
+      status: actionRequired ? `${actionRequired} need action` : "Compliant",
+      icon: ClipboardCheck,
+      href: "/business/compliance",
+    },
+    {
+      label: "Regulatory Risk",
+      score: health.risk,
+      status: elevatedCount ? `${elevatedCount} elevated` : "Stable",
+      icon: ShieldAlert,
+      href: "/business/regulatory-risk",
+      risk: true,
+    },
+    {
+      label: "Growth Readiness",
+      score: health.growthReadiness,
+      status: expansionReadiness?.label || "Expansion ready",
+      icon: TrendingUp,
+      href: "/business/growth",
+    },
+    {
+      label: "Certification Readiness",
+      score: certScore,
+      status: `${activeCerts} of ${certifications.length} active`,
+      icon: BadgeCheck,
+      href: "/business/certifications",
+    },
+  ];
 
   return (
     <>
@@ -84,10 +95,6 @@ export default function BusinessDashboard() {
             : "Set up your Business Profile to personalize your regulatory intelligence."
         }
       />
-
-      <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-sm text-warning">
-        <strong>Demo workspace.</strong> All data, KPIs, scores and metrics are illustrative only. No real business information is presented.
-      </div>
 
       {!isRegistered && (
         <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
