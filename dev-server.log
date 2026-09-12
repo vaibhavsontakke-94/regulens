@@ -386,3 +386,140 @@ React will try to recreate this component tree from scratch using the error boun
  GET /api/government/problems/PRB-2026-014 200 in 25ms (next.js: 6ms, application-code: 18ms)
  GET /api/government/problems/PRB-2026-014/solutions 200 in 15ms (next.js: 5ms, application-code: 10ms)
  POST /api/government/test-and-scale 201 in 3.4s (next.js: 244ms, application-code: 3.1s)
+ GET /government/settings 200 in 322ms (next.js: 263ms, application-code: 60ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET / 200 in 774ms (next.js: 395ms, application-code: 379ms)
+ GET /government/settings 304 in 75ms (next.js: 38ms, application-code: 37ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 107ms (next.js: 60ms, application-code: 47ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 46ms (next.js: 23ms, application-code: 24ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 32ms (next.js: 14ms, application-code: 17ms)
+ GET /government/settings 304 in 60ms (next.js: 33ms, application-code: 27ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 46ms (next.js: 27ms, application-code: 19ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 64ms (next.js: 33ms, application-code: 31ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ GET /government/settings 304 in 73ms (next.js: 41ms, application-code: 32ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+ POST /api/government/test-and-scale 201 in 2.6s (next.js: 10ms, application-code: 2.5s)
