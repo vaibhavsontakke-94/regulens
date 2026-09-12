@@ -4,12 +4,19 @@
 
 ▲ Next.js 16.3.4 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://10.160.68.41:3000
+- Network:       http://10.246.200.222:3000
 - Environments: .env
-✓ Ready in 873ms
-✓ Running next.config.mjs took 36ms
+✓ Ready in 751ms
+✓ Running next.config.mjs took 24ms
 
- GET /government/copilot 200 in 897ms (next.js: 845ms, application-code: 52ms)
- POST /api/auth/login 200 in 590ms (next.js: 407ms, application-code: 183ms)
- GET /api/government/dashboard 200 in 25ms (next.js: 5ms, application-code: 20ms)
-  Reload env: .env
+ GET /government/copilot 304 in 752ms (next.js: 721ms, application-code: 31ms)
+ GET /api/health 200 in 621ms (next.js: 160ms, application-code: 461ms)
+ POST /api/auth/login 200 in 137ms (next.js: 6ms, application-code: 131ms)
+ GET /api/government/problems/PRB-2026-016 200 in 19ms (next.js: 6ms, application-code: 14ms)
+ GET /api/government/problems 200 in 22ms (next.js: 7ms, application-code: 15ms)
+ POST /api/auth/login 200 in 99ms (next.js: 5ms, application-code: 94ms)
+ GET /api/government/problems/PRB-2026-016 200 in 11ms (next.js: 5ms, application-code: 7ms)
+ GET /api/government/problems 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ POST /api/auth/login 200 in 125ms (next.js: 5ms, application-code: 120ms)
+ GET /api/government/problems/PRB-2026-016 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/government/problems 200 in 21ms (next.js: 4ms, application-code: 16ms)

@@ -12,7 +12,7 @@ import {
   AUDIT_LOGS,
 } from "../lib/mockData.js";
 import { buildWorkspace } from "./workspace.js";
-import { syncToSupabase } from "./supabase.js";
+import { readFromSupabase, supabaseConfigured } from "./supabase.js";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
@@ -115,7 +115,58 @@ const state = loadState();
 
 function persist() {
   saveState(state);
-  syncToSupabase(state).catch(() => {});
+  import("./supabase.js")
+    .then((m) => m.syncToSupabase(state))
+    .catch(() => {});
+}
+
+let hydratedFromSupabase = false;
+
+function computeCounters() {
+  const wsList = Object.values(state.businessWorkspaces || {});
+  return {
+    problem: maxNumeric(state.problems.map((p) => p.id), "PRB-2026-"),
+    evidence: maxNumeric(state.evidence.map((e) => e.id), "EVD-"),
+    report: maxNumeric(state.reports.map((r) => r.id), "RPT-"),
+    businessProblem: maxNumeric(wsList.flatMap((ws) => ws.problems || []).map((p) => p.id), "BP-"),
+    businessEvidence: maxNumeric(wsList.flatMap((ws) => ws.evidence || []).map((e) => e.id), "BEV-"),
+    notification: maxNumeric(
+      state.notifications.concat(wsList.flatMap((ws) => ws.notifications || [])).map((n) => n.id),
+      "NTF-"
+    ),
+  };
+}
+
+export async function hydrateFromSupabase() {
+  if (hydratedFromSupabase || !supabaseConfigured()) return false;
+  hydratedFromSupabase = true;
+  try {
+    const remote = await readFromSupabase();
+    if (!remote) return false;
+
+    const gov = remote.government["government-demo"];
+    if (gov) {
+      for (const key of ["problems", "businesses", "regulations", "policies", "solutions", "evidence", "reports", "notifications", "auditLogs", "users"]) {
+        if (Array.isArray(gov[key])) state[key] = gov[key];
+      }
+    }
+
+    for (const [workspaceId, ws] of Object.entries(remote.business || {})) {
+      if (!workspaceId.startsWith("biz-") || !ws || typeof ws !== "object") continue;
+      const userId = workspaceId.slice(4);
+      state.businessWorkspaces[userId] = { ...seedBusinessState(), ...clone(ws) };
+    }
+
+    const merged = { ...seedCounters(), ...(gov?.idCounters || {}) };
+    for (const [key, value] of Object.entries(computeCounters())) {
+      merged[key] = Math.max(merged[key] || 0, value);
+    }
+    state.idCounters = merged;
+    return true;
+  } catch (err) {
+    console.warn("[supabase] hydration failed, using local store:", err?.message || err);
+    return false;
+  }
 }
 
 function nextId(prefix, counterKey, pad = 3) {

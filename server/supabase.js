@@ -40,6 +40,8 @@ function govRow(state) {
       reports: state.reports || [],
       notifications: state.notifications || [],
       auditLogs: state.auditLogs || [],
+      users: state.users || [],
+      idCounters: state.idCounters || {},
     },
   };
 }
@@ -82,14 +84,15 @@ export async function readFromSupabase() {
   if (!supabaseAdmin) return null;
   try {
     const [gov, biz] = await Promise.all([
-      supabaseAdmin.from("government").select("workspace_id, name, data"),
-      supabaseAdmin.from("business").select("workspace_id, business_name, data"),
+      supabaseAdmin.from("government").select("workspace_id, data"),
+      supabaseAdmin.from("business").select("workspace_id, data"),
     ]);
     const out = { government: {}, business: {} };
-    for (const row of gov.data || []) out.government[row.workspace_id] = { name: row.name, ...(row.data || {}) };
-    for (const row of biz.data || []) out.business[row.workspace_id] = { business_name: row.business_name, ...(row.data || {}) };
+    for (const row of gov.data || []) out.government[row.workspace_id] = row.data || {};
+    for (const row of biz.data || []) out.business[row.workspace_id] = row.data || {};
     return out;
-  } catch {
+  } catch (err) {
+    console.warn("[supabase] read failed:", err?.message || err);
     return null;
   }
 }

@@ -1,6 +1,6 @@
 import { requireUser } from "./auth.js";
 import { ensureDemoUsers } from "./seed-users.js";
-import { db } from "./store.js";
+import { db, hydrateFromSupabase } from "./store.js";
 import authRoutes from "./routes/auth.js";
 import governmentRoutes from "./routes/government.js";
 import businessRoutes from "./routes/business.js";
@@ -66,7 +66,8 @@ const MANIFEST = {
   meta: ["options"],
 };
 
-export default function handleApi(req, res, segments) {
+export default async function handleApi(req, res, segments) {
+  await hydrateFromSupabase().catch(() => {});
   ensureDemoUsers();
   const parts = (segments || []).map((s) => decodeURIComponent(String(s)));
   const [head = "", ...rest] = parts;
