@@ -62,6 +62,7 @@ export function seedState() {
     reports: clone(REPORTS),
     notifications: clone(NOTIFICATIONS),
     auditLogs: clone(AUDIT_LOGS),
+    testAndScale: [],
     business: seedBusinessState(),
     businessWorkspaces: {},
   };
@@ -76,6 +77,7 @@ function seedCounters() {
     businessProblem: maxNumeric(base.business.problems.map((p) => p.id), "BP-"),
     businessEvidence: maxNumeric(base.business.evidence.map((e) => e.id), "BEV-"),
     notification: maxNumeric(base.notifications.map((n) => n.id), "NTF-"),
+    testScale: maxNumeric([], "TS-"),
   };
 }
 
@@ -134,6 +136,7 @@ function computeCounters() {
       state.notifications.concat(wsList.flatMap((ws) => ws.notifications || [])).map((n) => n.id),
       "NTF-"
     ),
+    testScale: maxNumeric(state.testAndScale || [], "TS-"),
   };
 }
 
@@ -146,7 +149,7 @@ export async function hydrateFromSupabase() {
 
     const gov = remote.government["government-demo"];
     if (gov) {
-      for (const key of ["problems", "businesses", "regulations", "policies", "solutions", "evidence", "reports", "notifications", "auditLogs", "users"]) {
+      for (const key of ["problems", "businesses", "regulations", "policies", "solutions", "evidence", "reports", "notifications", "auditLogs", "testAndScale", "users"]) {
         if (Array.isArray(gov[key])) state[key] = gov[key];
       }
     }
@@ -385,6 +388,54 @@ function addGovNotification(title, body, type) {
   return item;
 }
 
+function addTestAndScale(fields) {
+  const record = {
+    id: nextId("TS-", "testScale"),
+    problemId: fields.problemId,
+    problemTitle: fields.problemTitle,
+    solutionId: fields.solutionId,
+    solutionTitle: fields.solutionTitle,
+    pilotArea: fields.pilotArea,
+    analysis: fields.analysis,
+    createdAt: now(),
+  };
+  state.testAndScale.unshift(record);
+  persist();
+  audit(`Test & Scale analysis created: ${record.id}`, { actor: fields.actor || "System", target: record.problemId });
+  return record;
+}
+
+function resetGovernmentData() {
+  const seed = seedState();
+  state.problems = seed.problems;
+  state.businesses = seed.businesses;
+  state.regulations = seed.regulations;
+  state.policies = seed.policies;
+  state.solutions = seed.solutions;
+  state.evidence = seed.evidence;
+  state.reports = seed.reports;
+  state.notifications = seed.notifications;
+  state.auditLogs = [];
+  state.testAndScale = [];
+  persist();
+  audit("Workspace data cleared (reset to demo baseline)", { actor: "System" });
+  return {
+    problems: state.problems.length,
+    businesses: state.businesses.length,
+    regulations: state.regulations.length,
+    policies: state.policies.length,
+    solutions: state.solutions.length,
+    evidence: state.evidence.length,
+    reports: state.reports.length,
+  };
+}
+
+function resetBusinessWorkspace(userId) {
+  state.businessWorkspaces[userId] = seedBusinessState();
+  persist();
+  return true;
+}
+
 function dashboardStats() {
   return {
     total: state.problems.length,
@@ -463,6 +514,9 @@ export const db = {
   updateBusinessEvidence,
   addBusinessNotification,
   addGovNotification,
+  addTestAndScale,
+  resetGovernmentData,
+  resetBusinessWorkspace,
   dashboardStats,
   publicUser,
   businessWorkspace,

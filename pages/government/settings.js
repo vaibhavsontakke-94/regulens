@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { Sun, Moon, Shield, Users, Mail, Phone, Settings, LogOut } from "lucide-react";
+import { Sun, Moon, Shield, Users, Mail, Phone, Settings, LogOut, Trash2 } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { getSession, clearSession } from "@/lib/authSession";
+import { govApi, handleApiError } from "@/lib/api";
 import { cx } from "@/lib/utils";
 
 const APPEARANCE_OPTIONS = [
@@ -49,6 +50,26 @@ export default function GovernmentSettingsPage() {
     "ground-verification": true,
   });
   const [securitySection, setSecuritySection] = useState("change-password");
+  const [clearStatus, setClearStatus] = useState(null);
+  const [clearing, setClearing] = useState(false);
+
+  async function handleClearData() {
+    if (clearing) return;
+    const confirmed = window.confirm(
+      "Clear Government workspace data? This resets problems, businesses, regulations, policies, solutions, evidence and reports back to the demo baseline. This cannot be undone."
+    );
+    if (!confirmed) return;
+    setClearing(true);
+    setClearStatus(null);
+    try {
+      const data = await govApi.resetData();
+      setClearStatus({ type: "success", text: `Workspace cleared (${data.counts.problems} problems, ${data.counts.evidence} evidence restored to demo baseline).` });
+    } catch (err) {
+      setClearStatus({ type: "error", text: handleApiError(err) });
+    } finally {
+      setClearing(false);
+    }
+  }
 
   useEffect(() => setSession(getSession()), []);
   const handleSignOut = () => {
@@ -182,6 +203,26 @@ export default function GovernmentSettingsPage() {
               <LogOut className="h-4 w-4" />
               Sign out
             </Button>
+          </div>
+        </SectionCard>
+
+        {/* Data Section */}
+        <SectionCard title="Data">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-ink">Workspace data</p>
+                <p className="text-[11px] text-ink-faint">Located in your Supabase project, kept in sync by the API.</p>
+              </div>
+              <Badge variant="blue" size="sm">Live</Badge>
+            </div>
+            <Button variant="danger" size="sm" onClick={handleClearData} disabled={clearing}>
+              <Trash2 className="h-4 w-4" />
+              {clearing ? "Clearing…" : "Clear Data"}
+            </Button>
+            {clearStatus && (
+              <p className={`text-xs ${clearStatus.type === "success" ? "text-success" : "text-danger"}`}>{clearStatus.text}</p>
+            )}
           </div>
         </SectionCard>
       </div>

@@ -11,6 +11,7 @@ const MANIFEST = {
   auth: ["register", "login", "verify", "resend-code", "forgot-password", "reset-password", "logout", "session", "firebase-session"],
   government: [
     "dashboard",
+    "reset-data",
     "problems",
     "problems/:id",
     "problems/:id/businesses",
@@ -20,6 +21,7 @@ const MANIFEST = {
     "problems/:id/evidence",
     "problems/:id/audits",
     "problem-intelligence",
+    "test-and-scale",
     "businesses",
     "businesses/:id",
     "regulations",
@@ -36,6 +38,7 @@ const MANIFEST = {
   ],
   business: [
     "dashboard",
+    "reset-data",
     "profile",
     "source",
     "health",

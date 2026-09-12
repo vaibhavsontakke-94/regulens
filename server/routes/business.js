@@ -301,6 +301,12 @@ export default async function businessRoutes(req, res, sub, user) {
     return ok(res, { notifications: db.businessDataFor(user.id).notifications });
   }
 
+  if (head === "reset-data") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    db.resetBusinessWorkspace(user.id);
+    return ok(res, { reset: true });
+  }
+
   if (head === "ai") {
     if (req.method !== "POST") return methodNotAllowed(res);
     const module = String((req.body || {}).module || "");

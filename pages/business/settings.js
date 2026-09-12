@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Sun, Moon, Shield, Mail, Lock, LifeBuoy, Info, LogOut, Building2, User } from "lucide-react";
+import { Sun, Moon, Shield, Mail, Lock, LifeBuoy, Info, LogOut, Building2, User, Trash2 } from "lucide-react";
 import BusinessLayout from "@/components/business/BusinessLayout";
 import BusinessPageHeader, { SectionCard } from "@/components/business/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { getSession, clearSession } from "@/lib/authSession";
+import { bizApi, handleApiError } from "@/lib/api";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
 import { cx } from "@/lib/utils";
 
@@ -63,6 +64,26 @@ export default function BusinessSettingsPage() {
     "ground-verification": true,
   });
   const [privacy, setPrivacy] = useState({ analytics: true, sharing: false, retention: false });
+  const [clearStatus, setClearStatus] = useState(null);
+  const [clearing, setClearing] = useState(false);
+
+  async function handleClearData() {
+    if (clearing) return;
+    const confirmed = window.confirm(
+      "Clear your business workspace data? This removes your profile, compliance, risk, certifications, schemes, problems and evidence. This cannot be undone."
+    );
+    if (!confirmed) return;
+    setClearing(true);
+    setClearStatus(null);
+    try {
+      await bizApi.resetData();
+      setClearStatus({ type: "success", text: "Business workspace cleared. Profile and all records were removed." });
+    } catch (err) {
+      setClearStatus({ type: "error", text: handleApiError(err) });
+    } finally {
+      setClearing(false);
+    }
+  }
 
   useEffect(() => setSession(getSession()), []);
 
@@ -211,6 +232,25 @@ export default function BusinessSettingsPage() {
           <p className="mt-3 text-xs leading-relaxed text-ink-subtle">
             REGULENS provides regulatory intelligence, compliance tracking, risk analysis and growth guidance powered by your business profile.
           </p>
+        </SectionCard>
+
+        <SectionCard title="Data" description="Your workspace records">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-ink">Workspace data</p>
+                <p className="text-[11px] text-ink-faint">Kept in sync with your Supabase project by the API.</p>
+              </div>
+              <Badge variant="green" size="sm">Live</Badge>
+            </div>
+            <Button variant="danger" size="sm" onClick={handleClearData} disabled={clearing}>
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              {clearing ? "Clearing…" : "Clear Data"}
+            </Button>
+            {clearStatus && (
+              <p className={`text-xs ${clearStatus.type === "success" ? "text-success" : "text-danger"}`}>{clearStatus.text}</p>
+            )}
+          </div>
         </SectionCard>
       </div>
     </>

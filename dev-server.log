@@ -332,3 +332,44 @@
  GET /api/auth/session 200 in 19ms (next.js: 6ms, application-code: 13ms)
  POST /api/auth/register 201 in 146ms (next.js: 5ms, application-code: 141ms)
  POST /api/auth/logout 200 in 29ms (next.js: 5ms, application-code: 24ms)
+✓ Compiled in 899ms
+✓ Compiled in 571ms
+ POST /api/auth/login 200 in 2.6s (next.js: 795ms, application-code: 1814ms)
+ POST /api/government/reset-data 200 in 55ms (next.js: 9ms, application-code: 46ms)
+ POST /api/auth/login 200 in 226ms (next.js: 16ms, application-code: 210ms)
+ POST /api/business/reset-data 200 in 43ms (next.js: 6ms, application-code: 37ms)
+ GET /government/settings 200 in 2.6s (next.js: 2.5s, application-code: 88ms)
+ GET /business/settings 200 in 1099ms (next.js: 1065ms, application-code: 34ms)
+ GET /government/copilot 304 in 1573ms (next.js: 1404ms, application-code: 169ms)
+ GET /government/copilot 304 in 325ms (next.js: 214ms, application-code: 111ms)
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+✓ Compiled in 725ms
+✓ Compiled in 376ms
+[browser] 'ReferenceError: useEffect is not defined\n' +
+  '    at GovernmentSettingsPage (pages/government/settings.js:74:3)\n' +
+  '  72 |   }\n' +
+  '  73 |\n' +
+  '> 74 |   useEffect(() => setSession(getSession()), []);\n' +
+  '     |   ^\n' +
+  '  75 |   const handleSignOut = () => {\n' +
+  '  76 |     clearSession();\n' +
+  '  77 |     router.push("/government/login");'
+
+The above error occurred in the <GovernmentSettingsPage> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
+
+✓ Compiled in 585ms

@@ -3,6 +3,7 @@ import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js"
 import { buildProblemIntelligence, PROBLEM_LIFECYCLE } from "../../lib/problemIntelligence.js";
 import { isEmail, isEmpty } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
+import { runTestAndScale } from "../govAi.js";
 
 function businessForIds(ids) {
   return (ids || []).map((id) => db.state.businesses.find((b) => b.id === id)).filter(Boolean);
@@ -62,6 +63,12 @@ export default async function governmentRoutes(req, res, sub, user) {
     return ok(res, db.dashboardStats());
   }
 
+  if (head === "reset-data") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const counts = db.resetGovernmentData();
+    return ok(res, { reset: true, counts });
+  }
+
   if (head === "problem-intelligence") {
     if (req.method !== "POST") return methodNotAllowed(res);
     const body = req.body || {};
@@ -70,6 +77,32 @@ export default async function governmentRoutes(req, res, sub, user) {
     const data = buildProblemIntelligence({ id: body.id || `PRB-${Date.now()}`, title: body.title, businesses });
     const narrative = await intelligenceNarrative(body.title, businesses);
     return ok(res, { intelligence: { ...data, narrative }, lifecycle: PROBLEM_LIFECYCLE });
+  }
+
+  if (head === "test-and-scale") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const body = req.body || {};
+    const problem = db.getProblem(body.problemId);
+    if (!problem) return badRequest(res, "Select a valid problem.");
+    const solution = (problem.solutionIds || [])
+      .map((id) => db.state.solutions.find((s) => s.id === id))
+      .filter(Boolean)
+      .find((s) => s.id === body.solutionId);
+    if (!solution) return badRequest(res, "Select a solution linked to this problem.");
+    const areas = (problem.geographic && problem.geographic.areas) || [];
+    const pilotArea = String(body.pilotArea || "").trim();
+    if (!areas.includes(pilotArea)) return badRequest(res, "Select a pilot area covered by this problem.");
+    const analysis = await runTestAndScale({ problem, solution, pilotArea });
+    const record = db.addTestAndScale({
+      problemId: problem.id,
+      problemTitle: problem.title,
+      solutionId: solution.id,
+      solutionTitle: solution.title,
+      pilotArea,
+      analysis,
+      actor: user.name,
+    });
+    return created(res, { record });
   }
 
   if (head === "problems") {
