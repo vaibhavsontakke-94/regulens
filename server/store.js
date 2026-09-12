@@ -12,6 +12,7 @@ import {
   AUDIT_LOGS,
 } from "../lib/mockData.js";
 import { buildWorkspace } from "./workspace.js";
+import { syncToSupabase } from "./supabase.js";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
@@ -50,7 +51,7 @@ function seedBusinessState() {
   };
 }
 
-function seedState() {
+export function seedState() {
   return {
     problems: clone(PROBLEMS),
     businesses: clone(BUSINESSES),
@@ -114,6 +115,7 @@ const state = loadState();
 
 function persist() {
   saveState(state);
+  syncToSupabase(state).catch(() => {});
 }
 
 function nextId(prefix, counterKey, pad = 3) {

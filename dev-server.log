@@ -6,22 +6,10 @@
 - Local:         http://localhost:3000
 - Network:       http://10.160.68.41:3000
 - Environments: .env
-✓ Ready in 679ms
-✓ Running next.config.mjs took 19ms
+✓ Ready in 873ms
+✓ Running next.config.mjs took 36ms
 
- POST /api/auth/login 200 in 529ms (next.js: 390ms, application-code: 139ms)
- POST /api/business/copilot 200 in 1611ms (next.js: 5ms, application-code: 1607ms)
- GET /api/business/profile 200 in 62ms (next.js: 53ms, application-code: 8ms)
- GET /api/business/profile 200 in 43ms (next.js: 35ms, application-code: 8ms)
- GET /api/business/workspace 200 in 88ms (next.js: 18ms, application-code: 70ms)
- GET /api/business/workspace 200 in 84ms (next.js: 43ms, application-code: 40ms)
-○ Compiling /business/copilot ...
- GET /business/copilot 304 in 5.7s (next.js: 5.6s, application-code: 72ms)
- GET /business/copilot 304 in 67ms (next.js: 33ms, application-code: 34ms)
- GET /api/business/profile 200 in 31ms (next.js: 22ms, application-code: 9ms)
- GET /api/business/workspace 200 in 44ms (next.js: 8ms, application-code: 36ms)
- GET /api/business/profile 200 in 37ms (next.js: 20ms, application-code: 16ms)
- GET /api/business/workspace 200 in 41ms (next.js: 8ms, application-code: 33ms)
- POST /api/business/copilot 200 in 1560ms (next.js: 8ms, application-code: 1552ms)
- POST /api/auth/login 200 in 264ms (next.js: 148ms, application-code: 116ms)
- POST /api/business/copilot 200 in 1310ms (next.js: 5ms, application-code: 1304ms)
+ GET /government/copilot 200 in 897ms (next.js: 845ms, application-code: 52ms)
+ POST /api/auth/login 200 in 590ms (next.js: 407ms, application-code: 183ms)
+ GET /api/government/dashboard 200 in 25ms (next.js: 5ms, application-code: 20ms)
+  Reload env: .env
