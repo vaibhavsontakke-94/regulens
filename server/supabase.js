@@ -40,6 +40,7 @@ function govRow(state) {
       reports: state.reports || [],
       notifications: state.notifications || [],
       auditLogs: state.auditLogs || [],
+      testAndScale: state.testAndScale || [],
       users: state.users || [],
       idCounters: state.idCounters || {},
     },
