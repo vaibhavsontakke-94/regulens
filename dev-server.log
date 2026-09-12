@@ -58,3 +58,9 @@
  GET /government/search-problem 200 in 126ms (next.js: 114ms, application-code: 13ms)
  GET /government/regulations 200 in 169ms (next.js: 150ms, application-code: 19ms)
  GET /government/settings 200 in 296ms (next.js: 276ms, application-code: 20ms)
+✓ Compiled in 151ms
+ POST /api/auth/login 200 in 50ms (next.js: 2ms, application-code: 48ms)
+ GET /government/test-and-scale?problemId=PRB-2026-014 200 in 237ms (next.js: 218ms, application-code: 19ms)
+ GET /government/test-and-scale 200 in 24ms (next.js: 11ms, application-code: 13ms)
+ POST /api/auth/login 200 in 52ms (next.js: 1.8ms, application-code: 50ms)
+ GET /government/problems/PRB-2026-014 200 in 23ms (next.js: 11ms, application-code: 12ms)

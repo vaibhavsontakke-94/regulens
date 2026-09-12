@@ -52,10 +52,16 @@ export default function TestAndScalePage({ initialProblems, initialProblemId }) 
   const [error, setError] = useState("");
 
   function selectProblem(id) {
-    const problem = problems.find((p) => p.id === id);
+    const found = problems.find((p) => p.id === id);
+    const problem = found || problems[0] || null;
     if (!problem) {
-      setError("Problem not found in the workspace.");
+      setError("No problems are available in the workspace.");
       return;
+    }
+    if (!found) {
+      setError(`The requested problem (${id}) is no longer in the workspace. Showing the first available problem.`);
+    } else {
+      setError("");
     }
     setSelectedProblem(problem);
     setSolutions([]);
@@ -63,7 +69,6 @@ export default function TestAndScalePage({ initialProblems, initialProblemId }) 
     const areas = problem.geographic?.areas || [];
     setSelectedArea(areas[0] || problem.location || "");
     setResult(null);
-    setError("");
     setSolutionsLoading(true);
     govApi
       .problemSolutions(problem.id)
