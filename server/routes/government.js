@@ -5,6 +5,17 @@ import { isEmail, isEmpty } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
 import { runTestAndScale } from "../govAi.js";
 import { matchProblemProviders } from "../problemMatcher.js";
+import { INDIA_STATES } from "../../lib/businessProfileData.js";
+import { INDIA_DISTRICTS, INDIA_DISTRICT_GROUPS } from "../../lib/indiaDistricts.js";
+
+const INDIA_PILOT_AREAS = new Set([
+  "India",
+  "National",
+  "Federal (India)",
+  ...INDIA_STATES,
+  ...INDIA_DISTRICTS,
+  ...Object.keys(INDIA_DISTRICT_GROUPS),
+]);
 
 function businessForIds(ids) {
   return (ids || []).map((id) => db.state.businesses.find((b) => b.id === id)).filter(Boolean);
@@ -104,7 +115,9 @@ export default async function governmentRoutes(req, res, sub, user) {
     if (!solution) return badRequest(res, "Select a solution linked to this problem.");
     const areas = (problem.geographic && problem.geographic.areas) || [];
     const pilotArea = String(body.pilotArea || "").trim();
-    if (!areas.includes(pilotArea)) return badRequest(res, "Select a pilot area covered by this problem.");
+    if (!areas.includes(pilotArea) && !INDIA_PILOT_AREAS.has(pilotArea)) {
+      return badRequest(res, "Select a pilot area covered by this problem.");
+    }
     const analysis = await runTestAndScale({ problem, solution, pilotArea });
     const record = db.addTestAndScale({
       problemId: problem.id,

@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { govApi, handleApiError } from "@/lib/api";
 import { SEVERITY_META } from "@/lib/mockData";
+import { INDIA_DISTRICT_GROUPS } from "@/lib/indiaDistricts";
 import { db } from "../../server/store.js";
 
 const VERDICT_TONE = {
@@ -199,6 +200,13 @@ export default function TestAndScalePage({ initialProblems, initialProblemId }) 
               >
                 {(selectedProblem?.geographic?.areas || []).map((area) => (
                   <option key={area} value={area}>{area}</option>
+                ))}
+                {Object.entries(INDIA_DISTRICT_GROUPS).map(([state, districts]) => (
+                  <optgroup key={state} label={state}>
+                    {districts.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
