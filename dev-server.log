@@ -523,3 +523,8 @@ The above error occurred in the <GovernmentSettingsPage> component.
 React will try to recreate this component tree from scratch using the error boundary you provided, PagesDevOverlayErrorBoundary.
 
  POST /api/government/test-and-scale 201 in 2.6s (next.js: 10ms, application-code: 2.5s)
+✓ Compiled in 186ms
+ POST /api/government/test-and-scale 201 in 4.2s (next.js: 156ms, application-code: 4.1s)
+ GET /government/test-and-scale 200 in 81ms (next.js: 52ms, application-code: 29ms)
+ GET /government/problems/PRB-2026-014 200 in 871ms (next.js: 844ms, application-code: 27ms)
+ GET /government/settings 200 in 171ms (next.js: 128ms, application-code: 43ms)

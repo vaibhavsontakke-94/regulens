@@ -3,13 +3,18 @@ import { groqAvailable, groqChat } from "./groq.js";
 function tryJson(reply) {
   if (!reply) return null;
   const start = reply.indexOf("{");
-  const end = reply.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) return null;
-  try {
-    return JSON.parse(reply.slice(start, end + 1));
-  } catch {
-    return null;
+  if (start === -1) return null;
+  let end = reply.lastIndexOf("}");
+  let attempts = 0;
+  while (end > start && attempts < 6) {
+    try {
+      return JSON.parse(reply.slice(start, end + 1));
+    } catch {
+      end = reply.lastIndexOf("}", end - 1);
+      attempts += 1;
+    }
   }
+  return null;
 }
 
 export async function runAiModule(module, data) {
@@ -18,8 +23,13 @@ export async function runAiModule(module, data) {
   const { system, user, fallback } = game(data);
   if (!groqAvailable()) return fallback;
   try {
-    const reply = await groqChat({ system, user, maxTokens: 900, temperature: 0.4 });
-    return tryJson(reply) || fallback;
+    const reply = await groqChat({ system, user, maxTokens: 1800, temperature: 0.4 });
+    const parsed = tryJson(reply);
+    if (!parsed || typeof parsed !== "object") {
+      console.warn(`[ai] ${module} reply was not parseable JSON, using fallback.`);
+      return fallback;
+    }
+    return parsed;
   } catch (err) {
     console.warn(`[ai] ${module} unavailable, using fallback:`, err.message);
     return fallback;

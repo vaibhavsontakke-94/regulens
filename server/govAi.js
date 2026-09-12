@@ -3,13 +3,18 @@ import { groqAvailable, groqChat } from "./groq.js";
 function tryJson(reply) {
   if (!reply) return null;
   const start = reply.indexOf("{");
-  const end = reply.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) return null;
-  try {
-    return JSON.parse(reply.slice(start, end + 1));
-  } catch {
-    return null;
+  if (start === -1) return null;
+  let end = reply.lastIndexOf("}");
+  let attempts = 0;
+  while (end > start && attempts < 6) {
+    try {
+      return JSON.parse(reply.slice(start, end + 1));
+    } catch {
+      end = reply.lastIndexOf("}", end - 1);
+      attempts += 1;
+    }
   }
+  return null;
 }
 
 const IMPACT_SCORE = { High: 90, Medium: 75, Low: 60 };
@@ -43,9 +48,12 @@ export async function runTestAndScale({ problem, solution, pilotArea }) {
   const { system, user, fallback } = buildTestAndScale({ problem, solution, pilotArea });
   if (!groqAvailable()) return fallback;
   try {
-    const reply = await groqChat({ system, user, maxTokens: 900, temperature: 0.4 });
+    const reply = await groqChat({ system, user, maxTokens: 2200, temperature: 0.4 });
     const parsed = tryJson(reply);
-    if (!parsed || typeof parsed !== "object") return fallback;
+    if (!parsed || typeof parsed !== "object") {
+      console.warn("[ai] test-and-scale reply was not parseable JSON, using fallback.");
+      return fallback;
+    }
     return normalizeAnalysis(parsed, fallback);
   } catch (err) {
     console.warn("[ai] test-and-scale unavailable, using fallback:", err.message);

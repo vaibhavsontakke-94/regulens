@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Sun, Moon, Shield, Users, Mail, Phone, Settings, LogOut, Trash2 } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
