@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Sparkles, ArrowUpRight } from "lucide-react";
+import { useState, useRef } from "react";
+import { Send, Sparkles, ArrowUpRight, FileText, Paperclip, X } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
@@ -23,6 +23,67 @@ export default function CopilotPage() {
   const [messages, setMessages] = useState([SEED]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [showDoc, setShowDoc] = useState(false);
+  const [docText, setDocText] = useState("");
+  const [docError, setDocError] = useState("");
+  const [fileInfo, setFileInfo] = useState(null);
+  const fileInputRef = useRef(null);
+
+  function onFileSelected(e) {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (f.size > 12 * 1024 * 1024) {
+      setDocError("File is too large. Maximum upload size is 12 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = String(reader.result || "").split(",")[1] || "";
+      if (!base64) {
+        setDocError("The file could not be read.");
+        return;
+      }
+      setFileInfo({ name: f.name, mimeType: f.type || "application/octet-stream", base64, size: f.size });
+      setDocError("");
+    };
+    reader.onerror = () => setDocError("The file could not be read.");
+    reader.readAsDataURL(f);
+  }
+
+  async function sendDocument() {
+    const text = docText.trim();
+    if ((!text && !fileInfo) || thinking) {
+      setDocError("Paste some text or choose a file to review.");
+      return;
+    }
+    setMessages((m) => [
+      ...m,
+      {
+        role: "user",
+        text: `[Document review${fileInfo ? ` · ${fileInfo.name}` : ""}]\n${
+          fileInfo ? fileInfo.name : text.length > 500 ? text.slice(0, 500) + "…" : text
+        }`,
+      },
+    ]);
+    const payload = fileInfo ? { file: fileInfo, problem } : { document: text, problem };
+    setDocText("");
+    setFileInfo(null);
+    setDocError("");
+    setShowDoc(false);
+    setThinking(true);
+    try {
+      const data = await govApi.documentReview(payload);
+      setMessages((m) => [...m, { role: "assistant", text: data.reply }]);
+    } catch (err) {
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", text: `The assistant could not be reached: ${handleApiError(err)}` },
+      ]);
+    } finally {
+      setThinking(false);
+    }
+  }
 
   async function send(text) {
     const question = text.trim();
@@ -110,6 +171,79 @@ export default function CopilotPage() {
             </div>
           )}
 
+          {showDoc && (
+            <div className="mb-3 rounded-[10px] border border-line bg-surface p-3">
+              <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-ink-faint">
+                Review a document — upload a file or paste text, then get a simple summary
+              </p>
+
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx,.txt,.md,.csv,.json,.log,.rtf,.html,.htm"
+                  onChange={onFileSelected}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 rounded-[10px] border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-subtle transition-colors hover:border-primary/50 hover:text-ink"
+                >
+                  <Paperclip className="h-3.5 w-3.5" /> Choose file
+                </button>
+                {fileInfo && (
+                  <span className="flex items-center gap-1.5 rounded-[10px] bg-surface-muted px-2.5 py-1.5 text-xs text-ink">
+                    <FileText className="h-3.5 w-3.5 text-primary" />
+                    {fileInfo.name}
+                    <span className="text-ink-faint">({(fileInfo.size / 1024).toFixed(0)} KB)</span>
+                    <button
+                      type="button"
+                      onClick={() => setFileInfo(null)}
+                      className="text-ink-faint transition-colors hover:text-danger"
+                      aria-label="Remove file"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                <span className="text-xs text-ink-faint">— or —</span>
+                <span className="text-xs text-ink-faint">paste below</span>
+              </div>
+
+              <textarea
+                value={docText}
+                onChange={(e) => setDocText(e.target.value)}
+                rows={4}
+                placeholder="Paste the document text here…"
+                className="w-full resize-y rounded-[10px] border border-line bg-surface px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus:border-primary/60"
+              />
+              {docError && <p className="mt-2 text-xs text-danger">{docError}</p>}
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={sendDocument}
+                  disabled={(!docText.trim() && !fileInfo) || thinking}
+                  className="flex items-center gap-1.5 rounded-[10px] bg-primary px-3.5 py-2 text-xs font-semibold text-primary-text transition-opacity disabled:opacity-40"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> Summarise in simple words
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDoc(false);
+                    setDocText("");
+                    setFileInfo(null);
+                    setDocError("");
+                  }}
+                  className="text-xs text-ink-faint transition-colors hover:text-ink"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -124,6 +258,18 @@ export default function CopilotPage() {
               placeholder="Ask about problems, businesses, policies or evidence…"
               className="h-11 flex-1 rounded-[10px] border border-line bg-surface px-3.5 text-sm text-ink outline-none placeholder:text-ink-faint focus:border-primary/60"
             />
+            <button
+              type="button"
+              onClick={() => {
+                setShowDoc((v) => !v);
+                setDocText("");
+              }}
+              className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-line bg-surface text-ink-subtle transition-colors hover:border-primary/50 hover:text-ink"
+              aria-label="Review a document"
+              title="Review a document"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
             <button
               type="submit"
               disabled={!input.trim() || thinking}

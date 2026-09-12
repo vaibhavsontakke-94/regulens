@@ -138,3 +138,165 @@ Import trace:
     ./pages/api/[[...path]].js
 
 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 
+[browser] ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  128 |       areas: ["Delhi NCR", "Mumbai", "Chennai"],
+  129 |       businessConcentration: "Concentrated in commercial clusters",
+> 130 |       severityByArea: { Delhi NCR: "Critical", Mumbai: "High", "Chennai": "High" },
+      |                               ^^^
+  131 |     },
+  132 |     audits: [
+  133 |       { time: "2026-09-10T16:40:00Z", actor: "System", action: "Verification evidence req...
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js 

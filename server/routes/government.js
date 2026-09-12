@@ -7,6 +7,7 @@ import { runTestAndScale } from "../govAi.js";
 import { matchProblemProviders } from "../problemMatcher.js";
 import { INDIA_STATES } from "../../lib/businessProfileData.js";
 import { INDIA_DISTRICTS, INDIA_DISTRICT_GROUPS } from "../../lib/indiaDistricts.js";
+import { extractDocumentText } from "../documentText.js";
 
 const INDIA_PILOT_AREAS = new Set([
   "India",
@@ -350,6 +351,26 @@ export default async function governmentRoutes(req, res, sub, user) {
     return ok(res, { reply });
   }
 
+  if (head === "document-review") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const body = req.body || {};
+    const active = body.problem || null;
+    let text = String(body.document || "").trim();
+    let label = "";
+    if (!text && body.file && typeof body.file === "object") {
+      try {
+        const source = await documentToText(body.file);
+        text = source.text;
+        label = source.label;
+      } catch (err) {
+        return badRequest(res, err.message || "The uploaded file could not be read.");
+      }
+    }
+    if (!text) return badRequest(res, "Paste a document or upload a file to review.");
+    const reply = await govDocumentSummary(text, active, label);
+    return ok(res, { reply });
+  }
+
   return notFound(res, `Unknown government endpoint: ${head}`);
 }
 
@@ -370,6 +391,33 @@ async function intelligenceNarrative(title, businesses) {
         } Priority scoring and ground verification will refine these findings.`,
     }
   );
+}
+
+async function documentToText(file) {
+  const name = String(file.name || "document");
+  const base64 = String(file.base64 || "");
+  if (!base64) throw new Error("File contents are missing.");
+  if (base64.length > 18_000_000) throw new Error("File is too large. Maximum upload size is 12 MB.");
+  const buffer = Buffer.from(base64, "base64");
+  const text = await extractDocumentText(name, buffer);
+  return { text, label: name };
+}
+
+async function govDocumentSummary(document, active, label = "") {
+  const doc = document.length > 12000 ? `${document.slice(0, 12000)}\n\n[... document truncated for review ...]` : document;
+  const context = [
+    label ? `Document under review: ${label}` : null,
+    active ? `Active problem context: ${active.id} — ${active.title}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return groqWithFallback(`${context}\n\nDocument to review:\n"""${doc}"""`, {
+    system:
+      "You are a regulatory analyst for REGULENS, an Indian regulatory intelligence platform. Review the document text provided and explain it in very simple, plain language so a non-expert can understand it fully. Reply with exactly these bullet sections: What this document is; The main points; What you must do (obligations / action items); Red flags or risks to watch for. Keep each section short and use everyday words. Do not invent facts that are not in the document; if the text lacks enough information, say so clearly.",
+    maxTokens: 1200,
+    fallback: () =>
+      `Here is a simple summary of the document:\n\n- What it is likely about: ${doc.split(/\s+/).slice(0, 40).join(" ") || "the pasted text could not be read."}\n\n- This is a quick preview. Paste the full document text so the assistant can give you the complete points, action items and red flags.`,
+  });
 }
 
 async function govCopilot(message, active) {

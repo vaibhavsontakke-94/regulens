@@ -87,3 +87,55 @@
  POST /api/government/test-and-scale 201 in 3.3s (next.js: 1.7ms, application-code: 3.3s)
  POST /api/auth/login 200 in 47ms (next.js: 1.4ms, application-code: 45ms)
  GET /government/test-and-scale 200 in 244ms (next.js: 232ms, application-code: 12ms)
+✓ Compiled in 161ms
+✓ Compiled in 172ms
+ POST /api/auth/login 200 in 1531ms (next.js: 254ms, application-code: 1277ms)
+ POST /api/government/document-review 200 in 1344ms (next.js: 4ms, application-code: 1340ms)
+ POST /api/auth/login 200 in 136ms (next.js: 5ms, application-code: 131ms)
+ POST /api/business/document-review 200 in 2.1s (next.js: 4ms, application-code: 2.1s)
+ POST /api/auth/login 200 in 125ms (next.js: 3ms, application-code: 122ms)
+ GET /government/copilot 200 in 425ms (next.js: 399ms, application-code: 26ms)
+ POST /api/auth/login 200 in 47ms (next.js: 2ms, application-code: 45ms)
+ GET /business/copilot 200 in 286ms (next.js: 272ms, application-code: 15ms)
+ GET / 200 in 589ms (next.js: 369ms, application-code: 220ms)
+ GET / 200 in 259ms (next.js: 25ms, application-code: 234ms)
+ GET / 200 in 821ms (next.js: 23ms, application-code: 797ms)
+ POST /api/auth/firebase-session 200 in 53ms (next.js: 10ms, application-code: 43ms)
+ GET /api/government/problems 200 in 75ms (next.js: 13ms, application-code: 62ms)
+ GET /api/government/problems 200 in 41ms (next.js: 15ms, application-code: 26ms)
+ POST /api/government/document-review 200 in 1212ms (next.js: 6ms, application-code: 1206ms)
+ POST /api/government/copilot 200 in 1122ms (next.js: 8ms, application-code: 1114ms)
+ POST /api/government/copilot 200 in 1164ms (next.js: 3ms, application-code: 1161ms)
+✓ Compiled in 291ms
+✓ Compiled in 195ms
+✓ Compiled in 187ms
+✓ Compiled in 157ms
+✓ Compiled in 191ms
+✓ Compiled in 154ms
+✓ Compiled in 171ms
+✓ Compiled in 107ms
+ POST /api/auth/login 200 in 1461ms (next.js: 208ms, application-code: 1253ms)
+ POST /api/government/document-review 200 in 1516ms (next.js: 2ms, application-code: 1514ms)
+ POST /api/government/document-review 200 in 15.8s (next.js: 4ms, application-code: 15.8s)
+ POST /api/government/document-review 200 in 1212ms (next.js: 5ms, application-code: 1207ms)
+ POST /api/auth/login 200 in 98ms (next.js: 3ms, application-code: 95ms)
+ POST /api/government/document-review 400 in 13ms (next.js: 4ms, application-code: 9ms)
+ POST /api/government/document-review 400 in 22ms (next.js: 7ms, application-code: 15ms)
+ POST /api/auth/login 200 in 64ms (next.js: 3ms, application-code: 61ms)
+ POST /api/government/document-review 400 in 8ms (next.js: 3ms, application-code: 5ms)
+ POST /api/auth/login 200 in 1754ms (next.js: 153ms, application-code: 1601ms)
+ POST /api/government/document-review 200 in 2.8s (next.js: 4ms, application-code: 2.8s)
+ POST /api/government/document-review 400 in 8ms (next.js: 3ms, application-code: 5ms)
+ POST /api/auth/login 200 in 70ms (next.js: 2ms, application-code: 67ms)
+ POST /api/government/document-review 400 in 19ms (next.js: 6ms, application-code: 14ms)
+ POST /api/auth/login 200 in 150ms (next.js: 4ms, application-code: 146ms)
+ POST /api/government/document-review 400 in 30ms (next.js: 15ms, application-code: 15ms)
+ POST /api/auth/login 200 in 84ms (next.js: 2ms, application-code: 82ms)
+ GET /government/copilot 200 in 225ms (next.js: 199ms, application-code: 26ms)
+ POST /api/auth/login 200 in 69ms (next.js: 5ms, application-code: 64ms)
+ GET /business/copilot 200 in 504ms (next.js: 466ms, application-code: 38ms)
+ POST /api/business/document-review 200 in 1581ms (next.js: 3ms, application-code: 1578ms)
+ GET /government/settings 304 in 397ms (next.js: 336ms, application-code: 62ms)
+ POST /api/government/document-review 401 in 55ms (next.js: 6ms, application-code: 49ms)
+ POST /api/auth/login 200 in 185ms (next.js: 6ms, application-code: 179ms)
+ POST /api/government/document-review 200 in 2.7s (next.js: 9ms, application-code: 2.7s)

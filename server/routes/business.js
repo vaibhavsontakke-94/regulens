@@ -2,6 +2,7 @@ import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { isEmpty, isEmail } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
+import { extractDocumentText } from "../documentText.js";
 import { runAiModule, runEvidenceAnalysis } from "../businessAi.js";
 
 export default async function businessRoutes(req, res, sub, user) {
@@ -325,7 +326,48 @@ export default async function businessRoutes(req, res, sub, user) {
     return ok(res, { reply });
   }
 
+  if (head === "document-review") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const body = req.body || {};
+    let text = String(body.document || "").trim();
+    let label = "";
+    if (!text && body.file && typeof body.file === "object") {
+      try {
+        const source = await documentToText(body.file);
+        text = source.text;
+        label = source.label;
+      } catch (err) {
+        return badRequest(res, err.message || "The uploaded file could not be read.");
+      }
+    }
+    if (!text) return badRequest(res, "Paste a document or upload a file to review.");
+    const reply = await bizDocumentSummary(text, label);
+    return ok(res, { reply });
+  }
+
   return notFound(res, `Unknown business endpoint: ${head}`);
+}
+
+async function documentToText(file) {
+  const name = String(file.name || "document");
+  const base64 = String(file.base64 || "");
+  if (!base64) throw new Error("File contents are missing.");
+  if (base64.length > 18_000_000) throw new Error("File is too large. Maximum upload size is 12 MB.");
+  const buffer = Buffer.from(base64, "base64");
+  const text = await extractDocumentText(name, buffer);
+  return { text, label: name };
+}
+
+async function bizDocumentSummary(document, label = "") {
+  const doc = document.length > 12000 ? `${document.slice(0, 12000)}\n\n[... document truncated for review ...]` : document;
+  const prompt = label ? `Document under review: ${label}\n\nDocument to review:\n"""${doc}"""` : `Document to review:\n"""${doc}"""`;
+  return groqWithFallback(prompt, {
+    system:
+      "You are a compliance analyst for REGULENS, an Indian regulatory intelligence platform helping businesses stay compliant. Review the document text provided and explain it in very simple, plain language so a business owner can understand it fully. Reply with exactly these bullet sections: What this document is; The main points; What the business must do (obligations, deadlines, filings); Red flags or risks to watch for. Keep each section short and use everyday words. Do not invent facts not in the document; if the text lacks enough information, say so clearly.",
+    maxTokens: 1200,
+    fallback: () =>
+      `Here is a simple summary of the document:\n\n- What it is likely about: ${doc.split(/\s+/).slice(0, 40).join(" ") || "the pasted text could not be read."}\n\n- This is a quick preview. Paste the full document text so the assistant can give you the complete points, obligations and red flags.`,
+  });
 }
 
 async function bizCopilot(message, data) {
