@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import {
   AlertTriangle,
@@ -19,14 +19,11 @@ import DonutChart from "@/components/government/charts/DonutChart";
 import SegmentBar from "@/components/government/charts/SegmentBar";
 import GeoMap from "@/components/government/charts/GeoMap";
 import {
-  PROBLEMS,
-  SEVERITY_META,
   STATUS_META,
   PRIORITY_META,
   priorityFromScores,
-  problemStatusCounts,
-  problemPriorityCounts,
 } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtFullNumber, fmtDate } from "@/lib/format";
 
 const PAGE_SIZE = 6;
@@ -48,20 +45,48 @@ export default function CommandCenterPage() {
   const [sortKey, setSortKey] = useState("updated");
   const [sortAsc, setSortAsc] = useState(false);
   const [page, setPage] = useState(1);
+  const [problems, setProblems] = useState([]);
 
-  const statusCounts = useMemo(() => problemStatusCounts(), []);
-  const priorityCounts = useMemo(() => problemPriorityCounts(), []);
+  async function loadProblems() {
+    try {
+      const data = await govApi.listProblems({});
+      setProblems(data.problems || []);
+    } catch {
+      // keep the current list if a refresh fails
+    }
+  }
+
+  useEffect(() => {
+    loadProblems();
+  }, []);
+
+  const statusCounts = useMemo(() => {
+    const counts = { "Under Review": 0, Implemented: 0, "Pending Verification": 0, Resolved: 0 };
+    problems.forEach((p) => {
+      if (counts[p.status] !== undefined) counts[p.status] += 1;
+    });
+    return counts;
+  }, [problems]);
+
+  const priorityCounts = useMemo(() => {
+    const counts = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+    problems.forEach((p) => {
+      const { priority } = priorityFromScores(p.scores);
+      if (counts[priority] !== undefined) counts[priority] += 1;
+    });
+    return counts;
+  }, [problems]);
 
   const topProblem = useMemo(() => {
-    return [...PROBLEMS].sort((a, b) => {
+    return [...problems].sort((a, b) => {
       const { score: sa } = priorityFromScores(a.scores);
       const { score: sb } = priorityFromScores(b.scores);
       return sb - sa;
     })[0];
-  }, []);
+  }, [problems]);
 
   const filtered = useMemo(() => {
-    let list = [...PROBLEMS];
+    let list = [...problems];
     const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -92,7 +117,7 @@ export default function CommandCenterPage() {
       return sortAsc ? sa - sb : sb - sa;
     });
     return list;
-  }, [search, severityFilter, statusFilter, priorityFilter, sortKey, sortAsc]);
+  }, [search, severityFilter, statusFilter, priorityFilter, sortKey, sortAsc, problems]);
 
   const totalPages = Math.max(Math.ceil(filtered.length / PAGE_SIZE), 1);
   const currentPage = Math.min(page, totalPages);
@@ -113,7 +138,7 @@ export default function CommandCenterPage() {
         title="Command Center"
         description="Illustrative overview of the problems, regulations, policies and businesses tracked by REGULENS. All data shown is mock and clearly labeled."
         actions={
-          <Button variant="outline" size="sm" onClick={() => setPage(1)}>
+          <Button variant="outline" size="sm" onClick={loadProblems}>
             Refresh
           </Button>
         }
@@ -228,7 +253,7 @@ export default function CommandCenterPage() {
       <div className="mb-8 grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
         <StatCard
           label="Total Problems"
-          value={PROBLEMS.length}
+          value={problems.length}
           icon={SlidersHorizontal}
           hint="Active regulatory issues in the system"
         />
@@ -285,7 +310,7 @@ export default function CommandCenterPage() {
               { label: "Low", value: priorityCounts.Low, tone: "success" },
             ]}
             centerLabel="Problems"
-            centerValue={PROBLEMS.length}
+            centerValue={problems.length}
           />
         </SectionCard>
 

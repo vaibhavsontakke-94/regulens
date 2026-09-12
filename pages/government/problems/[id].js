@@ -6,7 +6,6 @@ import Badge from "@/components/ui/Badge";
 import PriorityBreakdown from "@/components/government/charts/MetricBar";
 import GeoMap from "@/components/government/charts/GeoMap";
 import {
-  PROBLEMS,
   SEVERITY_META,
   STATUS_META,
   PRIORITY_META,
@@ -17,6 +16,7 @@ import {
   getSolutionsByProblem,
   getEvidenceByProblem,
 } from "@/lib/mockData";
+import { db } from "../../../server/store.js";
 import { fmtFullNumber, fmtDate, fmtDateTime } from "@/lib/format";
 
 const EVIDENCE_TYPE_ICON = {
@@ -359,16 +359,10 @@ export default function ProblemDetailPage({ problem }) {
   );
 }
 
-export async function getStaticPaths() {
-  const paths = PROBLEMS.map((p) => ({ params: { id: p.id } }));
-  return { paths, fallback: "blocking" };
-}
-
-export async function getStaticProps({ params }) {
-  const problem = PROBLEMS.find((p) => p.id === params.id) || null;
+export async function getServerSideProps({ params }) {
+  const problem = db.getProblem(params?.id);
   return {
-    props: { problem },
-    notFound: problem ? false : true,
+    props: { problem: problem ? JSON.parse(JSON.stringify(problem)) : null },
   };
 }
 

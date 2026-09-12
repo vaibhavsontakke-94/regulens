@@ -9,7 +9,7 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "" || head === "dashboard") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     const health = data.healthScores;
     const compliance = data.compliance;
     const actionCount = compliance.filter((c) => c.status === "Action Required" || c.status === "Expired").length;
@@ -43,14 +43,14 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "workspace") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, db.businessData());
+    return ok(res, db.businessDataFor(user.id));
   }
 
   if (head === "profile") {
-    if (req.method === "GET") return ok(res, { profile: db.state.business.profile ? JSON.parse(JSON.stringify(db.state.business.profile)) : null });
+    if (req.method === "GET") return ok(res, { profile: db.businessWorkspace(user.id).profile ? JSON.parse(JSON.stringify(db.businessWorkspace(user.id).profile)) : null });
     if (req.method === "POST" || req.method === "PATCH") {
       const body = req.body || {};
-      const existing = db.state.business.profile || {};
+      const existing = db.businessWorkspace(user.id).profile || {};
       const next = { ...existing, ...body };
       if (body.identity) next.identity = { ...existing.identity, ...body.identity };
       if (body.location) next.location = { ...existing.location, ...body.location };
@@ -59,10 +59,10 @@ export default async function businessRoutes(req, res, sub, user) {
       if (body.compliance) next.compliance = { ...existing.compliance, ...body.compliance };
       if (body.environmental) next.environmental = { ...existing.environmental, ...body.environmental };
       if (body.growth) next.growth = { ...existing.growth, ...body.growth };
-      db.state.business.profile = next;
+      db.businessWorkspace(user.id).profile = next;
       db.persist();
       if (next.identity?.businessName) {
-        db.addBusinessNotification("Business profile updated", `Your profile for ${next.identity.businessName} was saved.`, "profile");
+        db.addBusinessNotification(user.id, "Business profile updated", `Your profile for ${next.identity.businessName} was saved.`, "profile");
       }
       return ok(res, { profile: JSON.parse(JSON.stringify(next)) });
     }
@@ -71,12 +71,12 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "source") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { profile: db.businessData().staticProfile });
+    return ok(res, { profile: db.businessDataFor(user.id).staticProfile });
   }
 
   if (head === "health") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     return ok(res, { health: data.healthScores, areas: [
       { key: "compliance", label: "Compliance Health", score: data.healthScores.compliance },
       { key: "risk", label: "Risk Readiness", score: data.healthScores.risk },
@@ -89,17 +89,17 @@ export default async function businessRoutes(req, res, sub, user) {
   if (head === "compliance") {
     if (sub.length === 2) {
       if (req.method !== "PATCH") return methodNotAllowed(res);
-      const current = db.businessData().compliance.find((c) => c.id === sub[1]);
+      const current = db.businessDataFor(user.id).compliance.find((c) => c.id === sub[1]);
       if (!current) return notFound(res, `Compliance item ${sub[1]} not found.`);
       const status = String((req.body || {}).status || "").trim();
       if (!status) return badRequest(res, "A status value is required.");
-      db.state.business.complianceStatus[sub[1]] = status;
+      db.businessWorkspace(user.id).complianceStatus[sub[1]] = status;
       db.persist();
-      const updated = db.businessData().compliance.find((c) => c.id === sub[1]);
+      const updated = db.businessDataFor(user.id).compliance.find((c) => c.id === sub[1]);
       return ok(res, { requirement: updated });
     }
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     const isExpiringSoon = (date) => {
       if (!date) return false;
       const diff = (new Date(date) - new Date()) / (1000 * 60 * 60 * 24);
@@ -121,12 +121,12 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "risks") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { riskAnalysis: db.businessData().riskAnalysis });
+    return ok(res, { riskAnalysis: db.businessDataFor(user.id).riskAnalysis });
   }
 
   if (head === "regulatory-risk") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     return ok(res, {
       categories: data.riskCategories,
       topCategories: ["Regulatory", "Financial", "Operational", "Expansion", "Market"],
@@ -135,23 +135,23 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "financial-impact") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { financial: db.businessData().financialImpact });
+    return ok(res, { financial: db.businessDataFor(user.id).financialImpact });
   }
 
   if (head === "expansion") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     return ok(res, { analysis: data.expansionAnalysis, factors: data.expansionFactors });
   }
 
   if (head === "expansion-readiness") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { readiness: db.businessData().expansionReadiness });
+    return ok(res, { readiness: db.businessDataFor(user.id).expansionReadiness });
   }
 
   if (head === "growth") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     return ok(res, {
       readiness: data.expansionReadiness,
       growthReadiness: data.healthScores.growthReadiness,
@@ -164,50 +164,50 @@ export default async function businessRoutes(req, res, sub, user) {
   if (head === "certifications") {
     if (sub.length === 2) {
       if (req.method !== "PATCH") return methodNotAllowed(res);
-      const current = db.businessData().certifications.find((c) => c.id === sub[1]);
+      const current = db.businessDataFor(user.id).certifications.find((c) => c.id === sub[1]);
       if (!current) return notFound(res, `Certification ${sub[1]} not found.`);
       const status = String((req.body || {}).status || "").trim();
       if (!status) return badRequest(res, "A status value is required.");
-      db.state.business.certificationStatus[sub[1]] = status;
+      db.businessWorkspace(user.id).certificationStatus[sub[1]] = status;
       db.persist();
-      const updated = db.businessData().certifications.find((c) => c.id === sub[1]);
+      const updated = db.businessDataFor(user.id).certifications.find((c) => c.id === sub[1]);
       return ok(res, { certification: updated });
     }
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { certifications: db.businessData().certifications });
+    return ok(res, { certifications: db.businessDataFor(user.id).certifications });
   }
 
   if (head === "certification-intelligence") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { certificationIntel: db.businessData().certificationIntel });
+    return ok(res, { certificationIntel: db.businessDataFor(user.id).certificationIntel });
   }
 
   if (head === "regulatory-updates") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { updates: db.businessData().regulatoryUpdates });
+    return ok(res, { updates: db.businessDataFor(user.id).regulatoryUpdates });
   }
 
   if (head === "schemes") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { schemes: db.businessData().schemes });
+    return ok(res, { schemes: db.businessDataFor(user.id).schemes });
   }
 
   if (head === "problems") {
     if (sub.length === 1) {
-      if (req.method === "GET") return ok(res, { problems: db.businessData().problems, lifecycle: db.businessData().problemLifecycle });
+      if (req.method === "GET") return ok(res, { problems: db.businessDataFor(user.id).problems, lifecycle: db.businessDataFor(user.id).problemLifecycle });
       if (req.method === "POST") {
         const body = req.body || {};
         if (isEmpty(body.title)) return badRequest(res, "Problem title is required.");
         if (body.reporterEmail && !isEmail(body.reporterEmail)) return badRequest(res, "Enter a valid email.");
-        const problem = db.addBusinessProblem(body);
-        db.addBusinessNotification("Problem reported", `${problem.title} was added to My Problems.`, "problem");
+        const problem = db.addBusinessProblem(user.id, body);
+        db.addBusinessNotification(user.id, "Problem reported", `${problem.title} was added to My Problems.`, "problem");
         return created(res, { problem });
       }
       return methodNotAllowed(res);
     }
     if (sub.length === 2) {
       if (req.method !== "PATCH") return methodNotAllowed(res);
-      const updated = db.updateBusinessProblem(sub[1], req.body || {});
+      const updated = db.updateBusinessProblem(user.id, sub[1], req.body || {});
       if (!updated) return notFound(res, `Problem ${sub[1]} not found.`);
       return ok(res, { problem: updated });
     }
@@ -217,22 +217,22 @@ export default async function businessRoutes(req, res, sub, user) {
   if (head === "evidence") {
     if (sub.length === 1) {
       if (req.method === "GET") {
-        let list = db.businessData().evidence;
+        let list = db.businessDataFor(user.id).evidence;
         if (req.query.problemId) list = list.filter((e) => e.problemId === req.query.problemId);
         return ok(res, { evidence: list });
       }
       if (req.method === "POST") {
         const body = req.body || {};
         if (isEmpty(body.title)) return badRequest(res, "Evidence title is required.");
-        const evidence = db.addBusinessEvidence({
+        const evidence = db.addBusinessEvidence(user.id, {
           title: body.title,
           type: body.type,
           problemId: body.problemId,
           size: body.size,
         });
-        const data = db.businessData();
+        const data = db.businessDataFor(user.id);
         const analysis = await runEvidenceAnalysis(evidence, data);
-        const persisted = db.updateBusinessEvidence(evidence.id, {
+        const persisted = db.updateBusinessEvidence(user.id,evidence.id, {
           status: analysis?.status === "needs-review" ? "needs-review" : "complete",
           progress: 100,
           analysis,
@@ -243,15 +243,15 @@ export default async function businessRoutes(req, res, sub, user) {
     }
     if (sub.length === 2) {
       if (req.method === "PATCH") {
-        const existing = db.state.business.evidence.find((e) => e.id === sub[1]);
+        const existing = db.businessWorkspace(user.id).evidence.find((e) => e.id === sub[1]);
         if (!existing) return notFound(res, `Evidence ${sub[1]} not found.`);
-        const updated = db.updateBusinessEvidence(sub[1], req.body || {});
+        const updated = db.updateBusinessEvidence(user.id,sub[1], req.body || {});
         return ok(res, { evidence: updated });
       }
       if (req.method === "DELETE") {
-        const index = db.state.business.evidence.findIndex((e) => e.id === sub[1]);
+        const index = db.businessWorkspace(user.id).evidence.findIndex((e) => e.id === sub[1]);
         if (index === -1) return notFound(res, `Evidence ${sub[1]} not found.`);
-        db.state.business.evidence.splice(index, 1);
+        db.businessWorkspace(user.id).evidence.splice(index, 1);
         db.persist();
         db.audit(`Evidence removed: ${sub[1]}`, { target: sub[1] });
         return ok(res, { done: true });
@@ -260,11 +260,11 @@ export default async function businessRoutes(req, res, sub, user) {
     }
     if (sub.length === 3 && sub[2] === "analyze") {
       if (req.method !== "POST") return methodNotAllowed(res);
-      const found = db.state.business.evidence.find((e) => e.id === sub[1]);
+      const found = db.businessWorkspace(user.id).evidence.find((e) => e.id === sub[1]);
       if (!found) return notFound(res, `Evidence ${sub[1]} not found.`);
-      const data = db.businessData();
+      const data = db.businessDataFor(user.id);
       const analysis = await runEvidenceAnalysis(found, data);
-      const persisted = db.updateBusinessEvidence(found.id, {
+      const persisted = db.updateBusinessEvidence(user.id,found.id, {
         status: analysis?.status === "needs-review" ? "needs-review" : "complete",
         progress: 100,
         analysis,
@@ -276,35 +276,35 @@ export default async function businessRoutes(req, res, sub, user) {
 
   if (head === "reports") {
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { reports: db.businessData().reports });
+    return ok(res, { reports: db.businessDataFor(user.id).reports });
   }
 
   if (head === "notifications") {
     if (sub.length === 2 && sub[1] === "read-all") {
       if (req.method !== "POST") return methodNotAllowed(res);
-      db.businessData().notifications.forEach((n) => {
-        db.state.business.notificationsRead[n.id] = true;
+      db.businessDataFor(user.id).notifications.forEach((n) => {
+        db.businessWorkspace(user.id).notificationsRead[n.id] = true;
       });
       db.persist();
       return ok(res, { done: true });
     }
     if (sub.length === 2) {
       if (req.method !== "PATCH") return methodNotAllowed(res);
-      const item = db.businessData().notifications.find((n) => n.id === sub[1]);
+      const item = db.businessDataFor(user.id).notifications.find((n) => n.id === sub[1]);
       if (!item) return notFound(res, `Notification ${sub[1]} not found.`);
       const patch = req.body || {};
-      if (patch.unread === false || patch.read === true) db.state.business.notificationsRead[sub[1]] = true;
+      if (patch.unread === false || patch.read === true) db.businessWorkspace(user.id).notificationsRead[sub[1]] = true;
       db.persist();
       return ok(res, { notification: { ...item, unread: false } });
     }
     if (req.method !== "GET") return methodNotAllowed(res);
-    return ok(res, { notifications: db.businessData().notifications });
+    return ok(res, { notifications: db.businessDataFor(user.id).notifications });
   }
 
   if (head === "ai") {
     if (req.method !== "POST") return methodNotAllowed(res);
     const module = String((req.body || {}).module || "");
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     const analysis = await runAiModule(module, data);
     if (!analysis) return badRequest(res, `Unknown AI module: ${module}`);
     return ok(res, { module, analysis });
@@ -314,7 +314,7 @@ export default async function businessRoutes(req, res, sub, user) {
     if (req.method !== "POST") return methodNotAllowed(res);
     const message = String((req.body || {}).message || "").trim();
     if (!message) return badRequest(res, "A message is required.");
-    const data = db.businessData();
+    const data = db.businessDataFor(user.id);
     const reply = await bizCopilot(message, data);
     return ok(res, { reply });
   }

@@ -5,7 +5,7 @@ import { isEmail, isEmpty } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
 
 function businessForIds(ids) {
-  return ids.map((id) => db.state.businesses.find((b) => b.id === id)).filter(Boolean);
+  return (ids || []).map((id) => db.state.businesses.find((b) => b.id === id)).filter(Boolean);
 }
 
 function filtersFromQuery(query) {
@@ -125,11 +125,11 @@ export default async function governmentRoutes(req, res, sub, user) {
       if (req.method !== "GET") return methodNotAllowed(res);
       if (relation === "businesses") return ok(res, { businesses: businessForIds(problem.affectedBusinessIds) });
       if (relation === "regulations")
-        return ok(res, { regulations: problem.regulationIds.map((rid) => db.state.regulations.find((r) => r.id === rid)).filter(Boolean) });
+        return ok(res, { regulations: (problem.regulationIds || []).map((rid) => db.state.regulations.find((r) => r.id === rid)).filter(Boolean) });
       if (relation === "policies")
-        return ok(res, { policies: problem.policyIds.map((rid) => db.state.policies.find((r) => r.id === rid)).filter(Boolean) });
+        return ok(res, { policies: (problem.policyIds || []).map((rid) => db.state.policies.find((r) => r.id === rid)).filter(Boolean) });
       if (relation === "solutions")
-        return ok(res, { solutions: problem.solutionIds.map((rid) => db.state.solutions.find((r) => r.id === rid)).filter(Boolean) });
+        return ok(res, { solutions: (problem.solutionIds || []).map((rid) => db.state.solutions.find((r) => r.id === rid)).filter(Boolean) });
       if (relation === "evidence") return ok(res, { evidence: db.state.evidence.filter((e) => e.problemId === id) });
       if (relation === "audits") return ok(res, { audits: db.state.auditLogs.filter((a) => a.target === id) });
       return notFound(res, `Unknown relation: ${relation}`);
@@ -375,7 +375,7 @@ function govFallbackReply(message, active) {
     return `Priority analysis scores problems on the methodology (Severity 20, Businesses 15, Population 15, Economic 15, Regulatory Risk 15, Urgency 10, Geographic 10). ${active ? `Current context ${active.id} is prioritised ${active.priorityLevel} (${active.priorityScore}/10).` : ""} Values are as recorded in the workspace.`;
   }
   if (/business|affect|sme/i.test(text)) {
-    return `Business matching uses sector, technology and priority-score signals. ${active ? `${active.businesses.length} solution providers are matched to ${active.id}.` : "No active problem context loaded."} Recommendations reflect the recorded scores.`;
+    return `Business matching uses sector, technology and priority-score signals. ${active ? `${(active.businesses || []).length} solution providers are matched to ${active.id}.` : "No active problem context loaded."} Recommendations reflect the recorded scores.`;
   }
   if (/evidence|ground|verify/i.test(text)) {
     return `Ground intelligence links evidence to problems for verification. Use the Ground Intelligence module to review photos, documents and inspections linked to the active problem.`;

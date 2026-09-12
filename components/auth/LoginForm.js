@@ -45,7 +45,7 @@ export default function LoginForm({ role }) {
     if (isEmpty(values.password)) {
       next.password = "Password is required.";
     } else if (String(values.password).length < 8) {
-      setFormError("Incorrect email or password.");
+      next.password = "Password must be at least 8 characters.";
     }
 
     setErrors(next);
@@ -57,15 +57,31 @@ export default function LoginForm({ role }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const firebaseUser = await firebaseSignIn(values.email.trim(), values.password);
-      const data = await authApi.firebaseSession({
-        role,
-        email: firebaseUser.email || values.email.trim(),
-        name: firebaseUserToSession(firebaseUser, role, values.email.trim()).name,
-        uid: firebaseUser.uid,
-      });
-      if (values.remember) rememberEmail(firebaseUser.email || values.email.trim());
-      setSession(data.session);
+      const email = values.email.trim();
+      let session;
+      try {
+        const firebaseUser = await firebaseSignIn(email, values.password);
+        const data = await authApi.firebaseSession({
+          role,
+          email: firebaseUser.email || email,
+          name: firebaseUserToSession(firebaseUser, role, email).name,
+          uid: firebaseUser.uid,
+        });
+        session = data.session;
+        if (values.remember) rememberEmail(firebaseUser.email || email);
+      } catch (fireErr) {
+        const code = fireErr?.code || "";
+        const isUnknownFirebaseAccount =
+          code.startsWith("auth/") &&
+          code !== "auth/too-many-requests" &&
+          code !== "auth/network-request-failed" &&
+          code !== "auth/internal-error";
+        if (!isUnknownFirebaseAccount) throw fireErr;
+        const data = await authApi.login({ role, email, password: values.password });
+        session = data.session;
+        if (values.remember) rememberEmail(email);
+      }
+      setSession(session);
       router.push(cfg.home);
     } catch (err) {
       setFormError(err?.code?.startsWith("auth/") ? mapFirebaseError(err) : handleApiError(err));
@@ -150,7 +166,7 @@ export default function LoginForm({ role }) {
 
       <div className="mt-6">
         <DemoNote>
-          Authentication is powered by Firebase. Sign in with an email/password account created in your Firebase project.
+          Authentication is powered by Firebase. Sign in with an email/password account created in your Firebase project, or use a seeded demo account to explore the workspace.
         </DemoNote>
       </div>
 

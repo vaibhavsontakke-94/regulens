@@ -37,6 +37,19 @@ function maxNumeric(ids, prefix) {
   return max;
 }
 
+function seedBusinessState() {
+  return {
+    profile: null,
+    problems: [],
+    evidence: [],
+    reports: [],
+    notifications: [],
+    notificationsRead: {},
+    complianceStatus: {},
+    certificationStatus: {},
+  };
+}
+
 function seedState() {
   return {
     problems: clone(PROBLEMS),
@@ -48,23 +61,15 @@ function seedState() {
     reports: clone(REPORTS),
     notifications: clone(NOTIFICATIONS),
     auditLogs: clone(AUDIT_LOGS),
-    business: {
-      profile: null,
-      problems: [],
-      evidence: [],
-      reports: [],
-      notifications: [],
-      notificationsRead: {},
-      complianceStatus: {},
-      certificationStatus: {},
-    },
+    business: seedBusinessState(),
+    businessWorkspaces: {},
   };
 }
 
 function seedCounters() {
   const base = seedState();
   return {
-    problem: maxNumeric(base.problems.map((p) => p.id), "PRB-"),
+    problem: maxNumeric(base.problems.map((p) => p.id), "PRB-2026-"),
     evidence: maxNumeric(base.evidence.map((e) => e.id), "EVD-"),
     report: maxNumeric(base.reports.map((r) => r.id), "RPT-"),
     businessProblem: maxNumeric(base.business.problems.map((p) => p.id), "BP-"),
@@ -82,6 +87,7 @@ function loadState() {
         ...seedState(),
         ...parsed,
         business: { ...seedState().business, ...(parsed.business || {}) },
+        businessWorkspaces: { ...(parsed.businessWorkspaces || {}) },
         users: parsed.users || [],
         idCounters: { ...seedCounters(), ...(parsed.idCounters || {}) },
       };
@@ -262,7 +268,7 @@ function updateReport(id, patch) {
   return report;
 }
 
-function addBusinessProblem(fields) {
+function addBusinessProblem(userId, fields) {
   const item = {
     id: nextId("BP-", "businessProblem"),
     title: fields.title,
@@ -273,20 +279,20 @@ function addBusinessProblem(fields) {
     description: fields.description || "",
     evidence: fields.evidence || [],
   };
-  state.business.problems.unshift(item);
+  businessWorkspace(userId).problems.unshift(item);
   persist();
   return item;
 }
 
-function updateBusinessProblem(id, patch) {
-  const item = state.business.problems.find((p) => p.id === id);
+function updateBusinessProblem(userId, id, patch) {
+  const item = businessWorkspace(userId).problems.find((p) => p.id === id);
   if (!item) return null;
   Object.assign(item, patch, { updated: today() });
   persist();
   return item;
 }
 
-function addBusinessEvidence(fields) {
+function addBusinessEvidence(userId, fields) {
   const item = {
     id: nextId("BEV-", "businessEvidence"),
     type: fields.type || "Document",
@@ -299,22 +305,22 @@ function addBusinessEvidence(fields) {
     progress: fields.progress ?? null,
     analysis: fields.analysis || null,
   };
-  state.business.evidence.unshift(item);
+  businessWorkspace(userId).evidence.unshift(item);
   persist();
   return item;
 }
 
-function updateBusinessEvidence(id, patch) {
-  const item = state.business.evidence.find((e) => e.id === id);
+function updateBusinessEvidence(userId, id, patch) {
+  const item = businessWorkspace(userId).evidence.find((e) => e.id === id);
   if (!item) return null;
   Object.assign(item, patch);
   persist();
   return item;
 }
 
-function addBusinessNotification(title, body, type) {
+function addBusinessNotification(userId, title, body, type) {
   const item = { id: nextId("NTF-", "notification"), title, body, time: now(), type: type || "info", unread: true };
-  state.business.notifications.unshift(item);
+  businessWorkspace(userId).notifications.unshift(item);
   persist();
   return item;
 }
@@ -352,20 +358,31 @@ function publicUser(user) {
   return safe;
 }
 
-function businessData() {
-  const derived = buildWorkspace(state.business.profile, {
-    problems: state.business.problems,
-    evidence: state.business.evidence,
-    reports: state.business.reports,
-    notifications: state.business.notifications,
-    notificationsRead: state.business.notificationsRead,
-    complianceStatus: state.business.complianceStatus,
-    certificationStatus: state.business.certificationStatus,
+function businessWorkspace(userId) {
+  if (!state.businessWorkspaces) state.businessWorkspaces = {};
+  if (!state.businessWorkspaces[userId]) state.businessWorkspaces[userId] = seedBusinessState();
+  return state.businessWorkspaces[userId];
+}
+
+function businessDataFor(userId) {
+  const ws = businessWorkspace(userId);
+  const derived = buildWorkspace(ws.profile, {
+    problems: ws.problems,
+    evidence: ws.evidence,
+    reports: ws.reports,
+    notifications: ws.notifications,
+    notificationsRead: ws.notificationsRead,
+    complianceStatus: ws.complianceStatus,
+    certificationStatus: ws.certificationStatus,
   });
   return {
     ...derived,
-    profile: state.business.profile ? clone(state.business.profile) : null,
+    profile: ws.profile ? clone(ws.profile) : null,
   };
+}
+
+function businessData() {
+  return businessDataFor("demo");
 }
 
 export const db = {
@@ -395,5 +412,7 @@ export const db = {
   addGovNotification,
   dashboardStats,
   publicUser,
+  businessWorkspace,
+  businessDataFor,
   businessData,
 };

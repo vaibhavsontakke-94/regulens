@@ -11,6 +11,8 @@ const VARIANTS = {
   ghost: "text-content-secondary hover:bg-surface-muted hover:text-content",
   white:
     "bg-white text-content shadow-card hover:bg-surface-muted",
+  danger:
+    "bg-danger text-white shadow-sm hover:bg-danger/90 active:bg-danger/90",
 };
 
 const SIZES = {

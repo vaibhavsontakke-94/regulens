@@ -175,6 +175,7 @@ function certificationIntelBuilder(data) {
     authority: c.authority,
     demand: c.demand,
     value: c.value,
+    mandatory: Boolean(c.mandatory),
     status: c.status,
   }));
   const context = {

@@ -6,6 +6,7 @@ import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { getSession, clearSession } from "@/lib/authSession";
+import { cx } from "@/lib/utils";
 
 const APPEARANCE_OPTIONS = [
   { value: "light", label: "Light", icon: Sun },

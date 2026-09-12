@@ -74,7 +74,7 @@ function ProfileMenu({ onNavigate }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              onNavigate("/business/profile");
+              onNavigate("/government/profile");
             }}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-ink-subtle transition-colors hover:bg-surface-muted hover:text-ink"
           >
@@ -86,7 +86,7 @@ function ProfileMenu({ onNavigate }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              onNavigate("/business/settings");
+              onNavigate("/government/settings");
             }}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-ink-subtle transition-colors hover:bg-surface-muted hover:text-ink"
           >
@@ -99,7 +99,7 @@ function ProfileMenu({ onNavigate }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              onNavigate("/business/notifications");
+              onNavigate("/government/notifications");
             }}
             className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-ink-subtle transition-colors hover:bg-surface-muted hover:text-ink"
           >
@@ -145,7 +145,7 @@ export default function BusinessTopBar({ onMenuClick }) {
         <ThemeToggle className="hidden sm:block" />
         <button
           type="button"
-          onClick={() => router.push("/business/notifications")}
+          onClick={() => router.push("/government/notifications")}
           className="relative flex h-10 w-10 items-center justify-center rounded-[10x] text-ink-subtle transition-colors hover:bg-surface-muted hover:text-ink"
           aria-label={`Notifications (${unreadCount} unread)`}
         >

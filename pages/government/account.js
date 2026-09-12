@@ -67,7 +67,7 @@ export default function GovernmentAccountPage() {
             <LogOut className="h-4 w-4" />
             Sign out
           </Button>
-          <Button variant="outline" size="sm" mt-2 disabled>
+          <Button variant="outline" size="sm" className="mt-2" disabled>
             <LogOut className="h-4 w-4" /> Delete account
           </Button>
           <p className="mt-3 text-xs text-danger">

@@ -64,7 +64,7 @@ export default function GovernmentProfilePage() {
                 </dd>
               </div>
             </dl>
-            <Button variant="outline" size="sm" onClick={handleSignOut} mt-4>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="mt-4">
               <LogOut className="h-4 w-4" />
               Sign out
             </Button>
