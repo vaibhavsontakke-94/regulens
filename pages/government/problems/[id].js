@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle2, ChevronRight } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
 import PriorityBreakdown from "@/components/government/charts/MetricBar";
 import GeoMap from "@/components/government/charts/GeoMap";
 import {
@@ -67,6 +68,9 @@ export default function ProblemDetailPage({ problem }) {
         description={`${problem.category} · ${problem.location} · last updated ${fmtDate(problem.updated)}`}
         actions={
           <>
+            <Button variant="soft" size="sm" href={`/government/test-and-scale?problemId=${problem.id}`}>
+              Test & Scale
+            </Button>
             <Badge variant={SEVERITY_META[problem.severity].variant} dot>{problem.severity}</Badge>
             <Badge variant={PRIORITY_META[priority].variant}>{PRIORITY_META[priority].short} · {score.toFixed(2)}</Badge>
             <Badge variant={STATUS_META[problem.status]?.variant || "neutral"}>{problem.status}</Badge>

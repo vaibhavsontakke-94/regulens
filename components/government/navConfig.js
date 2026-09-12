@@ -1,6 +1,7 @@
 import {
   BookOpenCheck,
   Building2,
+  FlaskConical,
   Landmark,
   LayoutDashboard,
   Lightbulb,
@@ -20,6 +21,7 @@ export const GOVERNMENT_NAV = [
       { label: "Regulations", href: "/government/regulations", icon: Scale },
       { label: "Policies", href: "/government/policies", icon: BookOpenCheck },
       { label: "Solutions", href: "/government/solutions", icon: Lightbulb },
+      { label: "Test & Scale", href: "/government/test-and-scale", icon: FlaskConical },
       { label: "Ground Intelligence", href: "/government/ground-intelligence", icon: Map },
     ],
   },
