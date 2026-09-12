@@ -13,6 +13,7 @@ import {
 } from "../lib/mockData.js";
 import { buildWorkspace } from "./workspace.js";
 import { readFromSupabase, supabaseConfigured } from "./supabase.js";
+import { loadLlmSeed } from "./llmSeed.js";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "store.json");
@@ -51,17 +52,27 @@ function seedBusinessState() {
   };
 }
 
-export function seedState() {
+const LLM_SEED = loadLlmSeed();
+
+function baseCollections() {
+  const s = LLM_SEED || {};
   return {
-    problems: clone(PROBLEMS),
-    businesses: clone(BUSINESSES),
-    regulations: clone(REGULATIONS),
-    policies: clone(POLICIES),
-    solutions: clone(SOLUTIONS),
-    evidence: clone(EVIDENCE),
-    reports: clone(REPORTS),
-    notifications: clone(NOTIFICATIONS),
-    auditLogs: clone(AUDIT_LOGS),
+    problems: clone(s.problems || PROBLEMS),
+    businesses: clone(s.businesses || BUSINESSES),
+    regulations: clone(s.regulations || REGULATIONS),
+    policies: clone(s.policies || POLICIES),
+    solutions: clone(s.solutions || SOLUTIONS),
+    evidence: clone(s.evidence || EVIDENCE),
+    reports: clone(s.reports || REPORTS),
+    notifications: clone(s.notifications || NOTIFICATIONS),
+    auditLogs: clone(s.auditLogs || AUDIT_LOGS),
+  };
+}
+
+export function seedState() {
+  const base = baseCollections();
+  return {
+    ...base,
     testAndScale: [],
     business: seedBusinessState(),
     businessWorkspaces: {},

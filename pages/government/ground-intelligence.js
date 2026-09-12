@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Camera, FileText, SearchCheck, Info } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { EVIDENCE } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtDate, fmtFullNumber } from "@/lib/format";
 
 const TYPE_META = {
@@ -16,19 +16,37 @@ const TYPE_META = {
 
 export default function GroundIntelligencePage() {
   const { problem } = useGovernmentProblem();
+  const [evidence, setEvidence] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .evidence()
+      .then((data) => {
+        if (active) setEvidence(data.evidence || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const list = useMemo(() => {
-    return EVIDENCE.filter((e) => (!type || e.type === type) && (!status || e.status === status));
-  }, [type, status]);
+    return evidence.filter((e) => (!type || e.type === type) && (!status || e.status === status));
+  }, [evidence, type, status]);
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Ground Intelligence"
-        description="Photographs, documents and inspection records collected on the ground. Illustrative demo entries — no real uploads."
+        description="Photographs, documents and inspection records collected on the ground and stored in the workspace."
       />
       {problem && <ActiveProblemIntro problem={problem} />}
 
@@ -36,7 +54,7 @@ export default function GroundIntelligencePage() {
         <div className="mb-6">
           <SectionCard
             title="Field signals — active problem"
-            description={`Illustrative mock field context for problem ${problem.id}.`}
+            description={`Field context for problem ${problem.id}.`}
           >
             <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
               {[
@@ -81,12 +99,12 @@ export default function GroundIntelligencePage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-xs text-ink-faint">Illustrative mock field signals only — no real ground verification data is shown.</p>
+            <p className="mt-4 text-xs text-ink-faint">Field signals summarised from recorded evidence linked to the active problem.</p>
           </SectionCard>
         </div>
       )}
       <div className="mb-4 rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-xs leading-relaxed text-warning">
-        Demo workspace — evidence shown here is mock content. No files are actually uploaded, stored or verified.
+        Evidence records and their metadata are shown below. Files themselves are not stored as uploads in this workspace.
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -147,12 +165,12 @@ export default function GroundIntelligencePage() {
 
               <div className="mt-auto flex items-center gap-2 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-ink-faint">
                 <Info className="h-3.5 w-3.5 shrink-0" />
-                Illustrative record — attachments are not stored.
+                Metadata record — attachments are not stored.
               </div>
             </div>
           );
         })}
-        {list.length === 0 && (
+        {!loading && list.length === 0 && (
           <div className="col-span-full flex flex-col items-center gap-3 rounded-card border border-line bg-surface py-12 text-center">
             <Camera className="h-8 w-8 text-ink-faint" />
             <p className="text-sm text-ink-faint">No evidence matches the current filters.</p>

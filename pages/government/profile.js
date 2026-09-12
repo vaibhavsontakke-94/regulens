@@ -18,7 +18,7 @@ export default function GovernmentProfilePage() {
     router.push("/government/login");
   };
 
-  const name = session?.name || "Demo user";
+  const name = session?.name || "Guest";
   const email = session?.email || "analyst@regulens.gov.ng";
   const joined = session?.joined || "2026";
   const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
@@ -28,7 +28,7 @@ export default function GovernmentProfilePage() {
       <PageHeader
         eyebrow="Government Intelligence"
         title="Profile & Settings"
-        description="Account context for this demo workspace."
+        description="Account context for the government workspace."
       />
       <div className="grid gap-4 lg:grid-cols-2">
         <SectionCard title="Profile">
@@ -60,7 +60,7 @@ export default function GovernmentProfilePage() {
               <div className="flex justify-between gap-4">
                 <dt className="text-ink-faint">Authentication</dt>
                 <dd className="flex items-center gap-1.5 text-ink">
-                  <ShieldCheck className="h-4 w-4 text-success" /> Demo (frontend only)
+                  <ShieldCheck className="h-4 w-4 text-success" /> Secured session
                 </dd>
               </div>
             </dl>

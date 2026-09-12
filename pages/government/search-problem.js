@@ -6,97 +6,8 @@ import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { buildProblemIntelligence } from "@/lib/problemIntelligence";
 import { govApi, handleApiError } from "@/lib/api";
 import { cx } from "@/lib/utils";
-
-// ---------------------------------------------------------------
-// MOCK MATCHING — FRONTEND ONLY
-// `fetchProblemMatches` is a stand-in for the future backend/AI matcher.
-// Replace it with a GET/POST to the API and keep the same return shape
-// so the UI and problem-context do not need to change.
-// ---------------------------------------------------------------
-
-const MOCK_SOLUTION_PROVIDERS = [
-  {
-    id: "SP-01",
-    name: "AgriSense IoT Solutions",
-    description:
-      "Precision irrigation monitoring and crop-yield analytics for smallholder farming clusters.",
-    technology: "AI + IoT sensor networks",
-    reasons: ["Technology Match", "Problem Relevance", "Cost Fit", "Expected Impact"],
-    baseScore: 78,
-    expectedImpact: "High",
-    costFit: "Good",
-    experience: "Similar projects in irrigation districts",
-    keywords: ["irrigation", "water", "farm", "farming", "farmer", "agriculture", "crop", "monitor", "sensor", "hunger", "yield", "affordable"],
-  },
-  {
-    id: "SP-02",
-    name: "ComplyDesk Analytics",
-    description:
-      "Automated regulatory compliance reporting and filing workflows for SMEs across sectors.",
-    technology: "Data Analytics + Workflow Automation",
-    reasons: ["Technology Match", "Previous Projects", "Eligibility"],
-    baseScore: 74,
-    expectedImpact: "Medium",
-    costFit: "Good",
-    experience: "SME compliance filing rollout",
-    keywords: ["compliance", "report", "reporting", "regulatory", "audit", "filing", "disclosure", "regulation", "paperwork", "license"],
-  },
-  {
-    id: "SP-03",
-    name: "RetailRadar Technologies",
-    description:
-      "Real-time retail pricing intelligence that surfaces unexplained price variance for essential goods.",
-    technology: "Data Analytics + Price Intelligence",
-    reasons: ["Technology Match", "Problem Relevance", "Expected Impact"],
-    baseScore: 80,
-    expectedImpact: "High",
-    costFit: "Moderate",
-    experience: "Retail price monitoring pilots",
-    keywords: ["price", "pricing", "retail", "transparency", "consumer", "goods", "inflation", "essential", "cost", "variation", "affordable"],
-  },
-  {
-    id: "SP-04",
-    name: "GridClear Energy",
-    description:
-      "Metering and billing verification that reconciles tariff bands for residential and SME customers.",
-    technology: "AI + IoT Metering",
-    reasons: ["Previous Projects", "Technology Match", "Expected Impact"],
-    baseScore: 76,
-    expectedImpact: "High",
-    costFit: "Moderate",
-    experience: "District metering reconciliation",
-    keywords: ["tariff", "billing", "meter", "electricity", "energy", "overbilling", "utility", "power", "bill", "supply"],
-  },
-  {
-    id: "SP-05",
-    name: "CustomsFlow Systems",
-    description:
-      "Single-window export documentation and border clearance for perishable and manufactured goods.",
-    technology: "Digital Documents + Integrations",
-    reasons: ["Previous Projects", "Technology Match", "Eligibility"],
-    baseScore: 72,
-    expectedImpact: "High",
-    costFit: "Moderate",
-    experience: "Port clearance digitisation",
-    keywords: ["export", "border", "clearance", "consignment", "document", "documentation", "trade", "customs", "shipment", "port", "logistics"],
-  },
-  {
-    id: "SP-06",
-    name: "PayrollTrust",
-    description:
-      "Payroll and statutory remittance compliance covering pension contributions and employee benefits.",
-    technology: "Data Analytics + Payroll Engine",
-    reasons: ["Cost Fit", "Eligibility", "Previous Projects"],
-    baseScore: 71,
-    expectedImpact: "Medium",
-    costFit: "Good",
-    experience: "SME remittance compliance",
-    keywords: ["pension", "remittance", "payroll", "employee", "benefits", "salary", "contribution", "workers", "labour", "wages"],
-  },
-];
 
 const SCORE_BANDS = [
   { min: 80, label: "High", variant: "amber" },
@@ -104,48 +15,8 @@ const SCORE_BANDS = [
   { min: 0, label: "Low", variant: "neutral" },
 ];
 
-function clamp(n, lo, hi) {
-  return Math.min(hi, Math.max(lo, n));
-}
-
 function bandForScore(score) {
   return SCORE_BANDS.find((b) => score >= b.min);
-}
-
-function computeScore(provider, matchedKeywords) {
-  const score = clamp(provider.baseScore + matchedKeywords * 4, 40, 99);
-  const band = bandForScore(score);
-  return { score, label: band.label, variant: band.variant };
-}
-
-async function fetchProblemMatches(problem) {
-  // Simulated latency so the loading state is visible. Replace this body
-  // with a real API call: await fetch("/api/problem-matches", { method: "POST", body: JSON.stringify({ problem }) })
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
-  const q = problem.trim().toLowerCase();
-  if (!q) return [];
-
-  return MOCK_SOLUTION_PROVIDERS.map((provider) => {
-    const matchedKeywords = provider.keywords.filter((kw) => q.includes(kw)).length;
-    const { score, label, variant } = computeScore(provider, matchedKeywords);
-    return {
-      id: provider.id,
-      name: provider.name,
-      description: provider.description,
-      technology: provider.technology,
-      reasons: matchedKeywords > 0 ? provider.reasons : ["Eligibility"],
-      priorityScore: score,
-      priorityLabel: label,
-      priorityVariant: variant,
-      expectedImpact: provider.expectedImpact,
-      costFit: provider.costFit,
-      experience: provider.experience,
-    };
-  })
-    .filter((r) => r.priorityScore >= 40)
-    .sort((a, b) => b.priorityScore - a.priorityScore)
-    .slice(0, 4);
 }
 
 function ResultMeta({ label, value }) {
@@ -163,7 +34,10 @@ export default function SearchProblemPage() {
   const [problemInput, setProblemInput] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState(null);
+  const [summary, setSummary] = useState("");
+  const [createdProblemId, setCreatedProblemId] = useState("");
   const [error, setError] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
   async function handleSearch(e) {
     e?.preventDefault();
@@ -173,30 +47,52 @@ export default function SearchProblemPage() {
       return;
     }
     setError(false);
+    setErrorText("");
     setSearching(true);
     setResults(null);
+    setSummary("");
+    setCreatedProblemId("");
 
-    const matches = await fetchProblemMatches(value);
+    try {
+      const data = await govApi.problemMatches({ problem: value });
+      const matches = data.matches || [];
 
-    if (matches.length > 0) {
-      const id = `PRB-${String(Date.now()).slice(-6)}`;
-      try {
-        const data = await govApi.buildIntelligence({ id, title: value, businesses: matches });
-        setProblem(data.intelligence);
-      } catch (err) {
-        console.warn("Intelligence API unavailable, using local builder:", handleApiError(err));
-        setProblem(buildProblemIntelligence({ id, title: value, businesses: matches }));
+      if (matches.length > 0) {
+        const created = await govApi.createProblem({
+          title: value,
+          summary:
+            data.summary ||
+            `New problem reported via Search & Match. ${matches.length} solution provider${matches.length === 1 ? "" : "s"} identified for triage.`,
+          reporterEmail: "intake@regulens.gov.ng",
+          location: "Federal (Triage)",
+          category: "Cross-Sector",
+          severity: "Medium",
+          rootCauses: ["Under initial triage"],
+          affectedBusinessIds: matches.map((m) => m.id),
+        });
+        const record = created.problem || null;
+        setCreatedProblemId(record?.id || "");
+        const intel = await govApi.buildIntelligence({ id: record?.id || value, title: value, businesses: matches });
+        setProblem(intel.intelligence);
       }
+      setResults(matches);
+      setSummary(matches.length > 0 ? data.summary || "" : "");
+    } catch (err) {
+      setErrorText(handleApiError(err));
+      setResults([]);
+    } finally {
+      setSearching(false);
     }
-    setResults(matches);
-    setSearching(false);
   }
 
   function handleClear() {
     setProblemInput("");
     setError(false);
+    setErrorText("");
     setResults(null);
+    setSummary("");
     setSearching(false);
+    setCreatedProblemId("");
     inputRef.current?.focus();
   }
 
@@ -205,7 +101,7 @@ export default function SearchProblemPage() {
   }
 
   const showInitial = !searching && results === null;
-  const showNoResults = !searching && results !== null && results.length === 0;
+  const showNoResults = !searching && results !== null && results.length === 0 && !errorText;
   const hasResults = !searching && results !== null && results.length > 0;
 
   return (
@@ -213,7 +109,7 @@ export default function SearchProblemPage() {
       <PageHeader
         eyebrow="Government Intelligence"
         title="Search Problem"
-        description="Describe a government problem to find businesses and solutions, and set it as the active problem for the Government Portal."
+        description="Describe a government problem to find businesses and solutions against the live workspace, and set it as the active problem for the Government Portal."
       />
 
       {problem && (
@@ -228,7 +124,7 @@ export default function SearchProblemPage() {
       )}
 
       {/* Search input */}
-      <SectionCard title="Search Problem" description="Enter the problem as a government officer sees it. A search activates the problem across the Portal.">
+      <SectionCard title="Search Problem" description="Enter the problem as a government officer sees it. A search creates a workspace problem and activates it across the Portal.">
         <form onSubmit={handleSearch} className="flex flex-col gap-2.5 sm:flex-row">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
@@ -239,6 +135,7 @@ export default function SearchProblemPage() {
               onChange={(e) => {
                 setProblemInput(e.target.value);
                 if (error && e.target.value.trim()) setError(false);
+                if (errorText) setErrorText("");
               }}
               placeholder="Describe the government problem…"
               aria-label="Describe the government problem"
@@ -259,14 +156,16 @@ export default function SearchProblemPage() {
           </div>
         </form>
         {error && <p className="mt-2 text-xs font-medium text-danger">Please describe a problem before searching.</p>}
+        {errorText && <p className="mt-2 text-xs font-medium text-danger">{errorText}</p>}
       </SectionCard>
 
       {/* Initial state */}
       {showInitial && (
         <div className="mt-4 rounded-card border border-dashed border-line bg-surface/60 p-10 text-center">
           <p className="text-sm text-ink-subtle">
-            Describe a government problem to find businesses and solutions that may address it. The problem becomes the
-            active context for Command Center, Regulations, Policies, Solutions, Ground Intelligence, Reports and Copilot.
+            Describe a government problem to find businesses and solutions that may address it. The problem is saved to the
+            workspace and becomes the active context for Command Center, Regulations, Policies, Solutions, Ground
+            Intelligence, Reports and Copilot.
           </p>
         </div>
       )}
@@ -284,17 +183,23 @@ export default function SearchProblemPage() {
       {/* Searching */}
       {searching && (
         <div className="mt-4 rounded-card border border-line bg-surface p-6 text-center text-sm text-ink-faint">
-          Searching for matching businesses…
+          Matching businesses against the workspace…
         </div>
       )}
 
       {/* Results */}
       {hasResults && (
         <div className="mt-4">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          {summary && (
+            <SectionCard title="AI Summary" description="Context generated for this problem by the matching engine.">
+              <p className="text-sm leading-relaxed text-ink-subtle">{summary}</p>
+            </SectionCard>
+          )}
+
+          <div className="mb-3 mt-6 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-ink">Matching Businesses</h2>
             <span className="text-xs text-ink-faint">
-              {results.length} potential solution{results.length !== 1 ? "s" : ""} found · ranked by priority
+              {results.length} potential solution{results.length !== 1 ? "s" : ""} found · matched against the workspace
             </span>
           </div>
 
@@ -366,16 +271,18 @@ export default function SearchProblemPage() {
             <div className="mt-4 flex flex-wrap items-center gap-3 rounded-card border border-success/40 bg-success-soft/20 px-4 py-3">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
               <p className="min-w-0 flex-1 text-sm text-ink-subtle">
-                <strong className="text-ink">This problem is now the active Government problem ({problem.id}).</strong>{" "}
+                <strong className="text-ink">This problem is now saved to the workspace ({problem.id}).</strong>{" "}
+                {createdProblemId && <>Record {createdProblemId} was created and the matched businesses were associated.</>}{" "}
                 Connected intelligence in Command Center, Regulations, Policies, Solutions, Ground Intelligence, Reports and
                 Copilot now uses this problem context.
               </p>
-              <Button variant="soft" size="sm" href="/government">View in Command Center</Button>
+              <Button variant="soft" size="sm" href={`/government/problems/${problem.id || createdProblemId}`}>View Problem</Button>
+              <Button variant="outline" size="sm" href="/government">View in Command Center</Button>
             </div>
           )}
 
           <p className="mt-5 text-center text-xs text-ink-faint">
-            Illustrative mock matching for demonstration. Scores and matches are not based on real AI analysis.
+            Matches are produced by the REGULENS AI matching engine against the live workspace database.
           </p>
         </div>
       )}

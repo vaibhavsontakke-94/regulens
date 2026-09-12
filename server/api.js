@@ -21,6 +21,7 @@ const MANIFEST = {
     "problems/:id/evidence",
     "problems/:id/audits",
     "problem-intelligence",
+    "problem-matches",
     "test-and-scale",
     "businesses",
     "businesses/:id",

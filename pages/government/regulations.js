@@ -1,37 +1,59 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Scale, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { REGULATIONS } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 
 export default function RegulationsPage() {
   const { problem } = useGovernmentProblem();
+  const [regulations, setRegulations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [impact, setImpact] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .regulations()
+      .then((data) => {
+        if (active) setRegulations(data.regulations || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return REGULATIONS.filter((r) => {
+    return regulations.filter((r) => {
       const matchQ =
         !q ||
         r.title.toLowerCase().includes(q) ||
         r.authority.toLowerCase().includes(q) ||
         r.id.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q);
+        (r.description || "").toLowerCase().includes(q);
       return matchQ && (!impact || r.impact === impact);
     });
-  }, [search, impact]);
+  }, [regulations, search, impact]);
+
+  const avgSections = regulations.length
+    ? Math.round(regulations.reduce((s, r) => s + r.sections, 0) / regulations.length)
+    : 0;
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Regulations"
-        description="Regulations tracked and linked to problems. Illustrative demo records."
+        description="Regulations tracked and linked to problems in the live workspace database."
       />
       {problem && <ActiveProblemIntro problem={problem} />}
 
@@ -39,7 +61,7 @@ export default function RegulationsPage() {
         <div className="mb-6">
           <SectionCard
             title="Regulations relevant to this problem"
-            description={`Illustrative mock regulations linked to the active problem (${problem.id}). Demo records only — not official instruments.`}
+            description={`Regulations linked to the active problem (${problem.id}).`}
           >
             <ul className="space-y-3">
               {problem.regulations.map((reg) => (
@@ -61,7 +83,6 @@ export default function RegulationsPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <Badge variant={reg.status === "Active" ? "green" : "blue"} size="sm">{reg.status}</Badge>
-                    <span className="text-xs text-ink-faint">Illustrative</span>
                   </div>
                 </li>
               ))}
@@ -72,19 +93,19 @@ export default function RegulationsPage() {
       <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Tracked Regulations</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">{REGULATIONS.length}</p>
+          <p className="mt-1 text-2xl font-semibold text-ink">{regulations.length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">High Impact</p>
-          <p className="mt-1 text-2xl font-semibold text-danger">{REGULATIONS.filter((r) => r.impact === "High").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-danger">{regulations.filter((r) => r.impact === "High").length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Active</p>
-          <p className="mt-1 text-2xl font-semibold text-success">{REGULATIONS.filter((r) => r.status === "Active").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-success">{regulations.filter((r) => r.status === "Active").length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Average Sections</p>
-          <p className="mt-1 text-2xl font-semibold text-primary">{Math.round(REGULATIONS.reduce((s, r) => s + r.sections, 0) / REGULATIONS.length)}</p>
+          <p className="mt-1 text-2xl font-semibold text-primary">{avgSections}</p>
         </div>
       </div>
 
@@ -148,7 +169,7 @@ export default function RegulationsPage() {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="px-5 py-10 text-center text-sm text-ink-faint">No regulations match your filters.</div>
           )}
         </div>

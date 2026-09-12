@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Lightbulb, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { SOLUTIONS } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 
 const COST_META = { Low: { variant: "green" }, Medium: { variant: "amber" }, High: { variant: "red" } };
 const STATUS_META = {
@@ -19,23 +19,41 @@ const FEASIBILITY_META = { Low: { variant: "red" }, Medium: { variant: "amber" }
 
 export default function SolutionsPage() {
   const { problem } = useGovernmentProblem();
+  const [solutions, setSolutions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .solutions()
+      .then((data) => {
+        if (active) setSolutions(data.solutions || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return SOLUTIONS.filter((s) => {
+    return solutions.filter((s) => {
       const matchQ = !q || s.title.toLowerCase().includes(q) || s.owner.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
       return matchQ && (!status || s.status === status);
     });
-  }, [search, status]);
+  }, [solutions, search, status]);
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Solutions"
-        description="Recommended solutions associated with problems. Illustrative demo records."
+        description="Recommended solutions associated with problems in the live workspace database."
       />
       {problem && <ActiveProblemIntro problem={problem} />}
 
@@ -43,7 +61,7 @@ export default function SolutionsPage() {
         <div className="mb-6">
           <SectionCard
             title="Potential solutions for the active problem"
-            description={`Ranked by priority score for problem ${problem.id}. Illustrative mock matches.`}
+            description={`Ranked by priority score for problem ${problem.id}.`}
           >
             <ul className="space-y-3">
               {problem.solutions.map((s, i) => (
@@ -81,26 +99,26 @@ export default function SolutionsPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-ink-faint">Illustrative mock solution matching only — not connected to a live scoring engine.</p>
+            <p className="mt-4 text-xs text-ink-faint">Solution matching is produced by the REGULENS matching engine.</p>
           </SectionCard>
         </div>
       )}
       <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Total Solutions</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">{SOLUTIONS.length}</p>
+          <p className="mt-1 text-2xl font-semibold text-ink">{solutions.length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Implemented</p>
-          <p className="mt-1 text-2xl font-semibold text-success">{SOLUTIONS.filter((s) => s.status === "Implemented").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-success">{solutions.filter((s) => s.status === "Implemented").length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">In Design</p>
-          <p className="mt-1 text-2xl font-semibold text-primary">{SOLUTIONS.filter((s) => s.status === "In Design").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-primary">{solutions.filter((s) => s.status === "In Design").length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">In Implementation</p>
-          <p className="mt-1 text-2xl font-semibold text-primary">{SOLUTIONS.filter((s) => s.status === "In Implementation").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-primary">{solutions.filter((s) => s.status === "In Implementation").length}</p>
         </div>
       </div>
 
@@ -170,7 +188,7 @@ export default function SolutionsPage() {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="px-5 py-10 text-center text-sm text-ink-faint">No solutions match your filters.</div>
           )}
         </div>

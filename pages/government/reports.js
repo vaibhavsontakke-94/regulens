@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileDown, FileText, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
@@ -6,36 +6,54 @@ import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { REPORTS } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 
 const TYPE_ICONS = { Investigation: "🔍", Verification: "✅", Analysis: "📊", "Quarterly Digest": "📑", "Policy Appraisal": "⚖️", Baseline: "📈" };
 
 export default function ReportsPage() {
   const { problem } = useGovernmentProblem();
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .reports()
+      .then((data) => {
+        if (active) setReports(data.reports || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const list = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return REPORTS.filter((r) => {
+    return reports.filter((r) => {
       const matchQ = !q || r.title.toLowerCase().includes(q) || r.type.toLowerCase().includes(q);
       return matchQ && (!status || r.status === status);
     });
-  }, [search, status]);
+  }, [reports, search, status]);
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Reports"
-        description="Intelligence outputs ready for review or drafting. Illustrative demo records."
+        description="Intelligence outputs ready for review or drafting, from the live workspace."
       />
       {problem && <ActiveProblemIntro problem={problem} />}
 
       {problem && problem.reports.length > 0 && (
         <div className="mb-6">
-          <SectionCard title="Problem Intelligence Report" description="Illustrative draft report contextualized to the active problem.">
+          <SectionCard title="Problem Intelligence Report" description="Draft report contextualized to the active problem.">
             {problem.reports.map((rep) => (
               <div key={rep.id}>
                 <div className="flex flex-wrap items-center gap-2">
@@ -106,19 +124,19 @@ export default function ReportsPage() {
                   className="inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-hover"
                 >
                   <FileDown className="h-3.5 w-3.5" />
-                  Download (demo)
+                  Download
                 </button>
               </div>
             </div>
           ))}
-          {list.length === 0 && (
+          {!loading && list.length === 0 && (
             <div className="col-span-full flex flex-col items-center gap-3 py-12 text-center">
               <FileText className="h-8 w-8 text-ink-faint" />
               <p className="text-sm text-ink-faint">No reports match your filters.</p>
             </div>
           )}
         </div>
-        <p className="mt-4 text-xs text-ink-faint">Demo only — report downloads are not functional and no real documents exist.</p>
+        <p className="mt-4 text-xs text-ink-faint">Report downloads are not yet wired to the report service.</p>
       </SectionCard>
     </>
   );

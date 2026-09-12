@@ -4,6 +4,7 @@ import { buildProblemIntelligence, PROBLEM_LIFECYCLE } from "../../lib/problemIn
 import { isEmail, isEmpty } from "../../lib/validators.js";
 import { groqWithFallback } from "../groq.js";
 import { runTestAndScale } from "../govAi.js";
+import { matchProblemProviders } from "../problemMatcher.js";
 
 function businessForIds(ids) {
   return (ids || []).map((id) => db.state.businesses.find((b) => b.id === id)).filter(Boolean);
@@ -77,6 +78,18 @@ export default async function governmentRoutes(req, res, sub, user) {
     const data = buildProblemIntelligence({ id: body.id || `PRB-${Date.now()}`, title: body.title, businesses });
     const narrative = await intelligenceNarrative(body.title, businesses);
     return ok(res, { intelligence: { ...data, narrative }, lifecycle: PROBLEM_LIFECYCLE });
+  }
+
+  if (head === "problem-matches") {
+    if (req.method !== "POST") return methodNotAllowed(res);
+    const body = req.body || {};
+    const title = String(body.problem || body.title || "").trim();
+    if (!title) return badRequest(res, "Describe the problem before searching.");
+    const result = await matchProblemProviders(title, {
+      businesses: db.state.businesses,
+      solutions: db.state.solutions,
+    });
+    return ok(res, result);
   }
 
   if (head === "test-and-scale") {

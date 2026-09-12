@@ -103,7 +103,7 @@ export default function NewProblemPage() {
         <PageHeader
           eyebrow="Government Intelligence"
           title="Post a Problem"
-          description="Demo workflow — the submitted problem would enter the ANALYSIS pipeline for prioritisation."
+          description="The submitted problem enters the ANALYSIS pipeline for prioritisation."
         />
         <SectionCard>
           <div className="flex flex-col items-center gap-4 py-10 text-center">
@@ -137,7 +137,7 @@ export default function NewProblemPage() {
       <PageHeader
         eyebrow="Government Intelligence"
         title="Post a Problem"
-        description="Register a regulatory problem for illustrative prioritisation analysis."
+        description="Register a regulatory problem for prioritisation analysis."
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <SectionCard title="Problem details" className="lg:col-span-2">
@@ -169,7 +169,7 @@ export default function NewProblemPage() {
               </Field>
             </div>
 
-            <Field label="Initial severity" hint="Illustrative estimate only">
+            <Field label="Initial severity" hint="Initial estimate, refined during analysis">
               <div className="flex flex-wrap gap-2">
                 {SEVERITIES.map((s) => (
                   <button
@@ -188,7 +188,7 @@ export default function NewProblemPage() {
               </div>
             </Field>
 
-            <Field label="Reporter email" hint="For verification workflows (demo)" error={errors.reporterEmail}>
+            <Field label="Reporter email" hint="For verification workflows" error={errors.reporterEmail}>
               <input
                 type="email"
                 value={values.reporterEmail}
@@ -198,7 +198,7 @@ export default function NewProblemPage() {
               />
             </Field>
 
-            <Field label="Summary" hint="Illustrative description of the problem" error={errors.summary}>
+            <Field label="Summary" hint="Description of the problem" error={errors.summary}>
               <textarea
                 value={values.summary}
                 onChange={(e) => set("summary", e.target.value)}
@@ -230,8 +230,8 @@ export default function NewProblemPage() {
           <SectionCard title="What happens next">
             <ol className="list-decimal space-y-2 pl-4 text-sm text-ink-subtle">
               <li>Problem is recorded against its category and location.</li>
-              <li>Illustrative severity and business-matching signals are applied.</li>
-              <li>A priority score is computed using the demo methodology.</li>
+              <li>Severity and business-matching signals are applied.</li>
+              <li>A priority score is computed from the recorded factors.</li>
               <li>Recommended regulations, policies and solutions are associated.</li>
               <li>The problem enters the verification pipeline.</li>
             </ol>

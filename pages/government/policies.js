@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { POLICIES } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtFullNumber } from "@/lib/format";
 
 const TYPE_META = {
@@ -15,18 +15,36 @@ const TYPE_META = {
 
 export default function PoliciesPage() {
   const { problem } = useGovernmentProblem();
+  const [policies, setPolicies] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .policies()
+      .then((data) => {
+        if (active) setPolicies(data.policies || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const list = useMemo(() => {
-    return status ? POLICIES.filter((p) => p.status === status) : POLICIES;
-  }, [status]);
+    return status ? policies.filter((p) => p.status === status) : policies;
+  }, [policies, status]);
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Policies"
-        description="Policy options produced from problem analysis. Illustrative demo records."
+        description="Policy options produced from problem analysis, served from the live workspace database."
       />
       {problem && <ActiveProblemIntro problem={problem} />}
 
@@ -34,7 +52,7 @@ export default function PoliciesPage() {
         <div className="mb-6">
           <SectionCard
             title="Policy impact — active problem"
-            description={`Illustrative mock policy context linked to the active problem (${problem.id}). Not official policy.`}
+            description={`Policy context linked to the active problem (${problem.id}).`}
           >
             {problem.policies.map((pc) => (
               <div key={pc.id} className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -128,7 +146,7 @@ export default function PoliciesPage() {
             </div>
           </SectionCard>
         ))}
-        {list.length === 0 && (
+        {!loading && list.length === 0 && (
           <SectionCard className="lg:col-span-2">
             <div className="flex flex-col items-center gap-3 py-10 text-center">
               <FileText className="h-8 w-8 text-ink-faint" />

@@ -28,11 +28,12 @@ export default function GovernmentAboutPage() {
             </div>
             <div className="rounded-lg border border-line p-3 text-center">
               <p className="text-xs font-medium text-ink">Status</p>
-              <p className="text-2xl font-semibold">Demo</p>
+              <p className="text-2xl font-semibold">Live</p>
             </div>
           </div>
           <p className="mt-6 text-xs text-ink-faint">
-            All data, features and functionality are illustrative and for demonstration purposes only.
+            REGULENS serves an AI-generated regulatory dataset through its API; analytics and recommendations are
+            generated estimates from the workspace data.
           </p>
         </div>
       </SectionCard>

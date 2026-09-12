@@ -60,7 +60,7 @@ export default function ProblemsPage() {
       <PageHeader
         eyebrow="Government Intelligence"
         title="Problems"
-        description="All tracked regulatory problems. Illustrative demo records only."
+        description="All tracked regulatory problems, from the live workspace database."
         actions={
           <Button size="sm" onClick={() => router.push("/government/problems/new")}>
             <Plus className="h-4 w-4" />

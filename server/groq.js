@@ -1,5 +1,6 @@
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "openai/gpt-oss-120b";
+const MAX_429_RETRIES = 6;
 
 const MODEL_CANDIDATES = () => {
   const configured = process.env.GROQ_MODEL;
@@ -36,30 +37,49 @@ export async function groqChat({
   const candidates = MODEL_CANDIDATES();
   let lastError = null;
 
+  function retryWaitMs(resp, detail) {
+    const header = Number(resp && resp.headers && resp.headers.get("retry-after"));
+    if (Number.isFinite(header) && header > 0) return Math.min(Math.max(header * 1000, 1000), 45000);
+    const m = /in\s+([\d.]+)\s*(?:seconds?|s)/i.exec(detail || "");
+    if (m) return Math.min(Math.max(Number(m[1]) * 1000, 1000), 45000);
+    return 5000;
+  }
+  const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+
   for (const model of candidates) {
-    let res;
-    try {
-      res = await fetch(GROQ_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${key}`,
-        },
-        body: JSON.stringify({ model, messages: stream, temperature, max_tokens: maxTokens }),
-      });
-    } catch (err) {
-      lastError = err;
-      throw err;
-    }
+    let res = null;
+    let modelError = null;
+    for (let attempt = 1; attempt <= MAX_429_RETRIES; attempt += 1) {
+      try {
+        res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${key}`,
+          },
+          body: JSON.stringify({ model, messages: stream, temperature, max_tokens: maxTokens }),
+        });
+      } catch (err) {
+        throw err;
+      }
 
-    if (res.ok) {
-      const json = await res.json();
-      return (json?.choices?.[0]?.message?.content || "").trim();
-    }
+      if (res.ok) {
+        const json = await res.json();
+        return (json?.choices?.[0]?.message?.content || "").trim();
+      }
 
-    const detail = await res.text().catch(() => "");
-    lastError = new Error(`Groq API error ${res.status}: ${detail.slice(0, 300)}`);
-    lastError.status = res.status;
+      const detail = await res.text().catch(() => "");
+      modelError = new Error(`Groq API error ${res.status}: ${detail.slice(0, 300)}`);
+      modelError.status = res.status;
+      if (res.status === 429 && attempt < MAX_429_RETRIES) {
+        const wait = retryWaitMs(res, detail);
+        console.warn(`[groq] rate limited on ${model} (attempt ${attempt} of ${MAX_429_RETRIES}), retrying in ${Math.round(wait / 1000)}s...`);
+        await sleepMs(wait);
+        continue;
+      }
+      break;
+    }
+    lastError = modelError || lastError;
     if (!isModelNotFound(lastError)) break;
     console.warn(`[groq] model ${model} unavailable, trying next candidate...`);
   }

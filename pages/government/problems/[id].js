@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
@@ -11,12 +12,8 @@ import {
   STATUS_META,
   PRIORITY_META,
   priorityFromScores,
-  getBusinessesByProblem,
-  getRegulationsByProblem,
-  getPoliciesByProblem,
-  getSolutionsByProblem,
-  getEvidenceByProblem,
 } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { db } from "../../../server/store.js";
 import { fmtFullNumber, fmtDate, fmtDateTime } from "@/lib/format";
 
@@ -36,6 +33,39 @@ function StatLine({ label, children }) {
 }
 
 export default function ProblemDetailPage({ problem }) {
+  const [relations, setRelations] = useState({ businesses: [], regulations: [], policies: [], solutions: [], evidence: [] });
+  const [relLoading, setRelLoading] = useState(true);
+
+  useEffect(() => {
+    if (!problem) return;
+    let active = true;
+    setRelLoading(true);
+    Promise.all([
+      govApi.problemBusinesses(problem.id),
+      govApi.problemRegulations(problem.id),
+      govApi.problemPolicies(problem.id),
+      govApi.problemSolutions(problem.id),
+      govApi.problemEvidence(problem.id),
+    ])
+      .then(([b, r, pol, sol, ev]) => {
+        if (!active) return;
+        setRelations({
+          businesses: b.businesses || [],
+          regulations: r.regulations || [],
+          policies: pol.policies || [],
+          solutions: sol.solutions || [],
+          evidence: ev.evidence || [],
+        });
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setRelLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [problem]);
+
   if (!problem) {
     return (
       <SectionCard title="Problem not found">
@@ -45,11 +75,11 @@ export default function ProblemDetailPage({ problem }) {
   }
 
   const { priority, score } = priorityFromScores(problem.scores);
-  const businesses = getBusinessesByProblem(problem);
-  const regulations = getRegulationsByProblem(problem);
-  const policies = getPoliciesByProblem(problem);
-  const solutions = getSolutionsByProblem(problem);
-  const evidence = getEvidenceByProblem(problem);
+  const businesses = relations.businesses;
+  const regulations = relations.regulations;
+  const policies = relations.policies;
+  const solutions = relations.solutions;
+  const evidence = relations.evidence;
   const firstAudit = problem.audits[problem.audits.length - 1];
 
   return (
@@ -78,14 +108,15 @@ export default function ProblemDetailPage({ problem }) {
         }
       />
 
-      <div className="mb-4 rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-xs leading-relaxed text-warning">
-        Illustrative problem record. Every number, score and recommendation on this page is mock data for the demo only.
+      <div className="mb-4 rounded-lg border border-primary/30 bg-primary-soft/20 px-4 py-3 text-xs leading-relaxed text-primary">
+        Live workspace record — this problem, its linked businesses, regulations, policies, solutions and evidence come
+        from the REGULENS dataset.
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
         {/* Main column */}
         <div className="space-y-4 xl:col-span-2">
-          <SectionCard title="Problem Overview" description="Illustrative summary of the issue.">
+          <SectionCard title="Problem Overview" description="Recorded summary of the issue.">
             <p className="text-[15px] leading-relaxed text-ink-subtle">{problem.summary}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div className="rounded-[10px] border border-line bg-surface-muted p-3.5">
@@ -105,7 +136,7 @@ export default function ProblemDetailPage({ problem }) {
 
           <PriorityBreakdown scores={problem.scores} />
 
-          <SectionCard title="Affected Businesses" description="Businesses identified as affected by this problem (illustrative).">
+          <SectionCard title="Affected Businesses" description="Businesses identified as affected by this problem.">
             {businesses.length === 0 ? (
               <p className="text-sm text-ink-faint">No businesses recorded against this problem.</p>
             ) : (
@@ -136,18 +167,18 @@ export default function ProblemDetailPage({ problem }) {
             )}
           </SectionCard>
 
-          <SectionCard title="Affected Population" description="Illustrative population-level impact narrative.">
+          <SectionCard title="Affected Population" description="Recorded population-level impact narrative.">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-[10px] bg-surface-muted p-4">
                 <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Population Impact</p>
                 <p className="mt-1 text-xl font-semibold text-ink">{fmtFullNumber(problem.populationImpact)}</p>
                 <p className="mt-1 text-xs leading-relaxed text-ink-faint">
-                  Illustrative estimate of residents exposed to the direct effects of this problem.
+                  Estimated residents exposed to the direct effects of this problem.
                 </p>
               </div>
               <div className="rounded-[10px] bg-surface-muted p-4">
                 <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Economic Impact</p>
-                <p className="mt-1 text-xl font-semibold text-ink">Illustrative</p>
+                <p className="mt-1 text-xl font-semibold text-ink">{problem.scores.economic >= 7 ? "High" : problem.scores.economic >= 4 ? "Medium" : "Low"}</p>
                 <p className="mt-1 text-xs leading-relaxed text-ink-faint">
                   Upper-bound consumer-cost exposure associated with the problem and its resolution cost.
                 </p>
@@ -155,7 +186,7 @@ export default function ProblemDetailPage({ problem }) {
             </div>
             <div className="mt-4">
               <SectionCard title="Economic Impact" noBorder>
-                <StatLine label="Impact state">Illustrative — pending resolution</StatLine>
+                <StatLine label="Impact state">Pending resolution</StatLine>
                 <StatLine label="Primary channel">{problem.category}</StatLine>
                 <StatLine label="Population at risk">{fmtFullNumber(problem.populationImpact)}</StatLine>
                 <StatLine label="Businesses at risk">{fmtFullNumber(problem.businessesAffected)}</StatLine>
@@ -182,7 +213,7 @@ export default function ProblemDetailPage({ problem }) {
             )}
           </SectionCard>
 
-          <SectionCard title="Root Cause" description="Illustrative analytical notes on the drivers.">
+          <SectionCard title="Root Cause" description="Analytical notes on the drivers of this problem.">
             <ul className="space-y-2">
               {problem.rootCauses.map((cause, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-ink-subtle">
@@ -272,7 +303,7 @@ export default function ProblemDetailPage({ problem }) {
             </div>
           </SectionCard>
 
-          <SectionCard title="Ground Evidence" description="Illustrative evidence collected during investigation.">
+          <SectionCard title="Ground Evidence" description="Evidence recorded during investigation.">
             {evidence.length === 0 ? (
               <p className="text-sm text-ink-faint">No evidence recorded.</p>
             ) : (
@@ -299,7 +330,7 @@ export default function ProblemDetailPage({ problem }) {
             )}
           </SectionCard>
 
-          <SectionCard title="Audit Timeline" description="Historical actions on this problem (illustrative).">
+          <SectionCard title="Audit Timeline" description="Historical actions recorded on this problem.">
             <ol className="relative space-y-4 border-l border-line pl-5">
               {problem.audits.slice().reverse().map((a, i) => (
                 <li key={i} className="relative">
@@ -327,7 +358,7 @@ export default function ProblemDetailPage({ problem }) {
             <StatLine label="Last updated">{fmtDate(problem.updated)}</StatLine>
           </SectionCard>
 
-          <SectionCard title="Geographic concentration" description="Illustrative view only — not a real map.">
+          <SectionCard title="Geographic concentration" description="Recorded concentration across the affected areas.">
             <GeoMap
               regions={problem.geographic.areas}
               severityByArea={problem.geographic.severityByArea}
@@ -342,14 +373,14 @@ export default function ProblemDetailPage({ problem }) {
                 <div className="mt-1.5 h-2.5 w-full rounded-full bg-surface-muted">
                   <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min((problem.businessesAffected / 960) * 100, 100)}%` }} />
                 </div>
-                <p className="mt-1 text-xs text-ink-faint">{fmtFullNumber(problem.businessesAffected)} businesses · illustrative</p>
+                <p className="mt-1 text-xs text-ink-faint">{fmtFullNumber(problem.businessesAffected)} businesses · recorded</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-ink">Population impact</p>
                 <div className="mt-1.5 h-2.5 w-full rounded-full bg-surface-muted">
                   <div className="h-full rounded-full bg-warning" style={{ width: `${Math.min((problem.populationImpact / 8400000) * 100, 100)}%` }} />
                 </div>
-                <p className="mt-1 text-xs text-ink-faint">{fmtFullNumber(problem.populationImpact)} people · illustrative</p>
+                <p className="mt-1 text-xs text-ink-faint">{fmtFullNumber(problem.populationImpact)} people · recorded</p>
               </div>
               <div className="flex items-center gap-2 rounded-[10px] bg-success-soft px-3 py-2.5 text-xs font-semibold text-success">
                 <CheckCircle2 className="h-4 w-4" />

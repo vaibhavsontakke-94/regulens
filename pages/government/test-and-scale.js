@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { AlertTriangle, ArrowRight, CheckCircle2, FlaskConical } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import StatCard from "@/components/government/ui/StatCard";
@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { govApi, handleApiError } from "@/lib/api";
 import { SEVERITY_META } from "@/lib/mockData";
+import { db } from "../../server/store.js";
 
 const VERDICT_TONE = {
   "Not Ready": { badge: "red", text: "text-danger", hint: "Barriers need resolution before any broader rollout." },
@@ -37,62 +38,47 @@ function AnalysisStats({ analysis, areaSeverity }) {
   );
 }
 
-export default function TestAndScalePage() {
+export default function TestAndScalePage({ initialProblems, initialProblemId }) {
   const router = useRouter();
-  const queryProblemId = router.query.problemId;
+  const problems = initialProblems || [];
 
-  const [problems, setProblems] = useState([]);
   const [selectedProblem, setSelectedProblem] = useState(null);
   const [solutions, setSolutions] = useState([]);
+  const [solutionsLoading, setSolutionsLoading] = useState(false);
   const [selectedSolutionId, setSelectedSolutionId] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
-  const [loadingProblem, setLoadingProblem] = useState(false);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  async function loadProblem(id) {
-    setLoadingProblem(true);
-    setError("");
-    setResult(null);
-    try {
-      const [problemRes, solutionsRes] = await Promise.all([
-        govApi.problem(id),
-        govApi.problemSolutions(id),
-      ]);
-      const problem = problemRes.problem;
-      setSelectedProblem(problem);
-      const sols = solutionsRes.solutions || [];
-      setSolutions(sols);
-      setSelectedSolutionId(sols[0]?.id || "");
-      const areas = (problem.geographic && problem.geographic.areas) || [];
-      setSelectedArea(areas[0] || problem.location || "");
-    } catch (err) {
-      setError(handleApiError(err));
-      setSelectedProblem(null);
-      setSolutions([]);
-    } finally {
-      setLoadingProblem(false);
+  function selectProblem(id) {
+    const problem = problems.find((p) => p.id === id);
+    if (!problem) {
+      setError("Problem not found in the workspace.");
+      return;
     }
+    setSelectedProblem(problem);
+    setSolutions([]);
+    setSelectedSolutionId("");
+    const areas = problem.geographic?.areas || [];
+    setSelectedArea(areas[0] || problem.location || "");
+    setResult(null);
+    setError("");
+    setSolutionsLoading(true);
+    govApi
+      .problemSolutions(problem.id)
+      .then((data) => {
+        const sols = data.solutions || [];
+        setSolutions(sols);
+        setSelectedSolutionId(sols[0]?.id || "");
+      })
+      .catch((err) => setError(handleApiError(err)))
+      .finally(() => setSolutionsLoading(false));
   }
 
   useEffect(() => {
-    let cancelled = false;
-    govApi
-      .listProblems({})
-      .then((data) => {
-        if (cancelled) return;
-        const list = data.problems || [];
-        setProblems(list);
-        const initial = queryProblemId || list[0]?.id;
-        if (initial) loadProblem(String(initial));
-      })
-      .catch(() => {
-        if (!cancelled) setError("Unable to load problems. Check your connection and try again.");
-      });
-    return () => {
-      cancelled = true;
-    };
+    const initial = initialProblemId || problems[0]?.id;
+    if (initial) selectProblem(String(initial));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -101,7 +87,6 @@ export default function TestAndScalePage() {
     return (selectedProblem.geographic?.severityByArea || {})[selectedArea] || selectedProblem.severity || "";
   }, [selectedProblem, selectedArea]);
 
-  const selectedSolution = solutions.find((s) => s.id === selectedSolutionId) || null;
   const verdict = result ? VERDICT_TONE[result.analysis.scaleVerdict] || VERDICT_TONE["Not Ready"] : null;
 
   async function handleRun() {
@@ -134,14 +119,21 @@ export default function TestAndScalePage() {
         description="Run a pilot analysis for a selected solution in one small area, predict its implementation outcome, and decide whether it is ready to scale nationally."
       />
 
-      <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/30 px-4 py-3 text-sm text-warning">
-        <strong>Demo workspace.</strong> Predictions are illustrative and produced by REGULENS' analysis engine from the recorded problem and solution data.
+      <div className="mb-6 rounded-lg border border-primary/30 bg-primary-soft/20 px-4 py-3 text-sm text-primary">
+        <strong>Workspace analysis.</strong> Predictions are AI-generated estimates produced by REGULENS' analysis engine from the recorded problem and solution data.
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
-          <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
-          {error}
+        <div className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
+          <span className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            {error}
+          </span>
+          {problems.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={() => selectProblem(selectedProblem?.id || problems[0].id)}>
+              Reset
+            </Button>
+          )}
         </div>
       )}
 
@@ -149,7 +141,7 @@ export default function TestAndScalePage() {
         title="Configure Pilot"
         description="Pick the problem, one of its linked solutions, and a small geographic area to test in."
       >
-        {problems.length === 0 && !loadingProblem ? (
+        {problems.length === 0 ? (
           <div className="rounded-[10px] border border-dashed border-line bg-surface-muted/40 p-5 text-sm text-ink-faint">
             No problems are available in the workspace.{" "}
             <a href="/government/search-problem" className="font-medium text-primary hover:underline">
@@ -165,8 +157,7 @@ export default function TestAndScalePage() {
                 id="ts-problem"
                 className={inputCls}
                 value={selectedProblem?.id || ""}
-                onChange={(e) => loadProblem(e.target.value)}
-                disabled={loadingProblem}
+                onChange={(e) => selectProblem(e.target.value)}
               >
                 {problems.map((p) => (
                   <option key={p.id} value={p.id}>{p.id} · {p.title}</option>
@@ -180,9 +171,9 @@ export default function TestAndScalePage() {
                 className={inputCls}
                 value={selectedSolutionId}
                 onChange={(e) => setSelectedSolutionId(e.target.value)}
-                disabled={loadingProblem || solutions.length === 0}
+                disabled={solutionsLoading || solutions.length === 0}
               >
-                {loadingProblem ? (
+                {solutionsLoading ? (
                   <option>Loading solutions…</option>
                 ) : solutions.length === 0 ? (
                   <option>No linked solutions</option>
@@ -200,7 +191,6 @@ export default function TestAndScalePage() {
                 className={inputCls}
                 value={selectedArea}
                 onChange={(e) => setSelectedArea(e.target.value)}
-                disabled={loadingProblem}
               >
                 {(selectedProblem?.geographic?.areas || []).map((area) => (
                   <option key={area} value={area}>{area}</option>
@@ -321,12 +311,20 @@ export default function TestAndScalePage() {
           </SectionCard>
 
           <p className="text-center text-xs text-ink-faint">
-            This analysis is stored in the workspace (record {result.id}) and mirrored to the persistence layer. Predictions are illustrative, not official decisions.
+            This analysis is stored in the workspace (record {result.id}) and mirrored to the persistence layer. Recommendations are AI-generated estimates, not official decisions.
           </p>
         </div>
       )}
     </>
   );
+}
+
+export async function getServerSideProps({ query }) {
+  const problems = JSON.parse(JSON.stringify(db.state.problems || []));
+  const initialProblemId = Array.isArray(query.problemId) ? query.problemId[0] : query.problemId || "";
+  return {
+    props: { initialProblems: problems, initialProblemId },
+  };
 }
 
 TestAndScalePage.getLayout = (page) => <GovernmentLayout title="Test & Scale">{page}</GovernmentLayout>;

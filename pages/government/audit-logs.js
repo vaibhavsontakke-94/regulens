@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileSearch, History } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { AUDIT_LOGS } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 
 const OUTCOME_META = {
@@ -13,27 +13,45 @@ const OUTCOME_META = {
 };
 
 export default function AuditLogsPage() {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [actor, setActor] = useState("");
   const [outcome, setOutcome] = useState("");
 
-  const actors = useMemo(() => [...new Set(AUDIT_LOGS.map((a) => a.actor))], []);
+  useEffect(() => {
+    let active = true;
+    govApi
+      .auditLogs()
+      .then((data) => {
+        if (active) setLogs(data.logs || []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const actors = useMemo(() => [...new Set(logs.map((a) => a.actor))], [logs]);
   const list = useMemo(() => {
-    return AUDIT_LOGS.filter((a) => (!actor || a.actor === actor) && (!outcome || a.outcome === outcome));
-  }, [actor, outcome]);
+    return logs.filter((a) => (!actor || a.actor === actor) && (!outcome || a.outcome === outcome));
+  }, [logs, actor, outcome]);
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Audit Logs"
-        description="Trail of actions across the workspace. Illustrative demo entries."
+        description="Trail of actions across the workspace, from the live audit log."
         actions={
           <button
             type="button"
             className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-line bg-surface px-3.5 text-sm font-medium text-ink-subtle transition-colors hover:bg-surface-muted hover:text-ink"
           >
             <FileSearch className="h-4 w-4" />
-            Export log (demo)
+            Export log
           </button>
         }
       />
@@ -79,7 +97,7 @@ export default function AuditLogsPage() {
               ))}
             </tbody>
           </table>
-          {list.length === 0 && (
+          {!loading && list.length === 0 && (
             <div className="flex flex-col items-center gap-3 py-12 text-center">
               <History className="h-8 w-8 text-ink-faint" />
               <p className="text-sm text-ink-faint">No log entries match your filters.</p>

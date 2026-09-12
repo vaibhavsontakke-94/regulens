@@ -56,14 +56,14 @@ export default function GovernmentSettingsPage() {
   async function handleClearData() {
     if (clearing) return;
     const confirmed = window.confirm(
-      "Clear Government workspace data? This resets problems, businesses, regulations, policies, solutions, evidence and reports back to the demo baseline. This cannot be undone."
+      "Clear Government workspace data? This resets problems, businesses, regulations, policies, solutions, evidence and reports back to the dataset baseline. This cannot be undone."
     );
     if (!confirmed) return;
     setClearing(true);
     setClearStatus(null);
     try {
       const data = await govApi.resetData();
-      setClearStatus({ type: "success", text: `Workspace cleared (${data.counts.problems} problems, ${data.counts.evidence} evidence restored to demo baseline).` });
+      setClearStatus({ type: "success", text: `Workspace cleared (${data.counts.problems} problems, ${data.counts.evidence} evidence restored to dataset baseline).` });
     } catch (err) {
       setClearStatus({ type: "error", text: handleApiError(err) });
     } finally {

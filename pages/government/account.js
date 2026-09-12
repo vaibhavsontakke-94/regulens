@@ -17,7 +17,7 @@ export default function GovernmentAccountPage() {
     router.push("/government/login");
   };
 
-  const name = session?.name || "Demo user";
+  const name = session?.name || "Guest";
   const email = session?.email || "analyst@regulens.gov.ng";
   const joined = session?.joined || "2026";
   const lastActive = new Date().toLocaleDateString("en-GB", {
@@ -71,8 +71,7 @@ export default function GovernmentAccountPage() {
             <LogOut className="h-4 w-4" /> Delete account
           </Button>
           <p className="mt-3 text-xs text-danger">
-            Delete account is irreversible and will remove all your data. This action is UI-only
-            in the demo.
+            Delete account is irreversible and will remove all your data. This action is not enabled in this workspace.
           </p>
         </div>
       </SectionCard>

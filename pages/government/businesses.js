@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Building2, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
-import { BUSINESSES } from "@/lib/mockData";
+import { govApi } from "@/lib/api";
 
 const IMPACT_META = {
   High: { variant: "red", label: "High" },
@@ -24,12 +24,33 @@ const STATUS_META = {
 };
 
 export default function BusinessesPage() {
+  const [businesses, setBusinesses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [risk, setRisk] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    govApi
+      .listBusinesses()
+      .then((data) => {
+        if (active) setBusinesses(data.businesses || []);
+      })
+      .catch((err) => {
+        if (active) setError(err?.message || "Unable to load businesses.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return BUSINESSES.filter((b) => {
+    return businesses.filter((b) => {
       const matchQ =
         !q ||
         b.name.toLowerCase().includes(q) ||
@@ -38,21 +59,21 @@ export default function BusinessesPage() {
         b.id.toLowerCase().includes(q);
       return matchQ && (!risk || b.risk === risk);
     });
-  }, [search, risk]);
+  }, [businesses, search, risk]);
 
-  const affected = BUSINESSES.filter((b) => b.status === "Affected").length;
+  const affected = businesses.filter((b) => b.status === "Affected").length;
 
   return (
     <>
       <PageHeader
         eyebrow="Government Intelligence"
         title="Businesses"
-        description="Businesses tracked in relation to regulatory problems. Illustrative demo records."
+        description="Businesses tracked in relation to regulatory problems, served from the live workspace database."
       />
       <div className="mb-4 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Tracked Businesses</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">{BUSINESSES.length}</p>
+          <p className="mt-1 text-2xl font-semibold text-ink">{businesses.length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Affected</p>
@@ -60,15 +81,21 @@ export default function BusinessesPage() {
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">At Risk</p>
-          <p className="mt-1 text-2xl font-semibold text-warning">{BUSINESSES.filter((b) => b.status === "At Risk").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-warning">{businesses.filter((b) => b.status === "At Risk").length}</p>
         </div>
         <div className="rounded-card border border-line bg-surface p-4 shadow-card">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">Monitored</p>
-          <p className="mt-1 text-2xl font-semibold text-primary">{BUSINESSES.filter((b) => b.status === "Monitored").length}</p>
+          <p className="mt-1 text-2xl font-semibold text-primary">{businesses.filter((b) => b.status === "Monitored").length}</p>
         </div>
       </div>
 
       <SectionCard title="Business registry">
+        {error && (
+          <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
+            {error} <button className="ml-2 font-medium underline" onClick={() => { setLoading(true); setError(""); govApi.listBusinesses().then((d) => setBusinesses(d.businesses || [])).catch((e) => setError(e?.message || "Unable to load businesses.")).finally(() => setLoading(false)); }}>Retry</button>
+          </div>
+        )}
+        {loading && !error && <p className="mb-4 text-sm text-ink-faint">Loading businesses…</p>}
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="relative flex-1 basis-64">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
@@ -130,7 +157,7 @@ export default function BusinessesPage() {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="px-5 py-10 text-center text-sm text-ink-faint">No businesses match your filters.</div>
           )}
         </div>
