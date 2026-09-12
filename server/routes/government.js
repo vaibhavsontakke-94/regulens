@@ -363,10 +363,17 @@ export default async function governmentRoutes(req, res, sub, user) {
         text = source.text;
         label = source.label;
       } catch (err) {
-        return badRequest(res, err.message || "The uploaded file could not be read.");
+        const reply = await govDocumentUnreadable(body.file, err.message || "the file could not be read", active);
+        return ok(res, { reply });
       }
     }
-    if (!text) return badRequest(res, "Paste a document or upload a file to review.");
+    if (!text) {
+      if (body.file && typeof body.file === "object") {
+        const reply = await govDocumentUnreadable(body.file, "no readable text was found inside the file", active);
+        return ok(res, { reply });
+      }
+      return badRequest(res, "Paste a document or upload a file to review.");
+    }
     const reply = await govDocumentSummary(text, active, label);
     return ok(res, { reply });
   }
@@ -389,6 +396,21 @@ async function intelligenceNarrative(title, businesses) {
         `This is a preliminary intelligence summary for "${title}". ${
           businesses.length ? `${businesses.length} matching businesses have been identified.` : "No matching businesses have been identified yet."
         } Priority scoring and ground verification will refine these findings.`,
+    }
+  );
+}
+
+async function govDocumentUnreadable(file, reason, active) {
+  const label = String((file && file.name) || "document");
+  const context = active ? `Active problem context: ${active.id} — ${active.title}` : "No active problem context.";
+  return groqWithFallback(
+    `${context}\n\nThe user uploaded "${label}" expecting a simple-language summary, but the server could not read the text from this file.\n\nWhy it failed: ${reason}\n\nRespond helpfully in plain, friendly language: (1) explain in one or two sentences why the file could not be summarised, (2) give the user two or three short steps they can do right now to get a summary (for example: export/save the file as a text-based PDF or Word document, make sure it is not a scanned image-only file, or paste the content directly into the chat), (3) keep the reply short and encouraging.`,
+    {
+      system:
+        "You are a helpful assistant for REGULENS, an Indian regulatory intelligence platform. Reply concisely, in very simple language, with practical next steps.",
+      maxTokens: 700,
+      fallback: () =>
+        `I could not read the text inside "${label}" — ${reason}.\n\nHere is what to do:\n1. Save or export the file as a text-based PDF, a Word (.docx) or a .txt file - PDFs that are scanned images have no readable text.\n2. Run OCR on scanned pages and save the result as text.\n3. Or simply paste the document text into the chat and I will summarise it for you right away.`,
     }
   );
 }

@@ -28,6 +28,18 @@ function looksBinary(text) {
   return bad > 100;
 }
 
+const BANNED_PDF_TOKENS = new Set([
+  "stream", "endstream", "endobj", "obj", "xref", "trailer", "startxref",
+  "Type", "PDF", "FlateDecode", "Length", "DecodeParms", "cm", "Td", "Tj",
+  "BT", "ET", "TJ", "RG", "rg", "re", "f", "0", "1",
+]);
+
+function salvageText(buffer) {
+  const words = buffer.toString("latin1").match(/[A-Za-z][A-Za-z0-9'.{}-]{1,}/g) || [];
+  const kept = words.filter((w) => w.length > 2 && !BANNED_PDF_TOKENS.has(w)).slice(0, 500).join(" ");
+  return kept.length >= 30 ? kept : "";
+}
+
 async function extractPdf(buffer) {
   let pdfParse = null;
   try {
@@ -50,15 +62,21 @@ async function extractPdf(buffer) {
   try {
     if (pdfParse.prototype && typeof pdfParse.prototype.getText === "function") {
       const result = await new pdfParse({ data: buffer }).getText();
-      return String((result && result.text) || "").trim();
+      const text = String((result && result.text) || "").trim();
+      if (text) return text;
+    } else {
+      const data = await pdfParse(buffer);
+      const text = String((data && data.text) || "").trim();
+      if (text) return text;
     }
-    const data = await pdfParse(buffer);
-    return String((data && data.text) || "").trim();
   } catch (err) {
-    throw new Error(
-      `The PDF could not be read (${err && err.message ? err.message : "parsing failed"}). If the file is a scanned image, extract the text to a TXT or DOCX file first.`
-    );
+    console.error("[document] pdf-parse failed to parse:", err && err.message ? err.message : err);
   }
+  const salvaged = salvageText(buffer);
+  if (salvaged) return salvaged;
+  throw new Error(
+    "no readable text could be extracted from this PDF (it may be scanned, image-only, or encrypted). Save or export it as a text-based PDF, Word (.docx) or .txt file, or paste the text into the chat."
+  );
 }
 
 async function extractDocx(buffer) {
