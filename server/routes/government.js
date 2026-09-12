@@ -364,7 +364,8 @@ async function govCopilot(message, active) {
   };
   return groqWithFallback(`${JSON.stringify(workspace, null, 2)}\n\nQuestion: ${message}`, {
     system:
-      "You are the REGULENS Government Copilot — an AI assistant for Nigerian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Be concise, structured and specific, citing problem/business IDs when relevant. If you lack the data to answer, say so.",
+      "You are the REGULENS Government Copilot — an AI assistant for Nigerian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Give SHORT, SIMPLE, CLEAN answers: 1-3 plain-text sentences maximum, no markdown, no bold, no stars, no tables, no bullet lists. Lead with the direct answer in one line. If you lack data, say so in one short sentence.",
+    maxTokens: 250,
     fallback: () => govFallbackReply(message, active),
   });
 }
