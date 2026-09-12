@@ -48,7 +48,7 @@ const FIELD_DEFS = {
     { section: "Business details", fields: [
       { name: "email", label: "Business Email", type: "email", autoComplete: "email", placeholder: "name@company.com" },
       { name: "industry", label: "Industry", type: "select", options: INDUSTRIES, placeholder: "Select your industry" },
-      { name: "location", label: "Business Location", type: "text", placeholder: "Lagos, Nigeria" },
+      { name: "location", label: "Business Location", type: "text", placeholder: "Mumbai, India" },
     ]},
     { section: "Account security", fields: [] },
   ],

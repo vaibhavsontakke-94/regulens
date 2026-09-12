@@ -197,7 +197,7 @@ export default function GovernmentSettingsPage() {
             </div>
             <div className="flex items-center justify-between rounded-lg border border-line px-4 py-3">
               <span className="text-sm font-medium text-ink">Organization</span>
-              <span className="text-ink-faint">Federal Republic of Nigeria</span>
+              <span className="text-ink-faint">Republic of India</span>
             </div>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />

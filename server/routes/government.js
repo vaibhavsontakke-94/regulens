@@ -349,7 +349,7 @@ async function intelligenceNarrative(title, businesses) {
     `Problem: "${title}"\n\nMatching businesses:\n${summary || "- none listed yet"}\n\nWrite a concise executive summary (3 short paragraphs max).`,
     {
       system:
-        "You are a regulatory analyst for REGULENS, a Nigerian regulatory intelligence platform. Provide a factual, concise executive summary of a newly reported government problem, grounded in the workspace data given.",
+        "You are a regulatory analyst for REGULENS, an Indian regulatory intelligence platform. Provide a factual, concise executive summary of a newly reported government problem, grounded in the workspace data given.",
       maxTokens: 700,
       fallback: () =>
         `This is a preliminary intelligence summary for "${title}". ${
@@ -410,7 +410,7 @@ async function govCopilot(message, active) {
   };
   return groqWithFallback(`${JSON.stringify(workspace, null, 2)}\n\nQuestion: ${message}`, {
     system:
-      "You are the REGULENS Government Copilot — an AI assistant for Nigerian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Give SHORT, SIMPLE, CLEAN answers: 1-3 plain-text sentences maximum, no markdown, no bold, no stars, no tables, no bullet lists. Lead with the direct answer in one line. If you lack data, say so in one short sentence.",
+      "You are the REGULENS Government Copilot — an AI assistant for Indian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Give SHORT, SIMPLE, CLEAN answers: 1-3 plain-text sentences maximum, no markdown, no bold, no stars, no tables, no bullet lists. Lead with the direct answer in one line. If you lack data, say so in one short sentence.",
     maxTokens: 250,
     fallback: () => govFallbackReply(message, active),
   });

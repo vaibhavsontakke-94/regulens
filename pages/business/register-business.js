@@ -19,7 +19,7 @@ import {
   ENVIRONMENTAL_PROFILES,
   IMPORT_EXPORT,
   DATA_TECHNOLOGY,
-  NIGERIA_STATES,
+  INDIA_STATES,
   TARGET_MARKETS,
 } from "@/lib/businessProfileData";
 import { useBusinessProfile } from "@/components/business/BusinessProfileContext";
@@ -38,16 +38,16 @@ const STEPS = [
 ];
 
 const REGISTRATIONS = [
-  "CAC Registration",
-  "TIN (Tax Identification)",
-  "VAT Registration",
-  "PENCOM",
-  "NSITF",
-  "ITF Levy",
+  "Company Registration (ROC)",
+  "PAN / TAN Registration",
+  "GST Registration",
+  "EPFO Registration",
+  "ESIC Registration",
+  "Professional Tax",
   "Factory License",
-  "NAFDAC",
-  "SON",
-  "NESREA",
+  "FSSAI License",
+  "BIS Certification",
+  "CPCB Clearance",
 ];
 
 const LICENSE_STATUSES = ["Active", "Pending", "Expiring Soon", "Expired"];
@@ -141,10 +141,10 @@ function StepLocation({ draft, patch }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Field label="Primary City" required>
-        <TextInput placeholder="e.g. Lagos" value={draft.location.primaryCity} onChange={(v) => patch("location", "primaryCity", v)} />
+        <TextInput placeholder="e.g. Mumbai" value={draft.location.primaryCity} onChange={(v) => patch("location", "primaryCity", v)} />
       </Field>
       <Field label="State" required>
-        <SelectInput options={NIGERIA_STATES} value={draft.location.state} onChange={(v) => patch("location", "state", v)} placeholder="Select state" />
+        <SelectInput options={INDIA_STATES} value={draft.location.state} onChange={(v) => patch("location", "state", v)} placeholder="Select state" />
       </Field>
       <Field label="Country" required>
         <TextInput value={draft.location.country} onChange={(v) => patch("location", "country", v)} />
@@ -285,7 +285,7 @@ function StepEnvironmentalGrowth({ draft, patch }) {
         <h3 className="mb-4 text-sm font-semibold text-ink">Growth & Expansion Plans</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Current Market">
-            <TextInput placeholder="e.g. Lagos, Nigeria" value={draft.growth.currentMarket} onChange={(v) => patch("growth", "currentMarket", v)} />
+            <TextInput placeholder="e.g. Mumbai, India" value={draft.growth.currentMarket} onChange={(v) => patch("growth", "currentMarket", v)} />
           </Field>
           <Field label="Target Market">
             <SelectInput options={TARGET_MARKETS} value={draft.growth.targetMarket} onChange={(v) => patch("growth", "targetMarket", v)} placeholder="Select target market" />

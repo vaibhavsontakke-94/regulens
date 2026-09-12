@@ -21,17 +21,18 @@ const CATEGORIES = [
 ];
 
 const LOCATIONS = [
-  "Kano",
-  "Kaduna",
-  "Lagos",
-  "Abuja",
-  "Port Harcourt",
-  "Ibadan",
-  "Ogun",
-  "Onne",
-  "Enugu",
-  "Plateau",
-  "Federal (National)",
+  "Mumbai",
+  "Delhi NCR",
+  "Bengaluru",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Kochi",
+  "Federal (India)",
 ];
 
 const SEVERITIES = ["Critical", "High", "Medium", "Low"];

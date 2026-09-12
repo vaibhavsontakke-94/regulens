@@ -7,7 +7,7 @@ import { useGovernmentProblem } from "@/components/government/GovernmentProblemC
 import { govApi, handleApiError } from "@/lib/api";
 
 const SUGGESTIONS = [
-  "Summarise priority problems in Lagos",
+  "Summarise priority problems in Mumbai",
   "Which businesses are affected by tariff premiums?",
   "Draft a policy option for price bands",
   "What evidence is pending verification?",

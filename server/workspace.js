@@ -8,35 +8,35 @@ const STATUS_MAP = {
 };
 
 const REGISTRATION_OBLIGATIONS = {
-  "CAC Registration": { requirement: "CAC annual returns filing", authority: "Corporate Affairs Commission", jurisdiction: "Federal", risk: "Low" },
-  "TIN (Tax Identification)": { requirement: "Annual tax returns filing", authority: "Federal Inland Revenue Service", jurisdiction: "Federal", risk: "Low" },
-  "VAT Registration": { requirement: "VAT returns and remittance", authority: "Federal Inland Revenue Service", jurisdiction: "Federal", risk: "Low" },
-  PENCOM: { requirement: "Pension (PENCOM) contribution remittance", authority: "National Pension Commission", jurisdiction: "Federal", risk: "Medium" },
-  NSITF: { requirement: "NSITF employee compensation contributions", authority: "Nigeria Social Insurance Trust Fund", jurisdiction: "Federal", risk: "Medium" },
-  "ITF Levy": { requirement: "ITF training levy payment", authority: "Industrial Training Fund", jurisdiction: "Federal", risk: "Medium" },
-  NAFDAC: { requirement: "NAFDAC product registration and renewal", authority: "NAFDAC", jurisdiction: "Federal", risk: "Medium" },
-  SON: { requirement: "SON product certification", authority: "Standards Organisation of Nigeria", jurisdiction: "Federal", risk: "Medium" },
-  NESREA: { requirement: "NESREA environmental compliance", authority: "NESREA", jurisdiction: "Federal", risk: "High" },
-  "Factory License": { requirement: "Factory license and inspection", authority: "State Ministry of Environment / Industries", jurisdiction: "State", risk: "High" },
+  "Company Registration (ROC)": { requirement: "ROC annual return filing (CIN)", authority: "Ministry of Corporate Affairs", jurisdiction: "Central", risk: "Low" },
+  "PAN / TAN Registration": { requirement: "Annual tax returns filing", authority: "Income Tax Department (CBDT)", jurisdiction: "Central", risk: "Low" },
+  "GST Registration": { requirement: "GST returns and remittance", authority: "GST Council / State GST Department", jurisdiction: "Central & State", risk: "Low" },
+  "EPFO Registration": { requirement: "EPFO (PF & pension) contribution remittance", authority: "Employees' Provident Fund Organisation", jurisdiction: "Central", risk: "Medium" },
+  "ESIC Registration": { requirement: "ESIC employee insurance contributions", authority: "Employees' State Insurance Corporation", jurisdiction: "Central", risk: "Medium" },
+  "Professional Tax": { requirement: "Professional tax payment", authority: "State Commercial Tax Department", jurisdiction: "State", risk: "Medium" },
+  "FSSAI License": { requirement: "FSSAI product registration and renewal", authority: "FSSAI", jurisdiction: "Central", risk: "Medium" },
+  "BIS Certification": { requirement: "BIS product certification (ISI mark)", authority: "Bureau of Indian Standards", jurisdiction: "Central", risk: "Medium" },
+  "CPCB Clearance": { requirement: "CPCB environmental compliance", authority: "Central Pollution Control Board", jurisdiction: "Central", risk: "High" },
+  "Factory License": { requirement: "Factory license and inspection", authority: "State Labour Department / Factories Directorate", jurisdiction: "State", risk: "High" },
 };
 
 const ECONOMIC_ZONE_MARKETS = [
-  "Economic Zone (e.g., Lekki Free Zone, Abuja SEZ)",
-  "West Africa (ECOWAS)",
-  "Sub-Saharan Africa",
-  "Middle East & North Africa",
+  "Export — Indian SEZ (e.g., GIFT City)",
+  "South Asia (SAARC)",
+  "Southeast Asia (ASEAN)",
+  "Middle East & Gulf",
   "Europe",
   "North America",
   "Asia",
 ];
 
 const REVENUE_BANDS = {
-  "Under ₦25 million": { mid: 15, costBasis: 8 },
-  "₦25M – ₦100M": { mid: 60, costBasis: 12 },
-  "₦100M – ₦500M": { mid: 300, costBasis: 18 },
-  "₦500M – ₦1B": { mid: 750, costBasis: 26 },
-  "₦1B – ₦5B": { mid: 3000, costBasis: 40 },
-  "Above ₦5B": { mid: 7000, costBasis: 60 },
+  "Under ₹2.5 Cr": { mid: 15, costBasis: 8 },
+  "₹2.5 Cr – ₹10 Cr": { mid: 60, costBasis: 12 },
+  "₹10 Cr – ₹50 Cr": { mid: 300, costBasis: 18 },
+  "₹50 Cr – ₹100 Cr": { mid: 750, costBasis: 26 },
+  "₹100 Cr – ₹500 Cr": { mid: 3000, costBasis: 40 },
+  "Above ₹500 Cr": { mid: 7000, costBasis: 60 },
 };
 
 export const REFERENCE_REGULATORY_UPDATES = [
@@ -50,8 +50,8 @@ export const REFERENCE_REGULATORY_UPDATES = [
 export const REFERENCE_CERTIFICATION_INTEL = [
   { certification: "ISO 45001", sector: "All industries", authority: "International", demand: "High", value: "Strong", mandatory: false, status: "Recommended" },
   { certification: "AfCFTA Rules of Origin", sector: "Exporters", authority: "Customs / trade", demand: "Rising", value: "Medium", mandatory: false, status: "Recommended" },
-  { certification: "NAFDAC registration", sector: "Regulated goods", authority: "NAFDAC", demand: "Regulatory", value: "Required", mandatory: true, status: "Required" },
-  { certification: "SONCAP product certification", sector: "Manufacturing & exports", authority: "SON", demand: "Regulatory", value: "Required", mandatory: true, status: "Required" },
+  { certification: "FSSAI registration", sector: "Regulated goods", authority: "FSSAI", demand: "Regulatory", value: "Required", mandatory: true, status: "Required" },
+  { certification: "BIS (ISI mark) certification", sector: "Manufacturing & exports", authority: "BIS", demand: "Regulatory", value: "Required", mandatory: true, status: "Required" },
 ];
 
 export const REFERENCE_SCHEMES = [
@@ -91,7 +91,7 @@ function revenueBand(profile) {
   return profile?.scale?.revenueRange || "";
 }
 
-const BASE_OBLIGATIONS = ["CAC Registration", "TIN (Tax Identification)", "VAT Registration", "PENCOM", "NSITF", "ITF Levy"];
+const BASE_OBLIGATIONS = ["Company Registration (ROC)", "PAN / TAN Registration", "GST Registration", "EPFO Registration", "ESIC Registration", "Professional Tax"];
 
 function buildCompliance(profile, overrides = {}) {
   const hasProfile = Boolean(profile);
@@ -325,7 +325,7 @@ function buildExpansion(profile) {
     advantages,
     requirements,
     risks: risksList,
-    estimatedCost: revenue ? `~NGN ${Math.round(revenue.mid * 0.55).toLocaleString()}M estimated setup & compliance` : "Estimated after revenue range is set",
+    estimatedCost: revenue ? `~₹ ${Math.round(revenue.mid * 0.55).toLocaleString()}M estimated setup & compliance` : "Estimated after revenue range is set",
     recommendedActions: [
       "Pre-approval documentation pack for the target location",
       "Perform an impact assessment to de-risk permit timelines",
@@ -358,15 +358,15 @@ function buildCertifications(profile) {
     certs.push({ id: `CF-${String(certs.length + 1).padStart(2, "0")}`, name, mandatory, eligibility, authority, documents, cost, timeline, status });
   };
 
-  if (hasAny(held, ["SON", "SONCAP"])) push("SONCAP product certification", true, "Manufacturers/exporters of listed goods", "Standards Organisation of Nigeria", "Batch test reports, factory audit", "Low", "2–4 months", "Active");
-  else push("SONCAP product certification", true, "Manufacturers/exporters of listed goods", "Standards Organisation of Nigeria", "Batch test reports, factory audit", "Low", "2–4 months", "Not Started");
+  if (hasAny(held, ["BIS"])) push("BIS (ISI mark) certification", true, "Manufacturers/exporters of listed goods", "Bureau of Indian Standards", "Batch test reports, factory audit", "Low", "2–4 months", "Active");
+  else push("BIS (ISI mark) certification", true, "Manufacturers/exporters of listed goods", "Bureau of Indian Standards", "Batch test reports, factory audit", "Low", "2–4 months", "Not Started");
 
-  if (hasAny(held, ["NAFDAC"])) push("NAFDAC registration", true, "Producers of regulated goods", "NAFDAC", "Product dossier, facility inspection", "Medium", "4–8 months", "Active");
-  else push("NAFDAC registration", true, "Producers of regulated goods", "NAFDAC", "Product dossier, facility inspection", "Medium", "4–8 months", "Not Started");
+  if (hasAny(held, ["FSSAI License"])) push("FSSAI registration", true, "Producers of regulated goods", "FSSAI", "Product dossier, facility inspection", "Medium", "4–8 months", "Active");
+  else push("FSSAI registration", true, "Producers of regulated goods", "FSSAI", "Product dossier, facility inspection", "Medium", "4–8 months", "Not Started");
 
   push("ISO 9001:2015", false, "Any organisation with QMS", "International (certification body)", "Quality manual, process docs, audit records", "Medium", "6–9 months", "Not Started");
   const exporting = profile?.environmental?.importExport === "Exporter" || profile?.environmental?.importExport === "Both Importer & Exporter";
-  push("AfCFTA Rules of Origin certificate", false, "Exporters within Africa", exporting ? "Customs / trade authority" : "Customs / trade authority", "Origination records, product classification", "Low", "1–2 months", exporting ? "Planned" : "Not Started");
+  push("RCEP Rules of Origin certificate", false, "Exporters within the region", exporting ? "Customs / trade authority" : "Customs / trade authority", "Origination records, product classification", "Low", "1–2 months", exporting ? "Planned" : "Not Started");
   push("ISO 45001 (Occupational H&S)", false, "All organisations", "International (certification body)", "OHS policy, risk assessments", "Medium", "8–12 months", "Planned");
 
   return certs;
@@ -386,11 +386,11 @@ function buildFinancialImpact(profile, compliance) {
   const operationEstimate = revenue ? Math.round(revenue.mid * 0.12) : 0;
 
   return {
-    complianceCost: `NGN ${annualEstimate.toLocaleString()}M`,
-    potentialExposure: `NGN ${exposureEstimate.toLocaleString()}M`,
-    setupCost: `NGN ${setupEstimate.toLocaleString()}M`,
-    expansionCost: `NGN ${expansionEstimate.toLocaleString()}M`,
-    operationalImpact: `NGN ${operationEstimate.toLocaleString()}M`,
+    complianceCost: `₹ ${annualEstimate.toLocaleString()}M`,
+    potentialExposure: `₹ ${exposureEstimate.toLocaleString()}M`,
+    setupCost: `₹ ${setupEstimate.toLocaleString()}M`,
+    expansionCost: `₹ ${expansionEstimate.toLocaleString()}M`,
+    operationalImpact: `₹ ${operationEstimate.toLocaleString()}M`,
     note: `Estimated from your ${revenue ? "revenue range" : "business profile"} and current compliance status of ${compliance.length} obligations.`,
     bars: [
       { label: "Compliance Cost", value: annualEstimate, tone: "success", note: "Permits, audits, fees" },
@@ -532,7 +532,7 @@ export function buildWorkspace(profile, { problems = [], evidence = [], reports 
     profileCompletion: completion,
     identity: {
       businessName: profile?.identity?.businessName || "",
-      registrar: "Corporate Affairs Commission (CAC)",
+      registrar: "Ministry of Corporate Affairs (MCA)",
       employees: profile?.scale?.employees || "",
       businessSize: profile?.scale?.businessStage || "",
     },

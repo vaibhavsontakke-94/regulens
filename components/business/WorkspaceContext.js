@@ -18,7 +18,7 @@ const EMPTY_WORKSPACE = {
   problemLifecycle: [],
   evidence: [],
   reports: [],
-  financialImpact: { complianceCost: "NGN 0M", potentialExposure: "NGN 0M", setupCost: "NGN 0M", expansionCost: "NGN 0M", operationalImpact: "NGN 0M", note: "", bars: [] },
+  financialImpact: { complianceCost: "₹ 0M", potentialExposure: "₹ 0M", setupCost: "₹ 0M", expansionCost: "₹ 0M", operationalImpact: "₹ 0M", note: "", bars: [] },
   notifications: [],
   profile: null,
 };

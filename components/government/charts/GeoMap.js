@@ -2,19 +2,43 @@ import Badge from "@/components/ui/Badge";
 import { SEVERITY_META } from "@/lib/mockData";
 
 const AREA_POSITIONS = {
-  "Lagos": { x: 56, y: 68 },
-  "Abuja": { x: 50, y: 50 },
-  "Kano": { x: 48, y: 22 },
-  "Kaduna": { x: 46, y: 32 },
-  "Port Harcourt": { x: 62, y: 62 },
-  "Onne": { x: 63, y: 64 },
-  "Ibadan": { x: 50, y: 62 },
-  "Ogun": { x: 48, y: 66 },
-  "Enugu": { x: 60, y: 52 },
-  "Plateau": { x: 54, y: 42 },
-  "Rivers": { x: 63, y: 60 },
-  "Federal": { x: 50, y: 48 },
-  "National": { x: 50, y: 48 },
+  "India": { x: 46, y: 45 },
+  "National": { x: 46, y: 45 },
+  "Federal": { x: 46, y: 45 },
+  "Delhi NCR": { x: 44, y: 17 },
+  "Delhi": { x: 45, y: 16 },
+  "Rajasthan": { x: 34, y: 28 },
+  "Jaipur": { x: 36, y: 26 },
+  "Punjab": { x: 40, y: 14 },
+  "Haryana": { x: 42, y: 19 },
+  "Gujarat": { x: 27, y: 38 },
+  "Ahmedabad": { x: 28, y: 36 },
+  "Madhya Pradesh": { x: 40, y: 37 },
+  "Uttar Pradesh": { x: 55, y: 30 },
+  "Lucknow": { x: 58, y: 28 },
+  "Bihar": { x: 62, y: 30 },
+  "West Bengal": { x: 66, y: 42 },
+  "Kolkata": { x: 67, y: 44 },
+  "Odisha": { x: 62, y: 52 },
+  "Jharkhand": { x: 60, y: 38 },
+  "Chhattisgarh": { x: 52, y: 46 },
+  "Maharashtra": { x: 37, y: 46 },
+  "Mumbai": { x: 29, y: 42 },
+  "Pune": { x: 35, y: 47 },
+  "Telangana": { x: 48, y: 53 },
+  "Hyderabad": { x: 49, y: 52 },
+  "Andhra Pradesh": { x: 54, y: 58 },
+  "Karnataka": { x: 41, y: 58 },
+  "Bengaluru": { x: 42, y: 56 },
+  "Tamil Nadu": { x: 54, y: 64 },
+  "Chennai": { x: 57, y: 62 },
+  "Kerala": { x: 44, y: 68 },
+  "Kochi": { x: 43, y: 67 },
+  "Himachal Pradesh": { x: 46, y: 10 },
+  "Uttarakhand": { x: 50, y: 14 },
+  "Assam": { x: 72, y: 30 },
+  "Goa": { x: 34, y: 60 },
+  "Odisha": { x: 62, y: 52 },
 };
 
 const SEVERITY_DOT = {
@@ -34,9 +58,9 @@ export default function GeoMap({ regions = [], severityByArea = {}, businessConc
         aria-label="Illustrative geographic map"
       >
         <title>Illustrative geographic map</title>
-        {/* Abstract Nigeria outline */}
+        {/* Abstract India outline */}
         <path
-          d="M25 20 L28 12 L38 8 L48 10 L58 8 L65 12 L75 20 L82 30 L85 45 L82 60 L78 68 L68 75 L56 82 L42 82 L34 76 L28 65 L25 52 L22 38 Z"
+          d="M22 30 L28 22 L38 12 L50 8 L62 12 L72 22 L78 34 L80 46 L76 58 L70 68 L62 76 L52 82 L44 80 L38 76 L32 68 L28 58 L24 46 L21 38 Z"
           fill="var(--color-surface-muted)"
           stroke="var(--color-line)"
           strokeWidth="0.8"

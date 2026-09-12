@@ -50,7 +50,7 @@ for (const [role, account] of Object.entries(DEMO_ACCOUNTS)) {
     profile:
       role === "government"
         ? { department: "Ministry of Commerce", designation: "Policy Officer", organization: "Regulatory Authority" }
-        : { businessName: "Nortex Textiles Ltd", industry: "Manufacturing", location: "Kaduna, Nigeria" },
+        : { businessName: "Nortex Textiles Ltd", industry: "Manufacturing", location: "Surat, Gujarat" },
   });
 }
 

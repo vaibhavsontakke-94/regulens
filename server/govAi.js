@@ -173,7 +173,7 @@ function buildTestAndScale({ problem, solution, pilotArea }) {
 
   return {
     system:
-      'You are a regulatory pilot analyst for REGULENS, a Nigerian regulatory intelligence platform. A government agency wants to test a solution for a problem in one small area and predict whether it can later be scaled nationally. Return ONLY valid JSON with keys: predictedImpact (string), successIndicators (array of strings), phases (array of {name, duration, cost, description}), risks (array of {risk, likelihood, mitigation}), pilotScore (integer 0-100), scaleVerdict (string, one of "Not Ready", "Conditional", "Ready to Scale"), rolloutGuidance (string), confidence (integer 0-100). Ground every statement in the problem and solution data provided. No markdown.',
+      'You are a regulatory pilot analyst for REGULENS, an Indian regulatory intelligence platform. A government agency wants to test a solution for a problem in one small area and predict whether it can later be scaled nationally. Return ONLY valid JSON with keys: predictedImpact (string), successIndicators (array of strings), phases (array of {name, duration, cost, description}), risks (array of {risk, likelihood, mitigation}), pilotScore (integer 0-100), scaleVerdict (string, one of "Not Ready", "Conditional", "Ready to Scale"), rolloutGuidance (string), confidence (integer 0-100). Ground every statement in the problem and solution data provided. No markdown.',
     user: JSON.stringify(context, null, 2),
     fallback,
   };

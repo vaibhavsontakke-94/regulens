@@ -7,7 +7,7 @@ import { bizApi, handleApiError } from "@/lib/api";
 const SUGGESTIONS = [
   "What compliance deadlines are coming up?",
   "Analyze our regulatory risk exposure",
-  "Compare Kaduna vs Abuja for expansion",
+  "Compare Mumbai vs Pune for expansion",
   "What government schemes are we eligible for?",
   "Show our certification readiness status",
 ];

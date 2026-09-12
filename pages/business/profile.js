@@ -21,7 +21,7 @@ import {
   ENVIRONMENTAL_PROFILES,
   IMPORT_EXPORT,
   DATA_TECHNOLOGY,
-  NIGERIA_STATES,
+  INDIA_STATES,
   TARGET_MARKETS,
   LICENSE_STATUSES,
 } from "@/lib/businessProfileData";
@@ -128,7 +128,7 @@ function LocationSection() {
       {editor.editing ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Primary City" required><TextInput value={value.primaryCity} onChange={(v) => editor.patch("primaryCity", v)} /></Field>
-          <Field label="State" required><SelectInput options={NIGERIA_STATES} value={value.state} onChange={(v) => editor.patch("state", v)} /></Field>
+          <Field label="State" required><SelectInput options={INDIA_STATES} value={value.state} onChange={(v) => editor.patch("state", v)} /></Field>
           <Field label="Country" required><TextInput value={value.country} onChange={(v) => editor.patch("country", v)} /></Field>
           <Field label="Additional Locations" className="md:col-span-3">
             <ChipInput value={value.additionalLocations} onChange={(v) => editor.patch("additionalLocations", v)} placeholder="e.g. Kano" />
@@ -224,7 +224,7 @@ function ComplianceSection() {
     >
       {editor.editing ? (
         <div className="grid grid-cols-1 gap-4">
-          <ChipInput label="Registrations" value={value.registrations} onChange={(v) => editor.patch("registrations", v)} placeholder="e.g. CAC Registration" />
+          <ChipInput label="Registrations" value={value.registrations} onChange={(v) => editor.patch("registrations", v)} placeholder="e.g. Company Registration (ROC)" />
           <Field label="Licenses">
             {value.licenses?.map((license) => (
               <div key={license.id} className="mb-2 flex flex-col gap-3 rounded-md border border-line bg-white p-3 dark:bg-ink-soft md:flex-row">

@@ -39,7 +39,7 @@ export default function FinancialImpactPage() {
           {bars.map((b) => (
             <div key={b.label} className="rounded-card border border-line bg-surface-muted p-3 text-center">
               <p className="text-2xs font-semibold uppercase tracking-wider text-ink-faint">{b.label}</p>
-              <p className={`mt-1 text-xl font-semibold ${TONE_TEXT[b.tone]}`}>NGN {b.value}M</p>
+              <p className={`mt-1 text-xl font-semibold ${TONE_TEXT[b.tone]}`}>₹ {b.value}M</p>
               <p className="mt-0.5 text-[11px] text-ink-faint">{b.note}</p>
             </div>
           ))}
@@ -57,7 +57,7 @@ export default function FinancialImpactPage() {
                   style={{ width: `${(b.value / maxValue) * 100}%` }}
                 />
               </div>
-              <span className="w-20 shrink-0 text-right text-sm font-semibold text-ink">NGN {b.value}M</span>
+              <span className="w-20 shrink-0 text-right text-sm font-semibold text-ink">₹ {b.value}M</span>
             </div>
           ))}
         </div>
@@ -67,12 +67,12 @@ export default function FinancialImpactPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-danger/30 bg-danger-soft p-4 text-center">
             <p className="text-xs font-semibold uppercase text-danger">Potential Exposure</p>
-            <p className="mt-2 text-3xl font-bold text-danger">NGN {exposure.value}M</p>
+            <p className="mt-2 text-3xl font-bold text-danger">₹ {exposure.value}M</p>
             <p className="mt-1 text-xs text-ink-faint">Duty, penalties, claims</p>
           </div>
           <div className="rounded-lg border border-success/30 bg-success-soft p-4 text-center">
             <p className="text-xs font-semibold uppercase text-success">Compliance Investment</p>
-            <p className="mt-2 text-3xl font-bold text-success">NGN {compliance.value}M</p>
+            <p className="mt-2 text-3xl font-bold text-success">₹ {compliance.value}M</p>
             <p className="mt-1 text-xs text-ink-faint">Permits, audits, fees</p>
           </div>
         </div>

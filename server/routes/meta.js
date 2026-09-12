@@ -12,7 +12,7 @@ import {
   ENVIRONMENTAL_PROFILES,
   IMPORT_EXPORT,
   DATA_TECHNOLOGY,
-  NIGERIA_STATES,
+INDIA_STATES,
   LICENSE_STATUSES,
   TARGET_MARKETS,
   PROFILE_SECTIONS,
@@ -40,17 +40,18 @@ const GOV_CATEGORIES = [
 ];
 
 const GOV_LOCATIONS = [
-  "Kano",
-  "Kaduna",
-  "Lagos",
-  "Abuja",
-  "Port Harcourt",
-  "Ibadan",
-  "Ogun",
-  "Onne",
-  "Enugu",
-  "Plateau",
-  "Federal (National)",
+  "Mumbai",
+  "Delhi NCR",
+  "Bengaluru",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Kochi",
+  "Federal (India)",
 ];
 
 const GOV_SEVERITIES = ["Critical", "High", "Medium", "Low"];
@@ -58,16 +59,16 @@ const GOV_SEVERITIES = ["Critical", "High", "Medium", "Low"];
 const GOV_STATUSES = ["Under Review", "Implemented", "Pending Verification", "Resolved"];
 
 const REGISTRATIONS = [
-  "CAC Registration",
-  "TIN (Tax Identification)",
-  "VAT Registration",
-  "PENCOM",
-  "NSITF",
-  "ITF Levy",
+  "Company Registration (ROC)",
+  "PAN / TAN Registration",
+  "GST Registration",
+  "EPFO Registration",
+  "ESIC Registration",
+  "Professional Tax",
   "Factory License",
-  "NAFDAC",
-  "SON",
-  "NESREA",
+  "FSSAI License",
+  "BIS Certification",
+  "CPCB Clearance",
 ];
 
 const BIZ_PROBLEM_STATUSES = [
@@ -105,7 +106,7 @@ export default function metaRoutes(req, res, sub) {
       environmentalProfiles: ENVIRONMENTAL_PROFILES,
       importExport: IMPORT_EXPORT,
       dataTechnology: DATA_TECHNOLOGY,
-      states: NIGERIA_STATES,
+      states: INDIA_STATES,
       licenseStatuses: LICENSE_STATUSES,
       targetMarkets: TARGET_MARKETS,
       registrations: REGISTRATIONS,

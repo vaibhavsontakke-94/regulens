@@ -26,7 +26,7 @@ export function ensureDemoUsers() {
       profile:
         role === "government"
           ? { department: "Ministry of Commerce", designation: "Policy Officer", organization: "Regulatory Authority" }
-          : { businessName: "Nortex Textiles Ltd", industry: "Manufacturing", location: "Kaduna, Nigeria" },
+          : { businessName: "Nortex Textiles Ltd", industry: "Manufacturing", location: "Surat, Gujarat" },
     });
   }
   if (!db.state.sessions) db.state.sessions = { active: {} };

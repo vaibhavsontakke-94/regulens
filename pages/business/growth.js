@@ -28,7 +28,7 @@ export default function GrowthPage() {
   const currentRegion = analysis.currentRegion || "Current region";
   const targetRegion = analysis.targetRegion || "Target market";
   const costMatch = String(analysis.estimatedCost || "").match(/([\d.,]+)M/);
-  const estimatedCost = costMatch ? `₦${costMatch[1]}M` : "Estimate pending";
+  const estimatedCost = costMatch ? `₹${costMatch[1]}M` : "Estimate pending";
   const topRisk =
     riskCategories
       .filter((r) => r.status === "Elevated")

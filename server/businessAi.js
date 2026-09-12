@@ -81,7 +81,7 @@ function complianceBuilder(data) {
   };
   return {
     system:
-      "You are a compliance analyst for REGULENS, a Nigerian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), complianceScore (integer 0-100), priorities (array of {requirement, authority, dueDate, reason}), recommendations (array of strings). Ground every statement in the business compliance data provided. No markdown.",
+      "You are a compliance analyst for REGULENS, an Indian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), complianceScore (integer 0-100), priorities (array of {requirement, authority, dueDate, reason}), recommendations (array of strings). Ground every statement in the business compliance data provided. No markdown.",
     user: JSON.stringify(context, null, 2),
     fallback,
   };
@@ -113,7 +113,7 @@ function risksBuilder(data) {
   };
   return {
     system:
-      "You are a risk analyst for REGULENS, a Nigerian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), overallScore (integer 0-100), topRisks (array of {name, score (integer), drivers (string), action (string)}), watchList (array of strings), mitigations (array of {risk, action, owner, status}). Ground every statement in the business risk data provided. No markdown.",
+      "You are a risk analyst for REGULENS, an Indian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), overallScore (integer 0-100), topRisks (array of {name, score (integer), drivers (string), action (string)}), watchList (array of strings), mitigations (array of {risk, action, owner, status}). Ground every statement in the business risk data provided. No markdown.",
     user: JSON.stringify(context, null, 2),
     fallback,
   };
@@ -142,7 +142,7 @@ function regulatoryRiskBuilder(data) {
   };
   return {
     system:
-      "You are a regulatory risk analyst for REGULENS, a Nigerian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), elevated (array of strings), watchList (array of strings), recommendations (array of strings). Ground every statement in the risk categories provided. No markdown.",
+      "You are a regulatory risk analyst for REGULENS, an Indian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), elevated (array of strings), watchList (array of strings), recommendations (array of strings). Ground every statement in the risk categories provided. No markdown.",
     user: JSON.stringify(context, null, 2),
     fallback,
   };
@@ -172,7 +172,7 @@ function certificationsBuilder(data) {
   };
   return {
     system:
-      "You are a certification analyst for REGULENS, a Nigerian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), readiness (integer 0-100), gaps (array of {certification, reason, nextStep}), nextSteps (array of strings). Ground every statement in the certification data provided. No markdown.",
+      "You are a certification analyst for REGULENS, an Indian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), readiness (integer 0-100), gaps (array of {certification, reason, nextStep}), nextSteps (array of strings). Ground every statement in the certification data provided. No markdown.",
     user: JSON.stringify(context, null, 2),
     fallback,
   };
@@ -190,7 +190,7 @@ function certificationIntelBuilder(data) {
   }));
   const context = {
     business: data.profile?.identity?.businessName || data.staticProfile?.identity?.businessName,
-    targetMarket: "Expansion toward Abuja Special Economic Zone",
+    targetMarket: "Expansion toward GIFT City, Gujarat",
     certifications: intel,
   };
   const fallback = {
@@ -200,11 +200,11 @@ function certificationIntelBuilder(data) {
       .slice(0, 4)
       .map((c) => ({ certification: c.certification, sector: c.sector, demand: c.demand, value: c.value, recommendation: c.mandatory ? "Prioritize before expansion." : "Pursue when expansion plans are confirmed." })),
     watchList: intel.filter((c) => c.demand === "Rising").map((c) => `${c.certification}: demand is rising and not yet held.`).slice(0, 2),
-    recommendations: ["Align certification roadmap with Abuja SEZ requirements.", "Secure regulatory (mandatory) certifications before optional ones.", "Re-validate certification value against target-market demand."],
+    recommendations: ["Align certification roadmap with GIFT City requirements.", "Secure regulatory (mandatory) certifications before optional ones.", "Re-validate certification value against target-market demand."],
   };
   return {
     system:
-      "You are a certification intelligence analyst for REGULENS, a Nigerian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), opportunities (array of {certification, sector, demand, value, recommendation}), watchList (array of strings), recommendations (array of strings). Ground every statement in the certification intelligence provided. No markdown.",
+      "You are a certification intelligence analyst for REGULENS, an Indian regulatory intelligence platform. Return ONLY valid JSON with keys: summary (string), opportunities (array of {certification, sector, demand, value, recommendation}), watchList (array of strings), recommendations (array of strings). Ground every statement in the certification intelligence provided. No markdown.",
     user: JSON.stringify(context, null, 2),
     fallback,
   };
@@ -247,7 +247,7 @@ function buildDocumentFallback(evidence, data) {
       "Schedule a renewal reminder before the expiry date.",
       "Share with your designated compliance officer for review.",
     ],
-    sources: ["CAC", "FM Trade & Investment", "NESREA", ...(mandatory.length ? mandatory : [])],
+    sources: ["MCA", "DPIIT", "CPCB", ...(mandatory.length ? mandatory : [])],
   };
 }
 
@@ -264,7 +264,7 @@ export async function runEvidenceAnalysis(evidence, data) {
   try {
     const reply = await groqChat({
       system:
-        "You are a business document compliance analyst for REGULENS, a Nigerian regulatory intelligence platform. A business has uploaded a document and you must review it. Return ONLY valid JSON with keys: status (string, one of \"complete\" or \"needs-review\"), confidence (integer 0-100), summary (string), keyInformation (array of strings), complianceRelevance (array of strings), potentialRisks (array of strings), missingInformation (array of strings), importantDates (array of strings), recommendedActions (array of strings), sources (array of strings). Be concise and ground every statement in the workspace data provided. No markdown.",
+        "You are a business document compliance analyst for REGULENS, an Indian regulatory intelligence platform. A business has uploaded a document and you must review it. Return ONLY valid JSON with keys: status (string, one of \"complete\" or \"needs-review\"), confidence (integer 0-100), summary (string), keyInformation (array of strings), complianceRelevance (array of strings), potentialRisks (array of strings), missingInformation (array of strings), importantDates (array of strings), recommendedActions (array of strings), sources (array of strings). Be concise and ground every statement in the workspace data provided. No markdown.",
       user: JSON.stringify(context, null, 2),
       maxTokens: 900,
       temperature: 0.3,

@@ -2,119 +2,59 @@
 - Local:         http://localhost:3000
 - Network:       http://10.160.68.41:3000
 - Environments: .env
-✓ Ready in 7.4s
-✓ Running next.config.mjs took 29ms
+✓ Ready in 9.4s
+✓ Running next.config.mjs took 40ms
 
-○ Compiling /government/settings ...
- GET /government/settings 304 in 5.9s (next.js: 5.8s, application-code: 42ms)
- GET /api/health 200 in 3.9s (next.js: 2.7s, application-code: 1263ms)
- POST /api/auth/login 200 in 56ms (next.js: 2ms, application-code: 54ms)
- GET /api/government/businesses 200 in 7ms (next.js: 1.7ms, application-code: 6ms)
- GET /api/government/problems 200 in 7ms (next.js: 2ms, application-code: 5ms)
- GET /api/government/regulations 200 in 6ms (next.js: 1.7ms, application-code: 4ms)
- GET /api/government/policies 200 in 9ms (next.js: 2ms, application-code: 6ms)
- GET /api/government/solutions 200 in 8ms (next.js: 3ms, application-code: 5ms)
- GET /api/government/evidence 200 in 6ms (next.js: 2ms, application-code: 4ms)
- GET /api/government/reports 200 in 5ms (next.js: 1.9ms, application-code: 4ms)
- GET /api/government/notifications 200 in 5ms (next.js: 1.7ms, application-code: 4ms)
- GET /api/government/audit-logs 200 in 6ms (next.js: 3ms, application-code: 3ms)
- POST /api/government/problem-matches 200 in 2.3s (next.js: 1.7ms, application-code: 2.3s)
- POST /api/government/problems 201 in 10ms (next.js: 2ms, application-code: 8ms)
- POST /api/government/problem-intelligence 200 in 1375ms (next.js: 2.0ms, application-code: 1373ms)
- POST /api/government/test-and-scale 400 in 14ms (next.js: 7ms, application-code: 7ms)
- POST /api/auth/login 200 in 936ms (next.js: 124ms, application-code: 812ms)
- GET /api/government/problems 200 in 9ms (next.js: 2ms, application-code: 7ms)
- GET /api/government/problems/PRB-2026-011/solutions 200 in 7ms (next.js: 3ms, application-code: 4ms)
- POST /api/government/test-and-scale 400 in 6ms (next.js: 2ms, application-code: 4ms)
- POST /api/auth/login 200 in 50ms (next.js: 2ms, application-code: 48ms)
- GET /api/government/problems 200 in 7ms (next.js: 3ms, application-code: 4ms)
- GET /api/government/problems/PRB-2026-005/solutions 200 in 7ms (next.js: 2ms, application-code: 5ms)
- POST /api/government/test-and-scale 201 in 3.1s (next.js: 1.4ms, application-code: 3.1s)
- GET /api/government/audit-logs 200 in 15ms (next.js: 6ms, application-code: 9ms)
- GET /api/government/problems/PRB-2026-005/businesses 200 in 6ms (next.js: 1.9ms, application-code: 4ms)
- GET /government 200 in 576ms (next.js: 560ms, application-code: 17ms)
- GET /government/problems 200 in 1085ms (next.js: 1071ms, application-code: 14ms)
- GET /government/businesses 200 in 341ms (next.js: 326ms, application-code: 15ms)
- GET /government/regulations 200 in 307ms (next.js: 296ms, application-code: 11ms)
- GET /government/policies 200 in 296ms (next.js: 277ms, application-code: 19ms)
- GET /government/solutions 200 in 301ms (next.js: 269ms, application-code: 32ms)
- GET /government/ground-intelligence 200 in 278ms (next.js: 264ms, application-code: 14ms)
- GET /government/reports 200 in 401ms (next.js: 382ms, application-code: 20ms)
- GET /government/notifications 200 in 368ms (next.js: 354ms, application-code: 15ms)
- GET /government/audit-logs 200 in 322ms (next.js: 311ms, application-code: 11ms)
- GET /government/search-problem 200 in 322ms (next.js: 307ms, application-code: 15ms)
- GET /government/test-and-scale 200 in 304ms (next.js: 289ms, application-code: 15ms)
- GET /government/problems/PRB-2026-005 200 in 386ms (next.js: 355ms, application-code: 31ms)
-✓ Compiled in 243ms
-✓ Compiled in 115ms
-✓ Compiled in 121ms
-✓ Compiled in 116ms
-✓ Compiled in 113ms
-✓ Compiled in 99ms
-✓ Compiled in 118ms
-✓ Compiled in 98ms
-✓ Compiled in 120ms
-✓ Compiled in 97ms
-✓ Compiled in 106ms
-✓ Compiled in 129ms
-✓ Compiled in 99ms
-✓ Compiled in 94ms
-✓ Compiled in 94ms
-✓ Compiled in 114ms
-✓ Compiled in 110ms
-✓ Compiled in 114ms
-✓ Compiled in 109ms
-✓ Compiled in 90ms
- POST /api/auth/login 200 in 60ms (next.js: 3ms, application-code: 57ms)
- POST /api/government/problem-matches 200 in 3.0s (next.js: 3ms, application-code: 3.0s)
- POST /api/government/problem-intelligence 200 in 1354ms (next.js: 1.6ms, application-code: 1352ms)
- GET /government 200 in 36ms (next.js: 25ms, application-code: 11ms)
- GET /government/problems 200 in 25ms (next.js: 15ms, application-code: 10ms)
- GET /government/problems/new 200 in 503ms (next.js: 491ms, application-code: 12ms)
- GET /government/businesses 200 in 22ms (next.js: 12ms, application-code: 10ms)
- GET /government/problems/PRB-2026-001 200 in 385ms (next.js: 369ms, application-code: 16ms)
- GET /government/test-and-scale 200 in 161ms (next.js: 142ms, application-code: 19ms)
- GET /government/settings 200 in 182ms (next.js: 161ms, application-code: 20ms)
- GET /government/account 200 in 347ms (next.js: 336ms, application-code: 11ms)
- GET /government/profile 200 in 364ms (next.js: 349ms, application-code: 15ms)
- GET /government/privacy 200 in 372ms (next.js: 357ms, application-code: 14ms)
- GET /government/about 200 in 346ms (next.js: 329ms, application-code: 17ms)
- GET /government/copilot 200 in 306ms (next.js: 291ms, application-code: 15ms)
- GET /government/audit-logs 200 in 143ms (next.js: 123ms, application-code: 20ms)
- GET /government/reports 200 in 88ms (next.js: 73ms, application-code: 15ms)
- POST /api/auth/login 200 in 54ms (next.js: 3ms, application-code: 51ms)
- POST /api/government/problem-matches 200 in 2.9s (next.js: 2ms, application-code: 2.9s)
- POST /api/government/problems 201 in 12ms (next.js: 2ms, application-code: 10ms)
- POST /api/government/problem-intelligence 200 in 1224ms (next.js: 2ms, application-code: 1222ms)
-✓ Compiled in 149ms
-✓ Compiled in 115ms
-✓ Compiled in 103ms
-✓ Compiled in 112ms
- GET /government/search-problem 200 in 304ms (next.js: 288ms, application-code: 17ms)
- GET /government 200 in 188ms (next.js: 168ms, application-code: 20ms)
- POST /api/auth/login 200 in 1241ms (next.js: 165ms, application-code: 1076ms)
- GET /api/auth/session 200 in 7ms (next.js: 2ms, application-code: 5ms)
- GET /api/auth/session 401 in 6ms (next.js: 1.9ms, application-code: 5ms)
- POST /api/government/problem-matches 200 in 2.9s (next.js: 1.9ms, application-code: 2.9s)
- POST /api/auth/login 200 in 99ms (next.js: 3ms, application-code: 96ms)
- GET /api/auth/session 200 in 21ms (next.js: 12ms, application-code: 9ms)
- GET /api/government/dashboard 200 in 17ms (next.js: 3ms, application-code: 14ms)
- POST /api/auth/login 200 in 202ms (next.js: 5ms, application-code: 197ms)
- GET /api/government/dashboard 200 in 9ms (next.js: 4ms, application-code: 6ms)
-✓ Compiled in 279ms
-✓ Compiled in 123ms
-✓ Compiled in 115ms
-✓ Compiled in 108ms
-✓ Compiled in 103ms
-✓ Compiled in 73ms
-✓ Compiled in 99ms
-✓ Compiled in 119ms
- POST /api/auth/login 200 in 52ms (next.js: 1.6ms, application-code: 50ms)
- GET /api/government/dashboard 200 in 6ms (next.js: 1.6ms, application-code: 4ms)
+ POST /api/auth/login 200 in 1809ms (next.js: 409ms, application-code: 1400ms)
+ GET /api/government/problems 200 in 26ms (next.js: 4ms, application-code: 23ms)
+ GET /api/government/businesses 200 in 23ms (next.js: 4ms, application-code: 20ms)
+ POST /api/auth/login 200 in 55ms (next.js: 4ms, application-code: 51ms)
+ GET /api/government/problems 200 in 8ms (next.js: 1.9ms, application-code: 6ms)
+ POST /api/auth/login 200 in 51ms (next.js: 2ms, application-code: 49ms)
+ GET /api/government/problems 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/government/businesses 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/government/regulations 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ POST /api/auth/login 200 in 49ms (next.js: 4ms, application-code: 45ms)
+ GET /api/government/businesses 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/government/regulations 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ POST /api/auth/login 200 in 45ms (next.js: 2ms, application-code: 43ms)
  GET /api/government/problems 200 in 9ms (next.js: 3ms, application-code: 6ms)
- GET /api/government/businesses 200 in 6ms (next.js: 1.8ms, application-code: 4ms)
- GET /api/government/solutions 200 in 7ms (next.js: 2ms, application-code: 4ms)
- GET /api/government/reports 200 in 7ms (next.js: 1.9ms, application-code: 5ms)
- GET /government 200 in 120ms (next.js: 102ms, application-code: 18ms)
- GET /government/search-problem 200 in 116ms (next.js: 99ms, application-code: 18ms)
- GET /government/login 200 in 413ms (next.js: 367ms, application-code: 46ms)
+ GET /api/government/problems/PRB-2026-003/solutions 200 in 5ms (next.js: 1.9ms, application-code: 3ms)
+ POST /api/government/test-and-scale 201 in 5.9s (next.js: 1.8ms, application-code: 5.9s)
+ POST /api/auth/login 200 in 108ms (next.js: 5ms, application-code: 104ms)
+ POST /api/government/test-and-scale 201 in 8.5s (next.js: 3ms, application-code: 8.5s)
+○ Compiling /_error ...
+ POST /api/auth/login 500 in 9.0s (next.js: 8.8s, application-code: 178ms)
+ GET /api/meta/options 500 in 29ms (next.js: 16ms, application-code: 13ms)
+ GET /api/business/workspace 500 in 20ms (next.js: 11ms, application-code: 9ms)
+ GET /api/business/compliance 500 in 19ms (next.js: 10ms, application-code: 9ms)
+ GET /api/business/certifications 500 in 23ms (next.js: 12ms, application-code: 11ms)
+ GET /api/business/financial-impact 500 in 21ms (next.js: 12ms, application-code: 9ms)
+ GET /api/meta/options 500 in 23ms (next.js: 11ms, application-code: 12ms)
+ GET /api/meta/options 200 in 1563ms (next.js: 157ms, application-code: 1406ms)
+ POST /api/auth/login 200 in 47ms (next.js: 1.4ms, application-code: 46ms)
+ GET /api/business/workspace 200 in 18ms (next.js: 1.7ms, application-code: 16ms)
+ GET /api/business/compliance 200 in 6ms (next.js: 1.8ms, application-code: 4ms)
+ GET /api/business/certifications 200 in 6ms (next.js: 1.4ms, application-code: 4ms)
+ GET /api/business/financial-impact 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/business/expansion-readiness 200 in 5ms (next.js: 1.5ms, application-code: 4ms)
+ GET /api/business/workspace 200 in 7ms (next.js: 1.5ms, application-code: 5ms)
+ GET /api/business/financial-impact 200 in 6ms (next.js: 1.8ms, application-code: 4ms)
+ POST /api/auth/login 200 in 51ms (next.js: 2ms, application-code: 49ms)
+ GET /api/business/workspace 200 in 6ms (next.js: 1.8ms, application-code: 4ms)
+ GET /api/business/financial-impact 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ POST /api/auth/login 200 in 50ms (next.js: 1.6ms, application-code: 48ms)
+ GET /api/business/workspace 200 in 8ms (next.js: 4ms, application-code: 5ms)
+ GET /api/business/compliance 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ POST /api/auth/login 200 in 60ms (next.js: 1.8ms, application-code: 58ms)
+ GET /api/business/workspace 200 in 8ms (next.js: 4ms, application-code: 4ms)
+ POST /api/auth/login 200 in 61ms (next.js: 1.8ms, application-code: 59ms)
+ GET /api/business/workspace 200 in 6ms (next.js: 1.9ms, application-code: 4ms)
+ POST /api/auth/login 200 in 49ms (next.js: 2ms, application-code: 46ms)
+ GET /government 200 in 954ms (next.js: 931ms, application-code: 23ms)
+ GET /government/test-and-scale 200 in 202ms (next.js: 183ms, application-code: 19ms)
+ GET /government/problems 200 in 132ms (next.js: 115ms, application-code: 16ms)
+ GET /government/problems/PRB-2026-003 200 in 248ms (next.js: 232ms, application-code: 16ms)
+ GET /government/search-problem 200 in 126ms (next.js: 114ms, application-code: 13ms)
+ GET /government/regulations 200 in 169ms (next.js: 150ms, application-code: 19ms)
+ GET /government/settings 200 in 296ms (next.js: 276ms, application-code: 20ms)

@@ -1,0 +1,140 @@
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
+⨯ ./lib/mockData.js:130:31
+Error: Unexpected token `ident`. Expected ... , *,  (, [, :, , ?, = or an identifier
+  [90m128 |[0m       areas: [[32m"Delhi NCR"[0m, [32m"Mumbai"[0m, [32m"Chennai"[0m],
+  [90m129 |[0m       businessConcentration: [32m"Concentrated in commercial clusters"[0m,
+[31m[1m>[0m [90m130 |[0m       severityByArea: { [33mDelhi[0m [33mNCR[0m: [32m"Critical"[0m, [33mMumbai[0m: [32m"High"[0m, [32m"Chennai"[0m: [32m"High"[0m },
+  [90m    |[0m                               [31m[1m^^^[0m
+  [90m131 |[0m     },
+  [90m132 |[0m     audits: [
+  [90m133 |[0m       { time: [32m"2026-09-10T16:40:00Z"[0m, actor: [32m"System"[0m, action: [32m"Verification evidence req...[0m
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Route:
+    ./lib/mockData.js
+    ./server/routes/meta.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+
