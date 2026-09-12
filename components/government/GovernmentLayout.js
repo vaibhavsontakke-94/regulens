@@ -5,8 +5,8 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import GovernmentProblemProvider from "./GovernmentProblemContext";
 import { ROLES } from "@/components/auth/roles";
-import { getSession } from "@/lib/authSession";
-import { govApi } from "@/lib/api";
+import { getSession, clearSession } from "@/lib/authSession";
+import { authApi, govApi } from "@/lib/api";
 import CopilotButton from "@/components/CopilotButton";
 import CopilotPanel from "@/components/CopilotPanel";
 
@@ -23,7 +23,19 @@ export default function GovernmentLayout({ title, children }) {
       router.replace("/government/login");
       return;
     }
-    setReady(true);
+    let cancelled = false;
+    authApi
+      .session()
+      .then(() => {
+        if (!cancelled) setReady(true);
+      })
+      .catch(() => {
+        clearSession();
+        if (!cancelled) router.replace("/government/login");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   if (!ready) {

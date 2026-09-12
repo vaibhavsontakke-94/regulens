@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { CheckCircle2, Cpu, Search } from "lucide-react";
 import GovernmentLayout from "@/components/government/GovernmentLayout";
 import PageHeader, { SectionCard } from "@/components/government/ui/PageHeader";
@@ -6,7 +7,8 @@ import ActiveProblemIntro from "@/components/government/ui/ActiveProblemIntro";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useGovernmentProblem } from "@/components/government/GovernmentProblemContext";
-import { govApi, handleApiError } from "@/lib/api";
+import { govApi, ApiError, handleApiError } from "@/lib/api";
+import { clearSession } from "@/lib/authSession";
 import { cx } from "@/lib/utils";
 
 const SCORE_BANDS = [
@@ -29,6 +31,7 @@ function ResultMeta({ label, value }) {
 }
 
 export default function SearchProblemPage() {
+  const router = useRouter();
   const { problem, setProblem } = useGovernmentProblem();
   const inputRef = useRef(null);
   const [problemInput, setProblemInput] = useState("");
@@ -78,6 +81,12 @@ export default function SearchProblemPage() {
       setResults(matches);
       setSummary(matches.length > 0 ? data.summary || "" : "");
     } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearSession();
+        setProblemInput("");
+        router.replace("/government/login");
+        return;
+      }
       setErrorText(handleApiError(err));
       setResults([]);
     } finally {

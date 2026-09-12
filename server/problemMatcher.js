@@ -133,13 +133,16 @@ export async function matchProblemProviders(title, { businesses = [], solutions 
   const catalog = businesses.map((b) => `${b.id} | ${b.name} | ${b.industry} | ${b.location} | impact ${b.impact} | risk ${b.risk}`).join("\n");
 
   try {
-    const reply = await groqChat({
-      system:
-        'You are the REGULENS problem matcher for Nigerian regulators. A government officer describes a regulatory problem. Using ONLY the provided catalog of businesses, choose up to 4 companies whose sector, location and recorded exposure make them the most relevant solution providers or affected businesses. Return ONLY valid JSON: {"summary": string (2-3 sentences on the problem context and the chosen providers), "matches": [{"id": string (exact catalog id), "name": string, "description": string (1 sentence), "technology": string (what kind of solution/technology they bring), "reasons": [array of 2-3 short strings], "priorityScore": integer 40-99, "expectedImpact": "High"|"Medium"|"Low", "costFit": "Good"|"Moderate"|"High", "experience": string}]}. Rank by relevance; never invent ids outside the catalog. No markdown.',
-      user: `PROBLEM: ${title}\n\nCATALOG:\n${catalog || "(no businesses yet)"}`,
-      maxTokens: 1600,
-      temperature: 0.3,
-    });
+    const reply = await Promise.race([
+      groqChat({
+        system:
+          'You are the REGULENS problem matcher for Nigerian regulators. A government officer describes a regulatory problem. Using ONLY the provided catalog of businesses, choose up to 4 companies whose sector, location and recorded exposure make them the most relevant solution providers or affected businesses. Return ONLY valid JSON: {"summary": string (2-3 sentences on the problem context and the chosen providers), "matches": [{"id": string (exact catalog id), "name": string, "description": string (1 sentence), "technology": string (what kind of solution/technology they bring), "reasons": [array of 2-3 short strings], "priorityScore": integer 40-99, "expectedImpact": "High"|"Medium"|"Low", "costFit": "Good"|"Moderate"|"High", "experience": string}]}. Rank by relevance; never invent ids outside the catalog. No markdown.',
+        user: `PROBLEM: ${title}\n\nCATALOG:\n${catalog || "(no businesses yet)"}`,
+        maxTokens: 1600,
+        temperature: 0.3,
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("match request timed out")), 30000)),
+    ]);
     const parsed = tryJson(reply);
     if (!parsed) {
       console.warn("[ai] problem-matches reply was not parseable JSON, using fallback.");
