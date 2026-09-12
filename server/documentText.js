@@ -90,6 +90,31 @@ async function extractDocx(buffer) {
   return String(result.value || "").trim();
 }
 
+export async function renderPdfPageImages(buffer, maxPages = 3) {
+  let pdfParse = null;
+  try {
+    const mod = await import("pdf-parse");
+    pdfParse = mod.PDFParse || (mod.default && mod.default.PDFParse);
+  } catch (err) {
+    console.error("[document] pdf-parse unavailable for page rendering:", err && err.message ? err.message : err);
+    return [];
+  }
+  if (!pdfParse) return [];
+  try {
+    const shot = await new pdfParse({ data: buffer }).getScreenshot();
+    const pages = (shot && shot.pages) || [];
+    const images = [];
+    for (const page of pages.slice(0, maxPages)) {
+      if (page && page.dataUrl) images.push(page.dataUrl);
+      else if (page && page.data && page.data.length) images.push(`data:image/png;base64,${page.data.toString("base64")}`);
+    }
+    return images;
+  } catch (err) {
+    console.error("[document] pdf page render failed:", err && err.message ? err.message : err);
+    return [];
+  }
+}
+
 export async function extractDocumentText(name, buffer) {
   const ext = extOf(name);
 

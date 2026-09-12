@@ -1,8 +1,8 @@
 import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { isEmpty, isEmail } from "../../lib/validators.js";
-import { groqWithFallback } from "../groq.js";
-import { extractDocumentText } from "../documentText.js";
+import { groqWithFallback, groqVision, groqAvailable } from "../groq.js";
+import { extractDocumentText, renderPdfPageImages } from "../documentText.js";
 import { runAiModule, runEvidenceAnalysis } from "../businessAi.js";
 
 export default async function businessRoutes(req, res, sub, user) {
@@ -357,6 +357,26 @@ export default async function businessRoutes(req, res, sub, user) {
 
 async function bizDocumentUnreadable(file, reason) {
   const label = String((file && file.name) || "document");
+  const name = String((file && file.name) || "").toLowerCase();
+  if (name.endsWith(".pdf") && file && file.base64) {
+    try {
+      const buffer = Buffer.from(String(file.base64), "base64");
+      const images = await renderPdfPageImages(buffer, 3);
+      if (images.length && groqAvailable()) {
+        const reply = await groqVision({
+          system:
+            "You are REGULENS Copilot, a compliance assistant for an Indian regulatory intelligence platform helping businesses stay compliant. The images are the pages of a scanned document uploaded by a business owner who wants a simple-language summary.",
+          prompt:
+            "Read the text inside the document images and summarise it in very simple, plain language with exactly these bullet sections: What this document is; The main points; What the business must do (obligations, deadlines, filings); Red flags or risks to watch for. Keep it short and use everyday words. If you cannot read the pages clearly, say so and tell the user what to do instead.",
+          images,
+          maxTokens: 1200,
+        });
+        if (reply) return reply;
+      }
+    } catch (err) {
+      console.warn("[document] LLM vision summary failed, falling back to guidance:", err && err.message ? err.message : err);
+    }
+  }
   return groqWithFallback(
     `The user uploaded "${label}" expecting a simple-language summary, but the server could not read the text from this file.\n\nWhy it failed: ${reason}\n\nRespond helpfully in plain, friendly language: (1) explain in one or two sentences why the file could not be summarised, (2) give the user two or three short steps they can do right now to get a summary (for example: export/save the file as a text-based PDF or Word document, make sure it is not a scanned image-only file, or paste the content directly into the chat), (3) keep the reply short and encouraging.`,
     {

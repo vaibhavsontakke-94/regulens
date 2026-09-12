@@ -2,12 +2,12 @@ import { db } from "../store.js";
 import { ok, created, badRequest, notFound, methodNotAllowed } from "../http.js";
 import { buildProblemIntelligence, PROBLEM_LIFECYCLE } from "../../lib/problemIntelligence.js";
 import { isEmail, isEmpty } from "../../lib/validators.js";
-import { groqWithFallback } from "../groq.js";
+import { groqWithFallback, groqVision } from "../groq.js";
 import { runTestAndScale } from "../govAi.js";
 import { matchProblemProviders } from "../problemMatcher.js";
 import { INDIA_STATES } from "../../lib/businessProfileData.js";
 import { INDIA_DISTRICTS, INDIA_DISTRICT_GROUPS } from "../../lib/indiaDistricts.js";
-import { extractDocumentText } from "../documentText.js";
+import { extractDocumentText, renderPdfPageImages } from "../documentText.js";
 
 const INDIA_PILOT_AREAS = new Set([
   "India",
@@ -402,7 +402,28 @@ async function intelligenceNarrative(title, businesses) {
 
 async function govDocumentUnreadable(file, reason, active) {
   const label = String((file && file.name) || "document");
-  const context = active ? `Active problem context: ${active.id} — ${active.title}` : "No active problem context.";
+  const name = String((file && file.name) || "").toLowerCase();
+  if (name.endsWith(".pdf") && file && file.base64) {
+    try {
+      const buffer = Buffer.from(String(file.base64), "base64");
+      const images = await renderPdfPageImages(buffer, 3);
+      if (images.length && groqAvailable()) {
+        const context = active
+          ? `Context: the user is a government analyst working on "${active.id} — ${active.title}".`
+          : "";
+        const reply = await groqVision({
+          system:
+            "You are REGULENS Copilot, a regulatory analyst assistant for an Indian regulatory intelligence platform. The images are the pages of a scanned document uploaded by a user who wants a simple-language summary.",
+          prompt: `${context}\n\nRead the text inside the document images and summarise it in very simple, plain language with exactly these bullet sections: What this document is; The main points; What the reader must do (obligations / action items); Red flags or risks to watch for. Keep it short and use everyday words. If you cannot read the pages clearly, say so and tell the user what to do instead.`,
+          images,
+          maxTokens: 1200,
+        });
+        if (reply) return reply;
+      }
+    } catch (err) {
+      console.warn("[document] LLM vision summary failed, falling back to guidance:", err && err.message ? err.message : err);
+    }
+  }
   return groqWithFallback(
     `${context}\n\nThe user uploaded "${label}" expecting a simple-language summary, but the server could not read the text from this file.\n\nWhy it failed: ${reason}\n\nRespond helpfully in plain, friendly language: (1) explain in one or two sentences why the file could not be summarised, (2) give the user two or three short steps they can do right now to get a summary (for example: export/save the file as a text-based PDF or Word document, make sure it is not a scanned image-only file, or paste the content directly into the chat), (3) keep the reply short and encouraging.`,
     {
