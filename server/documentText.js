@@ -29,17 +29,36 @@ function looksBinary(text) {
 }
 
 async function extractPdf(buffer) {
-  let mod = null;
+  let pdfParse = null;
   try {
-    mod = await import("pdf-parse");
-  } catch {
+    const mod = await import("pdf-parse");
+    pdfParse = mod.PDFParse || (mod.default && mod.default.PDFParse) || mod.default || null;
+  } catch (err) {
+    console.error("[document] pdf-parse v2 import failed:", err && err.message ? err.message : err);
+  }
+  if (!pdfParse) {
+    try {
+      const mod = await import("pdf-parse/lib/pdf-parse.js");
+      pdfParse = mod.default || mod.PDFParse || mod;
+    } catch (err) {
+      console.error("[document] pdf-parse v1 import failed:", err && err.message ? err.message : err);
+    }
+  }
+  if (!pdfParse) {
     throw new Error("PDF text extraction is not available on this server.");
   }
-  const PDFParse = mod.PDFParse || (mod.default && mod.default.PDFParse);
-  if (!PDFParse) throw new Error("PDF text extraction is not available on this server.");
-  const parser = new PDFParse({ data: buffer });
-  const result = await parser.getText();
-  return String((result && result.text) || "").trim();
+  try {
+    if (pdfParse.prototype && typeof pdfParse.prototype.getText === "function") {
+      const result = await new pdfParse({ data: buffer }).getText();
+      return String((result && result.text) || "").trim();
+    }
+    const data = await pdfParse(buffer);
+    return String((data && data.text) || "").trim();
+  } catch (err) {
+    throw new Error(
+      `The PDF could not be read (${err && err.message ? err.message : "parsing failed"}). If the file is a scanned image, extract the text to a TXT or DOCX file first.`
+    );
+  }
 }
 
 async function extractDocx(buffer) {
