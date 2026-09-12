@@ -383,5 +383,11 @@ function govFallbackReply(message, active) {
   if (/policy|regulation|act|law/i.test(text)) {
     return `Related instruments are attached to each problem. Review the Regulations and Policies modules for the active problem context.`;
   }
+  if (/^(hi|hello|hey|yo|hiya|howdy|good (morning|afternoon|evening)|greetings)\b/i.test(text) && text.length < 80) {
+    return `Hello! I'm the REGULENS Government Copilot. I can help you analyse problems by priority, find affected businesses, and review regulations, policies, evidence and reports in the workspace. What would you like to look into?`;
+  }
+  if (/thanks|thank you|thx/i.test(text)) {
+    return "You're welcome! Ask me about problems, businesses, policies or evidence anytime.";
+  }
   return `Here is a response to "${message}" based on the workspace data. I can detail problem priority, business matching, regulatory context and ground evidence if you narrow the question.`;
 }

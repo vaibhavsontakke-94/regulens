@@ -388,5 +388,12 @@ function bizFallbackReply(message, data) {
     const mandatory = data.certifications.filter((c) => c.mandatory && c.status !== "Active").map((c) => c.name).slice(0, 2);
     return `You hold ${held} of ${data.certifications.length} tracked certifications${mandatory.length ? `. Mandatory missing: ${mandatory.join(", ")}` : ""}.`;
   }
+  if (/^(hi|hello|hey|yo|hiya|howdy|good (morning|afternoon|evening)|greetings)\b/i.test(text) && text.length < 80) {
+    const pending = data.compliance.filter((c) => c.status !== "Compliant").length;
+    return `Hello! I'm the REGULENS Business Copilot. Right now your compliance health is ${data.healthScores.compliance}/100 with ${pending} obligation${pending === 1 ? "" : "s"} not yet compliant, and overall risk at ${data.healthScores.risk}/100. Ask me about compliance deadlines, risk exposure, certifications, government schemes or expansion readiness.`;
+  }
+  if (/thanks|thank you|thx/i.test(text)) {
+    return "You're welcome! Ask me anytime about your compliance, risk or expansion data.";
+  }
   return `Here's what I know about that: "${message}". I can walk through your compliance, risk or expansion data in more detail if you narrow the question.`;
 }

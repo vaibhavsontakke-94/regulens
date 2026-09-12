@@ -404,7 +404,7 @@ function buildFinancialImpact(profile, compliance) {
 
 function buildHealth(profile, compliance, riskCategories, expansion) {
   const hasProfile = Boolean(profile);
-  const compliant = pct(compliance.filter((c) => c.status === "Compliant").length, compliance.length);
+  const compliant = compliance.length ? pct(compliance.filter((c) => c.status === "Compliant").length, compliance.length) : 100;
   const riskPenalty = compliance.filter((c) => c.status === "Expired").length * 15 + compliance.filter((c) => c.status === "Action Required").length * 10 + compliance.filter((c) => c.status === "Under Review").length * 5;
   const risk = clamp(100 - riskPenalty - (riskCategories.filter((c) => c.status === "Elevated").length * 5));
 
