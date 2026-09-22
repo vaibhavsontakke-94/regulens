@@ -1,0 +1,128 @@
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `primary`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `warning`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[browser] Encountered two children with the same key, `danger`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+⚠ ./server/documentText.js:53:25
+Warning: Module not found: Can't resolve 'pdf-parse/lib/pdf-parse.js'
+  [90m51 |[0m   [36mif[0m (!pdfParse) {
+  [90m52 |[0m     [36mtry[0m {
+[33m[1m>[0m [90m53 |[0m       [36mconst[0m mod = [36mawait[0m [36mimport[0m([32m"pdf-parse/lib/pdf-parse.js"[0m);
+  [90m   |[0m                         [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m54 |[0m       pdfParse = mod.[36mdefault[0m || mod.[33mPDFParse[0m || mod;
+  [90m55 |[0m     } [36mcatch[0m (err) {
+  [90m56 |[0m       console.error([32m"[document] pdf-parse v1 import failed:"[0m, err && err.message ? err.mes...
+
+
+
+Import trace:
+  Route:
+    ./server/documentText.js
+    ./server/routes/business.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⚠ ./server/documentText.js:53:25
+Warning: Module not found: Can't resolve 'pdf-parse/lib/pdf-parse.js'
+  [90m51 |[0m   [36mif[0m (!pdfParse) {
+  [90m52 |[0m     [36mtry[0m {
+[33m[1m>[0m [90m53 |[0m       [36mconst[0m mod = [36mawait[0m [36mimport[0m([32m"pdf-parse/lib/pdf-parse.js"[0m);
+  [90m   |[0m                         [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m54 |[0m       pdfParse = mod.[36mdefault[0m || mod.[33mPDFParse[0m || mod;
+  [90m55 |[0m     } [36mcatch[0m (err) {
+  [90m56 |[0m       console.error([32m"[document] pdf-parse v1 import failed:"[0m, err && err.message ? err.mes...
+
+
+
+Import trace:
+  Route:
+    ./server/documentText.js
+    ./server/routes/business.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⚠ ./server/documentText.js:53:25
+Warning: Module not found: Can't resolve 'pdf-parse/lib/pdf-parse.js'
+  [90m51 |[0m   [36mif[0m (!pdfParse) {
+  [90m52 |[0m     [36mtry[0m {
+[33m[1m>[0m [90m53 |[0m       [36mconst[0m mod = [36mawait[0m [36mimport[0m([32m"pdf-parse/lib/pdf-parse.js"[0m);
+  [90m   |[0m                         [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m54 |[0m       pdfParse = mod.[36mdefault[0m || mod.[33mPDFParse[0m || mod;
+  [90m55 |[0m     } [36mcatch[0m (err) {
+  [90m56 |[0m       console.error([32m"[document] pdf-parse v1 import failed:"[0m, err && err.message ? err.mes...
+
+
+
+Import trace:
+  Route:
+    ./server/documentText.js
+    ./server/routes/business.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⚠ ./server/documentText.js:53:25
+Warning: Module not found: Can't resolve 'pdf-parse/lib/pdf-parse.js'
+  [90m51 |[0m   [36mif[0m (!pdfParse) {
+  [90m52 |[0m     [36mtry[0m {
+[33m[1m>[0m [90m53 |[0m       [36mconst[0m mod = [36mawait[0m [36mimport[0m([32m"pdf-parse/lib/pdf-parse.js"[0m);
+  [90m   |[0m                         [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m54 |[0m       pdfParse = mod.[36mdefault[0m || mod.[33mPDFParse[0m || mod;
+  [90m55 |[0m     } [36mcatch[0m (err) {
+  [90m56 |[0m       console.error([32m"[document] pdf-parse v1 import failed:"[0m, err && err.message ? err.mes...
+
+
+
+Import trace:
+  Route:
+    ./server/documentText.js
+    ./server/routes/business.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⚠ ./server/documentText.js:53:25
+Warning: Module not found: Can't resolve 'pdf-parse/lib/pdf-parse.js'
+  [90m51 |[0m   [36mif[0m (!pdfParse) {
+  [90m52 |[0m     [36mtry[0m {
+[33m[1m>[0m [90m53 |[0m       [36mconst[0m mod = [36mawait[0m [36mimport[0m([32m"pdf-parse/lib/pdf-parse.js"[0m);
+  [90m   |[0m                         [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m54 |[0m       pdfParse = mod.[36mdefault[0m || mod.[33mPDFParse[0m || mod;
+  [90m55 |[0m     } [36mcatch[0m (err) {
+  [90m56 |[0m       console.error([32m"[document] pdf-parse v1 import failed:"[0m, err && err.message ? err.mes...
+
+
+
+Import trace:
+  Route:
+    ./server/documentText.js
+    ./server/routes/business.js
+    ./server/api.js
+    ./pages/api/[[...path]].js
+
+https://nextjs.org/docs/messages/module-not-found
+
+

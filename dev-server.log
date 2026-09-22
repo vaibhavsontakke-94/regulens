@@ -9,3 +9,7 @@
  GET / 304 in 243ms (next.js: 28ms, application-code: 215ms)
  GET /government/copilot 304 in 421ms (next.js: 406ms, application-code: 15ms)
  GET /government/copilot 304 in 458ms (next.js: 438ms, application-code: 20ms)
+ GET / 304 in 712ms (next.js: 68ms, application-code: 644ms)
+ POST /api/auth/firebase-session 200 in 2.2s (next.js: 831ms, application-code: 1400ms)
+ GET /api/government/problems 200 in 115ms (next.js: 32ms, application-code: 83ms)
+ GET /api/government/problems 200 in 100ms (next.js: 56ms, application-code: 44ms)
