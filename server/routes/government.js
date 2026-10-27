@@ -5,6 +5,9 @@ import { isEmail, isEmpty } from "../../lib/validators.js";
 import { groqWithFallback, groqVision } from "../groq.js";
 import { runTestAndScale } from "../govAi.js";
 import { matchProblemProviders } from "../problemMatcher.js";
+import { EMBEDDING_API_KEY } from "../../.env";
+import { VectorStore } from "../../server/vectorStore.js";
+import { ragChat } from "../../server/rag.js";
 import { INDIA_STATES } from "../../lib/businessProfileData.js";
 import { INDIA_DISTRICTS, INDIA_DISTRICT_GROUPS } from "../../lib/indiaDistricts.js";
 import { extractDocumentText, renderPdfPageImages } from "../documentText.js";
@@ -463,7 +466,48 @@ async function govDocumentSummary(document, active, label = "") {
   });
 }
 
+let ragStore = null;
+
+function getRagStore(workspaceId = "government-demo") {
+  if (!ragStore) {
+    ragStore = new VectorStore(768);
+  }
+  ragStore.setWorkspace(workspaceId);
+  // Hydrate from existing problems if store is empty
+  if (ragStore.vectors.size === 0) {
+    // Hydrate from existing problems
+    for (const p of db.state.problems) {
+      await ragStore.add(`${p.title} ${p.summary || ""} ${p.location || ""}`, {
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        severity: p.severity,
+      });
+    }
+    // Also add solutions, regulations, policies as text for context
+    for (const s of db.state.solutions) {
+      await ragStore.add(`${s.name} ${s.technology || ""}`, { type: "solution", id: s.id });
+    }
+    for (const r of db.state.regulations) {
+      await ragStore.add(`${r.title} ${r.id}`, { type: "regulation", id: r.id });
+    }
+    for (const p of db.state.policies) {
+      await ragStore.add(`${p.title} ${p.id}`, { type: "policy", id: p.id });
+    }
+  }
+  return ragStore;
+}
+
 async function govCopilot(message, active) {
+  // 1. Retrieve relevant documents using RAG
+  const store = getRagStore();
+  const ragResult = await ragChat({
+    question: message,
+    store,
+    topK: 3,
+  });
+
+  // 2. Build enhanced workspace context
   const priority = (scores = {}) => {
     const total =
       (scores.severity || 0) * 20 +
@@ -475,6 +519,7 @@ async function govCopilot(message, active) {
       (scores.geographic || 0) * 10;
     return Math.round(total / 70);
   };
+
   const workspace = {
     problems: db.state.problems.map((p) => ({
       id: p.id,
@@ -511,10 +556,27 @@ async function govCopilot(message, active) {
           solutions: (active.solutions || []).map((s) => s.name),
         }
       : null,
+    ragContext: ragResult.answer ? `Relevant context: ${ragResult.answer}` : null,
+    ragSources: ragResult.sources,
   };
+
+  const systemPrompt = [
+    "You are the REGULENS Government Copilot — an AI assistant for Indian regulators using the REGULENS regulatory intelligence workspace.",
+    "Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided.",
+    "Give SHORT, SIMPLE, CLEAN answers: 1-3 plain-text sentences maximum, no markdown, no bold, no stars, no tables, no bullet lists.",
+    "Lead with the direct answer in one line.",
+    "If you lack data, say so in one short sentence.",
+    "",
+    "RAG retrieved context:",
+    ...(ragResult.sources.length > 0
+      ? ragResult.sources.map(
+          (s) => `- Document (similarity: ${s.score.toFixed(3)}): ${s.text.substring(0, 150).replace(/\n/g, " ")}...`
+        )
+      : ["(no relevant documents retrieved)"]),
+  ].join("\n");
+
   return groqWithFallback(`${JSON.stringify(workspace, null, 2)}\n\nQuestion: ${message}`, {
-    system:
-      "You are the REGULENS Government Copilot — an AI assistant for Indian regulators using the REGULENS regulatory intelligence workspace. Answer questions about regulatory problems, affected businesses, regulations, policies, solutions, evidence and reports using ONLY the workspace context provided. Give SHORT, SIMPLE, CLEAN answers: 1-3 plain-text sentences maximum, no markdown, no bold, no stars, no tables, no bullet lists. Lead with the direct answer in one line. If you lack data, say so in one short sentence.",
+    system: systemPrompt,
     maxTokens: 250,
     fallback: () => govFallbackReply(message, active),
   });
